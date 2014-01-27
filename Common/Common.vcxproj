@@ -75,10 +75,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="include\SDLApplication.h" />
+    <ClInclude Include="include\app\SDLApplication.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\SDLApplication.cpp" />
+    <ClCompile Include="src\app\SDLApplication.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
