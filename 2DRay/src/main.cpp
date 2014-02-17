@@ -4,14 +4,10 @@ using namespace vlr;
 
 int main(int argc, char** argv)
 {
-	Ray2D application;
+	Ray2D app;
 
-	// Loop while application running
-	while (application.isRunning())
+	while (app.isRunning())
 	{
-		// Update and render application
-		application.run();
+		app.run();
 	}
-
-	return 0;
 }
