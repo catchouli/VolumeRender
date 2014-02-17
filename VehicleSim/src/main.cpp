@@ -1,10 +1,10 @@
-#include "Ray2D.h"
+#include "VehicleSim.h"
 
 using namespace vlr;
 
 int main(int argc, char** argv)
 {
-	Ray2D app;
+	VehicleSim app;
 
 	while (app.isRunning())
 	{
