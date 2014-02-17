@@ -1,0 +1,7 @@
+*.sdf
+/*.suo
+/*.opensdf
+/obj
+/bin
+/Common/*.user
+/2DRay/*.user
