@@ -11,9 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{E164C7DE-82BB-47D6-BF90-C70DD3674A25}</ProjectGuid>
+    <ProjectGuid>{763B06D8-EF59-429E-BAC1-C7D893760DA7}</ProjectGuid>
     <RootNamespace>My2DRay</RootNamespace>
-    <ProjectName>VehicleSim</ProjectName>
+    <ProjectName>CudaTest</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -31,6 +31,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 5.5.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -52,15 +53,23 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>include;$(SolutionDir)\common\include;$(SolutionDir)\dep\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include;$(SolutionDir)\common\include;$(SolutionDir)\dep\include;$(CUDA_PATH)\include</AdditionalIncludeDirectories>
       <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS /D GLM_FORCE_RADIANS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)\dep\lib;$(SolutionDir)\bin\$(Configuration)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3dll.lib;glew32.lib;Common.lib;opengl32.lib;RocketCore.lib;FreeImage.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\dep\lib;$(SolutionDir)\bin\$(Configuration);$(CUDA_PATH)\lib\$(PlatformName)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3dll.lib;glew32.lib;Common.lib;opengl32.lib;cudart.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
+    <CudaCompile>
+      <Include>
+      </Include>
+      <CodeGeneration>compute_35,sm_35</CodeGeneration>
+    </CudaCompile>
+    <PostBuildEvent>
+      <Command>COPY $(SolutionDir)dist $(OutDir)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -69,34 +78,49 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>include;$(SolutionDir)\common\include;$(SolutionDir)\dep\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include;$(SolutionDir)\common\include;$(SolutionDir)\dep\include;$(CUDA_PATH)\include</AdditionalIncludeDirectories>
       <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS /D GLM_FORCE_RADIANS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(SolutionDir)\dep\lib;$(SolutionDir)\bin\$(Configuration)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3dll.lib;glew32.lib;Common.lib;opengl32.lib;RocketCore.lib;FreeImage.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\dep\lib;$(SolutionDir)\bin\$(Configuration);$(CUDA_PATH)\lib\$(PlatformName)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3dll.lib;glew32.lib;Common.lib;opengl32.lib;cudart.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>
+    <CudaCompile>
+      <Include>
+      </Include>
+      <CodeGeneration>compute_35,sm_35</CodeGeneration>
+    </CudaCompile>
+    <PostBuildEvent>
+      <Command>COPY $(SolutionDir)dist $(OutDir)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\input\InputConverter.cpp" />
-    <ClCompile Include="src\input\KeyMap.cpp" />
-    <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\rendering\RocketRenderer.cpp" />
-    <ClCompile Include="src\system\RocketSystem.cpp" />
-    <ClCompile Include="src\VehicleSim.cpp" />
+    <CudaCompile Include="src\main.cu">
+      <FileType>Document</FileType>
+      <HostDebugInfo Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</HostDebugInfo>
+      <GPUDebugInfo Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</GPUDebugInfo>
+    </CudaCompile>
+    <CudaCompile Include="src\CudaTest.cu">
+      <FileType>Document</FileType>
+      <HostDebugInfo Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</HostDebugInfo>
+      <GPUDebugInfo Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</GPUDebugInfo>
+      <CodeGeneration Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">compute_20,sm_21</CodeGeneration>
+      <CodeGeneration Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">compute_30,sm_30</CodeGeneration>
+    </CudaCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\Input\InputConverter.h" />
-    <ClInclude Include="include\rendering\RocketRenderer.h" />
-    <ClInclude Include="include\System\RocketSystem.h" />
-    <ClInclude Include="include\VehicleSim.h" />
+    <ClInclude Include="include\CudaTest.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\blank.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 5.5.targets" />
   </ImportGroup>
 </Project>

@@ -93,6 +93,8 @@ namespace vlr
 		_camera.perspective((float)(3.14159265358 / 2.0), aspect, 0.01f, 100.0f);
 		_camera.translate(glm::vec3(0, 0, 10.0f));
 
+		_mvp = _camera.getMVP();
+
 		// Generate grid
 		genGrid();
 
@@ -218,8 +220,11 @@ namespace vlr
 			glVertex3f(lastraypos.x, lastraypos.y, lastraypos.z);
 			glVertex3f(nextraypos.x, nextraypos.y, nextraypos.z);
 		glEnd();
+
+		// Calculate MVP matrix for frame
+		_mvp = _camera.getMVP();
 		
-		if (glfwGetKey(_window, GLFW_KEY_F))
+		if (!glfwGetKey(_window, GLFW_KEY_F))
 		{
 			int width = getWidth();
 			int height = getHeight();
@@ -252,7 +257,7 @@ namespace vlr
 			_fb.render();
 		}
 		
-		if (!glfwGetKey(_window, GLFW_KEY_G))
+		if (glfwGetKey(_window, GLFW_KEY_G))
 		{
 			int width = getWidth();
 			int height = getHeight();
@@ -439,7 +444,7 @@ namespace vlr
 		y = temp;
 	}
 
-	Ray2D::Ray Ray2D::screenPointToRay(int x, int y)
+	Ray2D::Ray Ray2D::screenPointToRay(int x, int y, glm::mat4& mvp)
 	{
 		Ray ray;
 
@@ -449,25 +454,33 @@ namespace vlr
 		// Convert x and y to viewport space
 		float width = getWidth();
 		float height = getHeight();
-		float normx = x / width;
-		float normy = y / height;
+		
+		float vx = (2 * x - width) / width;
+		float vy = (2 * y - height) / height;
 
-		float xvs = normx * 2.0f - 1.0f;
-		float yvs = normy * 2.0f - 1.0f;
-		float zvs = 0.01f;
+		const float PI = 3.1415926535897f;
+		const float FOV = PI / 4.0f;
+		
+		float dx = vx * tan(FOV);
+		float dy = vy * tan(FOV);
+		float dz = -1;
 
-		glm::vec4 viewpoint(xvs, yvs, zvs, 1);
-		glm::vec4 world = viewpoint * _camera.getMVP();
-		glm::vec3 dir = glm::normalize(glm::vec3(world));
+		float magnitude = sqrt(dx * dx + dy * dy + dz * dz);
+		
+		dx /= magnitude;
+		dy /= magnitude;
+		dz /= magnitude;
 
-		ray.direction = dir;
+		glm::vec3 dir2(dx, dy, dz);
+
+		ray.direction = dir2;
 
 		return ray;
 	}
 
 	bool Ray2D::raycastScreenPointGrid(int x, int y)
 	{
-		Ray2D::Ray ray = screenPointToRay(x, y);
+		Ray2D::Ray ray = screenPointToRay(x, y, _mvp);
 
 		lastraypos = ray.origin;
 		lastraydir = ray.direction;
@@ -481,25 +494,28 @@ namespace vlr
 #define ray2d_min3(x, y, z) (ray2d_min(x, y) < z ? ray2d_min(x, y) : z)
 #define ray2d_max(x, y) (x > y ? x : x)
 #define ray2d_max3(x, y, z) (ray2d_max(x, y) > z ? ray2d_max(x, y) : z)
-
-#define ray2d_t(x, i) ((x - origin.i) / direction.i)
 		
 		int xmin = 0, ymin = 0, zmin = 0;
 		int xmax = RAY2D_GRID_WIDTH;
 		int ymax = RAY2D_GRID_HEIGHT;
 		int zmax = RAY2D_GRID_DEPTH;
-		
-		int dxsign = (direction.x > 0 ? 1 : -1);
-		int dysign = (direction.y > 0 ? 1 : -1);
-		int dzsign = (direction.z > 0 ? 1 : -1);
-		
-		float txmin = ray2d_t(xmin, x);
-		float tymin = ray2d_t(ymin, y);
-		float tzmin = ray2d_t(zmin, z);
 
-		float txmax = ray2d_t(xmax, x);
-		float tymax = ray2d_t(ymax, y);
-		float tzmax = ray2d_t(zmax, z);
+		// Calculate coefficients for t value calculations
+		float xcoeff = 1.0f / direction.x;
+		float ycoeff = 1.0f / direction.y;
+		float zcoeff = 1.0f / direction.z;
+		
+		float xoffset = -(origin.x / direction.x);
+		float yoffset = -(origin.y / direction.y);
+		float zoffset = -(origin.z / direction.z);
+		
+		float txmin = xmin * xcoeff + xoffset;
+		float tymin = ymin * ycoeff + yoffset;
+		float tzmin = zmin * zcoeff + zoffset;
+
+		float txmax = xmax * xcoeff + xoffset;
+		float tymax = ymax * ycoeff + yoffset;
+		float tzmax = zmax * zcoeff + zoffset;
 
 		if (txmin > txmax)
 			swap(txmin, txmax);
@@ -521,7 +537,7 @@ namespace vlr
 		int y = (int)pos.y;
 		int z = (int)pos.z;
 
-		while (t < tmax)
+		while (t <= tmax)
 		{
 			//int nextx = x+dxsign;
 			//int nexty = y+dysign;
@@ -598,7 +614,7 @@ namespace vlr
 
 	bool Ray2D::raycastScreenPointOctree(int x, int y)
 	{
-		Ray point = screenPointToRay(x, y);
+		Ray point = screenPointToRay(x, y, _mvp);
 
 		return raycastOctree(point.origin, point.direction);
 	}
@@ -621,6 +637,80 @@ namespace vlr
 			return -value;
 	}
 
+			//common::OctNode* parent = _tree.root;
+
+		//auto getpos = [] (char idx) -> Pos
+		//{
+		//	Pos pos;
+		//	
+		//	pos.x = (idx & 1) == 1;
+		//	pos.y = (idx & 2) == 2;
+		//	pos.z = (idx & 4) == 4;
+
+		//	return pos;
+		//};
+
+		//auto getidx = [] (Pos pos) -> char
+		//{
+		//	char idx = 0;
+
+		//	idx |= pos.x;
+		//	idx |= pos.y << 1;
+		//	idx |= pos.z << 2;
+
+		//	return idx;
+		//};
+
+		//auto advance = [&getidx] (glm::vec3& min, glm::vec3& max,
+		//	glm::vec3& origin, glm::vec3& direction, int tmax, Pos& pos)
+		//	-> char
+		//{
+		//	char idx = 0;
+		//	
+		//	idx = getidx(pos);
+
+		//	// Evaluate t at max
+		//	float tcx = ray2d_t(max.x, x);
+		//	float tcy = ray2d_t(max.y, y);
+		//	float tcz = ray2d_t(max.z, z);
+
+		//	// Compare against tmax to get new positions
+		//	idx ^= (tcx == tmax) << 0;
+		//	idx ^= (tcy == tmax) << 1;
+		//	idx ^= (tcz == tmax) << 2;
+
+		//	return idx;
+		//};
+
+		//auto push = [] (glm::vec3& min, glm::vec3& max,
+		//	glm::vec3& origin, glm::vec3& direction, int tmin) -> char
+		//{
+		//	char idx = 0;
+
+		//	// Evaluate t at centre
+		//	glm::vec3& centre = min + (max - min) * 0.5f;
+		//	float tcx = ray2d_t(centre.x, x);
+		//	float tcy = ray2d_t(centre.y, y);
+		//	float tcz = ray2d_t(centre.z, z);
+
+		//	// Compare against tmax to get new positions
+		//	idx |= (tcx == tmin) << 0;
+		//	idx |= (tcy == tmin) << 1;
+		//	idx |= (tcz == tmin) << 2;
+
+		//	return idx;
+		//};
+
+		////for (int i = 0; i < 8; ++i)
+		////{
+		////	Pos pos = getpos(i);
+		////	char idx = getidx(pos);
+		////	std::cout << "idx: " << (int)idx << ", pos: " << pos.x << ", " << pos.y << ", " <<
+		////		pos.z << std::endl;
+		////}
+
+		//// Project cube so that it's between (0, 0) and (1, 1)
+
 	bool Ray2D::raycastOctree(glm::vec3 origin, glm::vec3 direction)
 	{
 		struct Pos
@@ -630,11 +720,13 @@ namespace vlr
 
 		struct StackEntry
 		{
-			common::OctNode parent;
+			common::OctNode* parent;
+			glm::vec3 rayPos;
 			Pos pos;
 		};
 
-		StackEntry* stack = new StackEntry[_tree.depth];
+		const int scale_max = 23;
+		StackEntry stack[scale_max];
 
 		const float minf = 0.0001f;
 		
@@ -642,44 +734,50 @@ namespace vlr
 		if (abs(direction.y) < minf) direction.y = sign(direction.y) * minf;
 		if (abs(direction.z) < minf) direction.z = sign(direction.z) * minf;
 
-		int xmin = _tree.min.x;
-		int ymin = _tree.min.y;
-		int zmin = _tree.min.z;
-		int xmax = _tree.max.x;
-		int ymax = _tree.max.y;
-		int zmax = _tree.max.z;
+		// Project cube so that it's between (0, 0, 0) and (1, 1, 1)
+		glm::vec3 size = _tree.max - _tree.min;
+
+		// Move min to 0, 0, 0 & scale down
+		glm::vec3 min(0, 0, 0);
+		glm::vec3 max(1, 1, 1);
+
+		// Scale down ray origin & direction
+		direction.x /= size.x;
+		direction.y /= size.y;
+		direction.z /= size.z;
+		direction = glm::normalize(direction);
+
+		origin.x /= size.x;
+		origin.y /= size.y;
+		origin.z /= size.z;
+
+		int xmin = min.x;
+		int ymin = min.y;
+		int zmin = min.z;
+		int xmax = max.x;
+		int ymax = max.y;
+		int zmax = max.z;
 		
 		int dxsign = (direction.x > 0 ? 1 : -1);
 		int dysign = (direction.y > 0 ? 1 : -1);
 		int dzsign = (direction.z > 0 ? 1 : -1);
+
+		// Calculate coefficients for t value calculations
+		float xcoeff = 1.0f / direction.x;
+		float ycoeff = 1.0f / direction.y;
+		float zcoeff = 1.0f / direction.z;
 		
-		float txmin = ray2d_t(xmin, x);
-		float tymin = ray2d_t(ymin, y);
-		float tzmin = ray2d_t(zmin, z);
-
-		float txmax = ray2d_t(xmax, x);
-		float tymax = ray2d_t(ymax, y);
-		float tzmax = ray2d_t(zmax, z);
-
-		//// Make sure this hits the root
-		//// Calculate the min and max positions of the root
-		//glm::vec3 min(xmin, ymin, zmin);
-		//glm::vec3 max(xmax, ymax, zmax);
-
-		//// Calculate min and max points of ray at boundaries
-		//glm::vec3 raymin(txmin, tymin, tzmin);
-		//glm::vec3 raymax(txmax, tymax, tzmax);
-		//
-		//raymin *= direction;
-		//raymax *= direction;
-
-		//raymin += origin;
-		//raymax += origin;
+		float xoffset = -(origin.x / direction.x);
+		float yoffset = -(origin.y / direction.y);
+		float zoffset = -(origin.z / direction.z);
 		
-		//// Check they're within the boundaries of the root node
-		//if (raymin.x < min.x || raymin.y < min.y || raymin.z < min.z ||
-		//	raymax.x > max.x || raymax.y > max.y || raymax.z > max.z)
-		//	return false;
+		float txmin = xmin * xcoeff + xoffset;
+		float tymin = ymin * ycoeff + yoffset;
+		float tzmin = zmin * zcoeff + zoffset;
+
+		float txmax = xmax * xcoeff + xoffset;
+		float tymax = ymax * ycoeff + yoffset;
+		float tzmax = zmax * zcoeff + zoffset;
 		
 		if (txmin > txmax)
 			swap(txmin, txmax);
@@ -693,88 +791,56 @@ namespace vlr
 		float tmin = ray2d_max3(txmin, tymin, tzmin);
 		float tmax = ray2d_min3(txmax, tymax, tzmax);
 
-		common::OctNode* parent = _tree.root;
-
-		auto getpos = [] (char idx) -> Pos
-		{
-			Pos pos;
-			
-			pos.x = (idx & 1) == 1;
-			pos.y = (idx & 2) == 2;
-			pos.z = (idx & 4) == 4;
-
-			return pos;
-		};
-
-		auto getidx = [] (Pos pos) -> char
-		{
-			char idx = 0;
-
-			idx |= pos.x;
-			idx |= pos.y << 1;
-			idx |= pos.z << 2;
-
-			return idx;
-		};
-
-		auto advance = [&getidx] (glm::vec3& min, glm::vec3& max,
-			glm::vec3& origin, glm::vec3& direction, int tmax, Pos& pos)
-			-> char
-		{
-			char idx = 0;
-			
-			idx = getidx(pos);
-
-			// Evaluate t at max
-			float tcx = ray2d_t(max.x, x);
-			float tcy = ray2d_t(max.y, y);
-			float tcz = ray2d_t(max.z, z);
-
-			// Compare against tmax to get new positions
-			idx ^= (tcx == tmax) << 0;
-			idx ^= (tcy == tmax) << 1;
-			idx ^= (tcz == tmax) << 2;
-
-			return idx;
-		};
-
-		auto push = [] (glm::vec3& min, glm::vec3& max,
-			glm::vec3& origin, glm::vec3& direction, int tmin) -> char
-		{
-			char idx = 0;
-
-			// Evaluate t at centre
-			glm::vec3& centre = min + (max - min) * 0.5f;
-			float tcx = ray2d_t(centre.x, x);
-			float tcy = ray2d_t(centre.y, y);
-			float tcz = ray2d_t(centre.z, z);
-
-			// Compare against tmax to get new positions
-			idx |= (tcx == tmin) << 0;
-			idx |= (tcy == tmin) << 1;
-			idx |= (tcz == tmin) << 2;
-
-			return idx;
-		};
-
 		float t = tmin;
+		float h = tmax;
 
-		for (int i = 0; i < 8; ++i)
+		StackEntry parent;
+		parent.parent = _tree.root;
+		parent.rayPos = origin;
+
+		int scale = scale_max - 1;
+
+		// Get first child
+		int idx = 0;
+
+		// Evaluate t at centre
+		float tcx = 0.5f * xcoeff + xoffset;
+		float tcy = 0.5f * ycoeff + yoffset;
+		float tcz = 0.5f * zcoeff * zoffset;
+
+		glm::vec3 pos;
+
+		// Compare to get idx
+		if (tcx == tmin)
 		{
-			Pos pos = getpos(i);
-			char idx = getidx(pos);
-			std::cout << "idx: " << (int)idx << ", pos: " << pos.x << ", " << pos.y << ", " <<
-				pos.z << std::endl;
+			idx |= 1 << 0;
+			pos.x = 0.5f;
 		}
-				
-		while (t < tmax)
+		if (tcy == tmin)
 		{
-
-
-			int i = 0;
+			idx |= 1 << 1;
+			pos.y = 0.5f;
+		}
+		if (tcz == tmin)
+		{
+			idx |= 1 << 2;
+			pos.z = 0.5f;
 		}
 
-		delete[] stack;
+		while (scale < scale_max)
+		{
+			// Calculate tmax for child at corner
+			float tx_corner = pos.x * xcoeff + xoffset;
+			float ty_corner = pos.y * ycoeff + yoffset;
+			float tz_corner = pos.z * zcoeff + zoffset;
+			float tc_max = ray2d_min(ray2d_min(tx_corner, ty_corner), tz_corner);
+
+			if (parent.parent->children[idx] && tmin < tmax)
+			{
+
+			}
+		}
+
 		return false;
 	}
 

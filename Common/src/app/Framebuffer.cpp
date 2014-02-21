@@ -69,6 +69,9 @@ namespace vlr
 		{
 			if (_pointer != nullptr)
 			{
+				// Bind texture
+				glBindTexture(GL_TEXTURE_2D, _texid);
+
 				// Update texture
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, _width, _height, 0, GL_RGBA, GL_UNSIGNED_BYTE, _pointer);
 
@@ -81,7 +84,8 @@ namespace vlr
 				// Bind default framebuffer
 				glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 
-				
+				// Unbind texture
+				glBindTexture(GL_TEXTURE_2D, 0);
 			}
 		}
 	}

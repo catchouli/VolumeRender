@@ -15,6 +15,7 @@
     <ClCompile Include="src\app\Framebuffer.cpp" />
     <ClCompile Include="src\rendering\Camera.cpp" />
     <ClCompile Include="src\rendering\Mesh.cpp" />
+    <ClCompile Include="src\resources\Image.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\app\Application.h" />
@@ -23,6 +24,8 @@
     <ClInclude Include="include\rendering\Mesh.h" />
     <ClInclude Include="include\rendering\OctNode.h" />
     <ClInclude Include="include\rendering\Octree.h" />
+    <ClInclude Include="include\resources\Image.h" />
+    <ClInclude Include="include\util\Util.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{8563CE39-78FA-4500-8E85-8D53F8929BF1}</ProjectGuid>

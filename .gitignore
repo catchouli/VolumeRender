@@ -7,3 +7,6 @@
 /2DRay/*.user
 
 *.user
+*.psess
+*.vsp
+*.pdb

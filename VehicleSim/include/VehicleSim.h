@@ -4,10 +4,11 @@
 // Application headers
 #include "app/Application.h"
 #include "rendering/Camera.h"
+#include "app/Framebuffer.h"
 
 // Rocket interfaces
 #include "system/RocketSystem.h"
-#include "rendering/ShellRenderInterfaceOpenGL.h"
+#include "rendering/RocketRenderer.h"
 #include "input/InputConverter.h"
 
 // Standard headers
@@ -37,20 +38,25 @@ namespace vlr
 			double y);
 		static void scroll_callback(GLFWwindow* window,
 			unsigned int codepoint);
+		static void resize_callback(GLFWwindow* window,
+			int width, int height);
 
 	protected:
 		VehicleSim(const VehicleSim&);
 
+		void resize(int width, int height);
+
 	private:
 		// Camera
 		common::Camera _camera;
+		float _width, _height, _aspect;
 
 		// Rocket
 		InputConverter _inputConverter;
 		Rocket::Core::Context* _rocketContext;
 		Rocket::Core::ElementDocument* _document;
 		RocketSystem _rocketSystem;
-		ShellRenderInterfaceOpenGL _rocketRenderer;
+		RocketRenderer _rocketRenderer;
 	};
 
 }

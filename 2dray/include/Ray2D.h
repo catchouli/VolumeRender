@@ -53,7 +53,7 @@ namespace vlr
 			glm::vec3 direction;
 		};
 
-		Ray screenPointToRay(int x, int y);
+		Ray screenPointToRay(int x, int y, glm::mat4& mvp);
 
 	private:
 		double _mouseX, _mouseY;
@@ -79,6 +79,8 @@ namespace vlr
 
 		glm::vec3 lastraypos;
 		glm::vec3 lastraydir;
+
+		glm::mat4 _mvp;
 	};
 
 }
