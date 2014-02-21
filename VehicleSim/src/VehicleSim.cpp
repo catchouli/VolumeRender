@@ -1,9 +1,14 @@
 #include "VehicleSim.h"
 
 #include <Rocket/Core.h>
+#include <iostream>
+
+#include <util/Util.h>
 
 namespace vlr
 {
+	const char* fontDir = "assets/fonts";
+
 	VehicleSim::VehicleSim()
 		: Application(800, 600)
 	{
@@ -11,15 +16,8 @@ namespace vlr
  		glfwSetCursorPosCallback(_window, mouse_move_callback);
 		glfwSetMouseButtonCallback(_window, mouse_callback);
 		glfwSetKeyCallback(_window, key_callback);
-
-		// Initialise camera
-		int width = getWidth();
-		int height = getHeight();
-		float aspect = (float)width / (float)height;
-
-		_camera.setViewport(0, 0, width, height);
-		_camera.perspective((float)(3.14159265358 / 2.0), aspect, 0.01f, 100.0f);
-		_camera.translate(glm::vec3(0, 0, 10.0f));
+		glfwSetScrollCallback(_window, scroll_callback);
+		glfwSetWindowSizeCallback(_window, resize_callback);
 
 		// Initialise Rocket
 		Rocket::Core::SetSystemInterface(&_rocketSystem);
@@ -29,10 +27,26 @@ namespace vlr
 		{
 			fprintf(stderr, "Failed to initialise librocket\n");
 		}
+
+		// Load fonts
+		std::vector<std::string> fonts = common::filesInDir(fontDir);
+
+		for (auto it = fonts.begin(); it != fonts.end(); ++it)
+		{
+			if (*it != "." && *it != "..")
+			{
+				std::string fontFile = fontDir + std::string("/") + *it;
+				Rocket::Core::FontDatabase::LoadFontFace(Rocket::Core::String(fontFile.c_str()));
+			}
+		}
 		
 		// Create Rocket context
 		_rocketContext = Rocket::Core::CreateContext("default",
-			Rocket::Core::Vector2i(width, height));
+			Rocket::Core::Vector2i(getWidth(), getHeight()));
+
+		// Initialise camera & viewport etc
+		resize(getWidth(), getHeight());
+		_camera.translate(glm::vec3(0, 0, 10.0f));
 
 		// Load document
 		_document = _rocketContext->LoadDocument("assets/demo.rml");
@@ -63,7 +77,7 @@ namespace vlr
 	void VehicleSim::render()
 	{
 		// Clear screen
-		glClearColor(1.0f, 0.0f, 1.0f, 0.0f);
+		glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		// Update opengl matrices
@@ -73,25 +87,33 @@ namespace vlr
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 
-		// Render
-		//glBegin(GL_QUADS);
-		//glColor3f(1.0f, 1.0f, 1.0f);
-		//glVertex3f(0, 0, 0);
-		//glVertex3f(1, 0, 0);
-		//glVertex3f(1, 1, 0);
-		//glVertex3f(0, 1, 0);
-		//glEnd();
-
 		// Reset matrices
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		glOrtho(0, getWidth(), getHeight(), 0, 0, 1000.0f);
+		float width = (float)_width;
+		float height = (float)_height;
+		glOrtho(0, width, height, 0, 0, 1000.0f);
 
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 
 		// Render Rocket
 		_rocketContext->Render();
+	}
+
+	void VehicleSim::resize(int width, int height)
+	{
+		_rocketContext->SetDimensions(Rocket::Core::Vector2i(width, height));
+		_rocketRenderer.setSize(width, height);
+
+		_width = getWidth();
+		_height = getHeight();
+		_aspect = (float)_width / (float)_height;
+
+		_camera.setViewport(0, 0, _width, _height);
+		_camera.orthographic(10, _aspect);
+		//_camera.perspective((float)(3.14159265358 / 2.0), aspect, 0.01f, 100.0f);
+
 	}
 
 	void VehicleSim::mouse_callback(GLFWwindow* window, int button,
@@ -116,7 +138,7 @@ namespace vlr
 		Rocket::Core::Context* context = app->_rocketContext;
 
 		// Update rocket
-		context->ProcessMouseMove(x, y, 0);
+		context->ProcessMouseMove((int)x, (int)y, 0);
 	}
 
 	void VehicleSim::key_callback(GLFWwindow* window, int key,
@@ -156,5 +178,14 @@ namespace vlr
 
 		// Update rocket
 		context->ProcessTextInput(codepoint);
+	}
+	
+	void VehicleSim::resize_callback(GLFWwindow* window,
+			int width, int height)
+	{
+		// Get class instance
+		VehicleSim* app = (VehicleSim*)glfwGetWindowUserPointer(window);
+
+		app->resize(width, height);
 	}
 }
