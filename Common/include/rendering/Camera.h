@@ -11,6 +11,17 @@ namespace vlr
 {
 	namespace common
 	{
+		struct Viewport
+		{
+			int x, y, w, h;
+
+			bool pointInViewport(int x, int y)
+			{
+				return x >= this->x && y >= this->y &&
+					x < this->x + w && y < this->y + h;
+			}
+		};
+
 		class Camera
 		{
 		public:
@@ -22,11 +33,16 @@ namespace vlr
 
 			inline glm::vec3 getPos() const;
 
+			inline glm::mat4 getProjectionMatrix() const;
+			inline glm::mat4 getRotationMatrix() const;
+
 			inline glm::mat4 getMVP() const;
 			
 			inline glm::vec3 getLeft() const;
 			inline glm::vec3 getUp() const;
 			inline glm::vec3 getForward() const;
+
+			inline Viewport getViewport() const;
 
 			glm::vec3 screenSpaceToWorld(float x, float y,
 				float dist) const;
@@ -44,11 +60,6 @@ namespace vlr
 			void rotate(const glm::vec3& euler);
 
 		protected:
-			struct Viewport
-			{
-				int x, y, w, h;
-			};
-
 			// Position & rotation
 			glm::vec3 _position;
 			glm::quat _rotation;
@@ -58,6 +69,7 @@ namespace vlr
 
 			// MVP matrices
 			glm::mat4 _projection;
+			glm::mat4 _rotationMatrix;
 			glm::mat4 _view;
 			glm::mat4 _model;
 
@@ -68,6 +80,16 @@ namespace vlr
 		glm::vec3 Camera::getPos() const
 		{
 			return _position;
+		}
+
+		glm::mat4 Camera::getProjectionMatrix() const
+		{
+			return _projection;
+		}
+
+		glm::mat4 Camera::getRotationMatrix() const
+		{
+			return _rotationMatrix;
 		}
 
 		glm::mat4 Camera::getMVP() const
@@ -89,6 +111,11 @@ namespace vlr
 		glm::vec3 Camera::getForward() const
 		{
 			return glm::vec3(0, 0, -1.0f) * _rotation;
+		}
+
+		Viewport Camera::getViewport() const
+		{
+			return _viewport;
 		}
 	}
 }

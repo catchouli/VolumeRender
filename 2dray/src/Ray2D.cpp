@@ -8,6 +8,10 @@
 #include <time.h>
 #include <iostream>
 #include <malloc.h>
+#include <math.h>
+#include <algorithm>
+
+#include <mmintrin.h>
 
 namespace vlr
 {
@@ -27,6 +31,24 @@ namespace vlr
 		union fi { int i; float f; } conv;
 		conv.i = in;
 		return conv.f;
+	}
+
+	template <typename T>
+	T sign(T value)
+	{
+		if (value < 0)
+			return -1;
+		else
+			return 1;
+	}
+
+	template <typename T>
+	T abs(T value)
+	{
+		if (value > 0)
+			return value;
+		else
+			return -value;
 	}
 
 	int scale(int scale, unsigned int differing_bits)
@@ -87,12 +109,12 @@ namespace vlr
 		// Initialise camera
 		int width = getWidth();
 		int height = getHeight();
-		float aspect = (float)width / (float)height;
+		float aspect = (float)height / (float)width;
 
 		_camera.setViewport(0, 0, width, height);
 		_camera.perspective((float)(3.14159265358 / 2.0), aspect, 0.01f, 100.0f);
-		_camera.translate(glm::vec3(0, 0, 10.0f));
-
+		_camera.translate(glm::vec3(1.5f, 1.5f, 10.0f));
+		
 		_mvp = _camera.getMVP();
 
 		// Generate grid
@@ -147,8 +169,6 @@ namespace vlr
 
 	void Ray2D::render()
 	{
-		int i = glGetError();
-
 		// Clear screen
 		glClearColor(1.0f, 0.0f, 1.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -224,7 +244,7 @@ namespace vlr
 		// Calculate MVP matrix for frame
 		_mvp = _camera.getMVP();
 		
-		if (!glfwGetKey(_window, GLFW_KEY_F))
+		if (glfwGetKey(_window, GLFW_KEY_F))
 		{
 			int width = getWidth();
 			int height = getHeight();
@@ -257,7 +277,7 @@ namespace vlr
 			_fb.render();
 		}
 		
-		if (glfwGetKey(_window, GLFW_KEY_G))
+		if (!glfwGetKey(_window, GLFW_KEY_G))
 		{
 			int width = getWidth();
 			int height = getHeight();
@@ -282,10 +302,10 @@ namespace vlr
 
 						//pixel[0] = *(int*)&colour;
 
-						pixel[0] = -1;
+						//pixel[0] = -1;
 					}
-					else
-						pixel[0] = 0;
+					//else
+						//pixel[0] = 0;
 				}
 			}
 
@@ -444,43 +464,84 @@ namespace vlr
 		y = temp;
 	}
 
-	Ray2D::Ray Ray2D::screenPointToRay(int x, int y, glm::mat4& mvp)
+	//void Ray2D::screenPointToRay(int x, int y, Ray& ray)
+	//{
+	//	glm::vec3 camPos = _camera.getPos();
+	//	ray.origin = camPos;
+
+	//	// Convert x and y to viewport space
+	//	static float width = getWidth();
+	//	static float height = getHeight();
+
+	//	static float oneOverWidth = 1.0f / width;
+	//	static float oneOverHeight = 1.0f / height;
+
+	//	static float twoOverWidth = 2.0f * oneOverWidth;
+	//	static float twoOverHeight = 2.0f * oneOverHeight;
+	//	
+	//	//float vx = (2 * x - width) * oneOverWidth;
+	//	//float vy = (2 * y - height) * oneOverHeight;
+	//	
+	//	float vx = twoOverWidth * x - 1;
+	//	float vy = twoOverHeight * y - 1;
+
+	//	const float PI = 3.1415926535897f;
+	//	const float FOV = PI / 4.0f;
+
+	//	static float tanfov = tan(FOV);
+	//	
+	//	float dx = vx * tanfov;
+	//	float dy = vy * tanfov;
+	//	float dz = -1;
+
+	//	float magnitude = sqrt(dx * dx + dy * dy + dz * dz);
+	//	float oneOverMagnitude = 1.0f / magnitude;
+
+	//	__m128 vec;
+	//	vec.m128_f32[0] = dx;
+	//	vec.m128_f32[1] = dy;
+	//	vec.m128_f32[2] = dz;
+
+	//	__m128 mag = _mm_mul_ps(vec, vec);
+
+	//	mag.m128_f32[0] += mag.m128_f32[1] + mag.m128_f32[2];
+
+	//	mag = _mm_rsqrt_ss(vec);
+	//	
+	//	mag.m128_f32[1] = mag.m128_f32[0];
+	//	mag.m128_f32[2] = mag.m128_f32[0];
+
+	//	ray.direction.x = vec.m128_f32[0] * oneOverMagnitude;
+	//	ray.direction.y = vec.m128_f32[1] * oneOverMagnitude;
+	//	ray.direction.z = vec.m128_f32[2] * oneOverMagnitude;
+	//}
+
+	void Ray2D::screenPointToRay(int x, int y, Ray& ray)
 	{
-		Ray ray;
+		ray.origin = _camera.getPos();
 
-		glm::vec3 camPos = _camera.getPos();
-		ray.origin = camPos;
+		static float width = getWidth();
+		static float height = getHeight();
+		static float oneOverWidth = 1.0f / width;
+		static float oneOverHeight = 1.0f / height;
 
-		// Convert x and y to viewport space
-		float width = getWidth();
-		float height = getHeight();
+		float normx = x * oneOverWidth;
+		float normy = y * oneOverHeight;
+
+		float xvs = normx * 2.0f - 1.0f;
+		float yvs = normy * 2.0f - 1.0f;
+		float zvs = 1.0f;
+
+		glm::vec4 viewport(xvs, yvs, zvs, 1);		
+		glm::vec4 world = viewport * _camera.getMVP();
 		
-		float vx = (2 * x - width) / width;
-		float vy = (2 * y - height) / height;
-
-		const float PI = 3.1415926535897f;
-		const float FOV = PI / 4.0f;
-		
-		float dx = vx * tan(FOV);
-		float dy = vy * tan(FOV);
-		float dz = -1;
-
-		float magnitude = sqrt(dx * dx + dy * dy + dz * dz);
-		
-		dx /= magnitude;
-		dy /= magnitude;
-		dz /= magnitude;
-
-		glm::vec3 dir2(dx, dy, dz);
-
-		ray.direction = dir2;
-
-		return ray;
+		ray.direction = glm::normalize(glm::vec3(world));
 	}
 
 	bool Ray2D::raycastScreenPointGrid(int x, int y)
 	{
-		Ray2D::Ray ray = screenPointToRay(x, y, _mvp);
+		Ray ray;
+		screenPointToRay(x, y, ray);
 
 		lastraypos = ray.origin;
 		lastraydir = ray.direction;
@@ -499,6 +560,12 @@ namespace vlr
 		int xmax = RAY2D_GRID_WIDTH;
 		int ymax = RAY2D_GRID_HEIGHT;
 		int zmax = RAY2D_GRID_DEPTH;
+
+		//const float minf = 0.000000001f;
+		//
+		//if (abs(direction.x) < minf) direction.x = sign(direction.x) * minf;
+		//if (abs(direction.y) < minf) direction.y = sign(direction.y) * minf;
+		//if (abs(direction.z) < minf) direction.z = sign(direction.z) * minf;
 
 		// Calculate coefficients for t value calculations
 		float xcoeff = 1.0f / direction.x;
@@ -614,232 +681,65 @@ namespace vlr
 
 	bool Ray2D::raycastScreenPointOctree(int x, int y)
 	{
-		Ray point = screenPointToRay(x, y, _mvp);
+		Ray ray;
+		screenPointToRay(x, y, ray);
 
-		return raycastOctree(point.origin, point.direction);
+		static int width = getWidth();
+
+		int* pixel = _fb.getPointer() + y * width + x;
+
+		return raycastOctree(pixel, ray.origin, ray.direction);
 	}
 
-	template <typename T>
-	T sign(T value)
+	bool Ray2D::raycastOctree(int* pixel, glm::vec3 origin, glm::vec3 direction)
 	{
-		if (value < 0)
-			return -1;
-		else
-			return 1;
-	}
+		const int s_max = 23;
+		const float epsilon = std::powf(2, -s_max);
 
-	template <typename T>
-	T abs(T value)
-	{
-		if (value > 0)
-			return value;
-		else
-			return -value;
-	}
-
-			//common::OctNode* parent = _tree.root;
-
-		//auto getpos = [] (char idx) -> Pos
-		//{
-		//	Pos pos;
-		//	
-		//	pos.x = (idx & 1) == 1;
-		//	pos.y = (idx & 2) == 2;
-		//	pos.z = (idx & 4) == 4;
-
-		//	return pos;
-		//};
-
-		//auto getidx = [] (Pos pos) -> char
-		//{
-		//	char idx = 0;
-
-		//	idx |= pos.x;
-		//	idx |= pos.y << 1;
-		//	idx |= pos.z << 2;
-
-		//	return idx;
-		//};
-
-		//auto advance = [&getidx] (glm::vec3& min, glm::vec3& max,
-		//	glm::vec3& origin, glm::vec3& direction, int tmax, Pos& pos)
-		//	-> char
-		//{
-		//	char idx = 0;
-		//	
-		//	idx = getidx(pos);
-
-		//	// Evaluate t at max
-		//	float tcx = ray2d_t(max.x, x);
-		//	float tcy = ray2d_t(max.y, y);
-		//	float tcz = ray2d_t(max.z, z);
-
-		//	// Compare against tmax to get new positions
-		//	idx ^= (tcx == tmax) << 0;
-		//	idx ^= (tcy == tmax) << 1;
-		//	idx ^= (tcz == tmax) << 2;
-
-		//	return idx;
-		//};
-
-		//auto push = [] (glm::vec3& min, glm::vec3& max,
-		//	glm::vec3& origin, glm::vec3& direction, int tmin) -> char
-		//{
-		//	char idx = 0;
-
-		//	// Evaluate t at centre
-		//	glm::vec3& centre = min + (max - min) * 0.5f;
-		//	float tcx = ray2d_t(centre.x, x);
-		//	float tcy = ray2d_t(centre.y, y);
-		//	float tcz = ray2d_t(centre.z, z);
-
-		//	// Compare against tmax to get new positions
-		//	idx |= (tcx == tmin) << 0;
-		//	idx |= (tcy == tmin) << 1;
-		//	idx |= (tcz == tmin) << 2;
-
-		//	return idx;
-		//};
-
-		////for (int i = 0; i < 8; ++i)
-		////{
-		////	Pos pos = getpos(i);
-		////	char idx = getidx(pos);
-		////	std::cout << "idx: " << (int)idx << ", pos: " << pos.x << ", " << pos.y << ", " <<
-		////		pos.z << std::endl;
-		////}
-
-		//// Project cube so that it's between (0, 0) and (1, 1)
-
-	bool Ray2D::raycastOctree(glm::vec3 origin, glm::vec3 direction)
-	{
-		struct Pos
+		struct int2
 		{
-			int x, y, z;
+			int x;
+			int y;
 		};
 
-		struct StackEntry
-		{
-			common::OctNode* parent;
-			glm::vec3 rayPos;
-			Pos pos;
-		};
-
-		const int scale_max = 23;
-		StackEntry stack[scale_max];
-
-		const float minf = 0.0001f;
+		int2 stack[s_max+1];
 		
-		if (abs(direction.x) < minf) direction.x = sign(direction.x) * minf;
-		if (abs(direction.y) < minf) direction.y = sign(direction.y) * minf;
-		if (abs(direction.z) < minf) direction.z = sign(direction.z) * minf;
+		if (fabs(direction.x) < epsilon) direction.x = sign(direction.x) * epsilon;
+		if (fabs(direction.y) < epsilon) direction.y = sign(direction.y) * epsilon;
+		if (fabs(direction.z) < epsilon) direction.z = sign(direction.z) * epsilon;
 
-		// Project cube so that it's between (0, 0, 0) and (1, 1, 1)
-		glm::vec3 size = _tree.max - _tree.min;
+		float tx_coef = 1.0f / -fabs(direction.x);
+		float ty_coef = 1.0f / -fabs(direction.y);
+		float tz_coef = 1.0f / -fabs(direction.z);
 
-		// Move min to 0, 0, 0 & scale down
-		glm::vec3 min(0, 0, 0);
-		glm::vec3 max(1, 1, 1);
+		float tx_bias = tx_coef * origin.x;
+		float ty_bias = ty_coef * origin.y;
+		float tz_bias = tz_coef * origin.z;
 
-		// Scale down ray origin & direction
-		direction.x /= size.x;
-		direction.y /= size.y;
-		direction.z /= size.z;
-		direction = glm::normalize(direction);
+		int octant_mask = 7;
+		if (direction.x > 0.0f) octant_mask ^= 1, tx_bias = 3.0f * tx_coef - tx_bias;
+		if (direction.y > 0.0f) octant_mask ^= 2, ty_bias = 3.0f * tx_coef - ty_bias;
+		if (direction.z > 0.0f) octant_mask ^= 4, tz_bias = 3.0f * tx_coef - tz_bias;
 
-		origin.x /= size.x;
-		origin.y /= size.y;
-		origin.z /= size.z;
+		float t_min = std::max(std::max(2.0f * tx_coef - tx_bias, 2.0f * ty_coef - ty_bias), 2.0f * tz_coef - tz_bias);
+		float t_max = std::min(std::min(tx_coef - tx_bias, ty_coef - ty_bias), tz_coef - tz_bias);
+		float h = t_max;
+		t_min = std::max(t_min, 0.0f);
+		t_max = std::min(t_max, 1.0f);
 
-		int xmin = min.x;
-		int ymin = min.y;
-		int zmin = min.z;
-		int xmax = max.x;
-		int ymax = max.y;
-		int zmax = max.z;
-		
-		int dxsign = (direction.x > 0 ? 1 : -1);
-		int dysign = (direction.y > 0 ? 1 : -1);
-		int dzsign = (direction.z > 0 ? 1 : -1);
-
-		// Calculate coefficients for t value calculations
-		float xcoeff = 1.0f / direction.x;
-		float ycoeff = 1.0f / direction.y;
-		float zcoeff = 1.0f / direction.z;
-		
-		float xoffset = -(origin.x / direction.x);
-		float yoffset = -(origin.y / direction.y);
-		float zoffset = -(origin.z / direction.z);
-		
-		float txmin = xmin * xcoeff + xoffset;
-		float tymin = ymin * ycoeff + yoffset;
-		float tzmin = zmin * zcoeff + zoffset;
-
-		float txmax = xmax * xcoeff + xoffset;
-		float tymax = ymax * ycoeff + yoffset;
-		float tzmax = zmax * zcoeff + zoffset;
-		
-		if (txmin > txmax)
-			swap(txmin, txmax);
-
-		if (tymin > tymax)
-			swap(tymin, tymax);
-
-		if (tzmin > tzmax)
-			swap(tzmin, tzmax);
-
-		float tmin = ray2d_max3(txmin, tymin, tzmin);
-		float tmax = ray2d_min3(txmax, tymax, tzmax);
-
-		float t = tmin;
-		float h = tmax;
-
-		StackEntry parent;
-		parent.parent = _tree.root;
-		parent.rayPos = origin;
-
-		int scale = scale_max - 1;
-
-		// Get first child
 		int idx = 0;
+		
+		if (1.5f * tx_coef - tx_bias > t_min) idx ^= 1;
+		if (1.5f * ty_coef - ty_bias > t_min) idx ^= 2;
+		if (1.5f * tz_coef - tz_bias > t_min) idx ^= 4;
 
-		// Evaluate t at centre
-		float tcx = 0.5f * xcoeff + xoffset;
-		float tcy = 0.5f * ycoeff + yoffset;
-		float tcz = 0.5f * zcoeff * zoffset;
+		colour col;
+		col.col = 0;
+		col.r = 255 * ((idx & 1 << 0) > 0);
+		col.g = 255 * ((idx & 1 << 1) > 0);
+		col.b = 255 * ((idx & 1 << 2) > 0);
 
-		glm::vec3 pos;
-
-		// Compare to get idx
-		if (tcx == tmin)
-		{
-			idx |= 1 << 0;
-			pos.x = 0.5f;
-		}
-		if (tcy == tmin)
-		{
-			idx |= 1 << 1;
-			pos.y = 0.5f;
-		}
-		if (tcz == tmin)
-		{
-			idx |= 1 << 2;
-			pos.z = 0.5f;
-		}
-
-		while (scale < scale_max)
-		{
-			// Calculate tmax for child at corner
-			float tx_corner = pos.x * xcoeff + xoffset;
-			float ty_corner = pos.y * ycoeff + yoffset;
-			float tz_corner = pos.z * zcoeff + zoffset;
-			float tc_max = ray2d_min(ray2d_min(tx_corner, ty_corner), tz_corner);
-
-			if (parent.parent->children[idx] && tmin < tmax)
-			{
-
-			}
-		}
+		*pixel = col.col;
 
 		return false;
 	}
@@ -855,7 +755,7 @@ namespace vlr
 		{
 			bool hit = ray2d->raycastScreenPointGrid((int)(ray2d->_mouseX),
 				(int)(ray2d->getHeight() - ray2d->_mouseY));
-
+			
 			if (hit)
 			{
 				std::cout << "Yay! hit" << std::endl;

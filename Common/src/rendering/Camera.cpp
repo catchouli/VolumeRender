@@ -27,8 +27,8 @@ namespace vlr
 		void Camera::updateGL()
 		{
 			// Update view matrix
-			_view = glm::toMat4(_rotation);
-			_view = glm::translate(_view, -_position);
+			_rotationMatrix = glm::toMat4(_rotation);
+			_view = glm::translate(_rotationMatrix, -_position);
 
 			// Calculate mvp
 			glm::mat4 mvp = getMVP();
@@ -94,17 +94,25 @@ namespace vlr
 		glm::vec3 Camera::screenSpaceToWorld(float x, float y,
 			float dist) const
 		{
-			// Convert x and y to viewport space
-			x = (x / _viewport.w) * 2.0f - 1.0f;
-			y = (y / _viewport.h) * 2.0f - 1.0f;
+			// Calculate viewport space of cursor
+			double viewportX = 2.0 * ((x - _viewport.x) / (double)_viewport.w) - 1.0;
+			double viewportY = 2.0 * ((y - _viewport.y) / (double)_viewport.h) - 1.0;
+			//double viewportY = (2.0 - 2.0 * ((y - _viewport.y) / (double)_viewport.h)) + 1.0;
 
-			glm::vec3 point(x, y, dist);
+			// Get camera matrix
+			glm::mat4 mat = getMVP();
+			glm::mat4 invmat = glm::inverse(mat);
 
-			glm::vec3 unprojected = glm::unProject(point, _view * _model,
-				_projection, glm::vec4(_viewport.x, _viewport.y, _viewport.w,
-				_viewport.h));
+			// Convert viewport cursor pos to world
+			glm::vec4 viewportPos(viewportX, viewportY, 1, 1);
+			glm::vec4 worldPos = viewportPos * invmat + glm::vec4(_position, 0);
 
-			return unprojected;
+			if (_isnan(worldPos.x))
+			{
+				int i = 0;
+			}
+
+			return glm::vec3(worldPos);
 		}
 	}
 }

@@ -16,6 +16,16 @@ namespace vlr
 	const int RAY2D_GRID_HEIGHT = 8;
 	const int RAY2D_GRID_DEPTH = 8;
 
+	union colour
+	{
+		struct
+		{
+			char r, g, b, a;
+		};
+
+		int col;
+	};
+
 	class Ray2D
 	: public common::Application
 	{
@@ -36,7 +46,7 @@ namespace vlr
 		bool raycastGrid(glm::vec3 origin, glm::vec3 direction);
 
 		bool raycastScreenPointOctree(int x, int y);
-		bool raycastOctree(glm::vec3 origin, glm::vec3 direction);
+		bool raycastOctree(int* pixel, glm::vec3 origin, glm::vec3 direction);
 
 		// Callbacks
 		static void mouse_move_callback(GLFWwindow* window,
@@ -52,8 +62,8 @@ namespace vlr
 			glm::vec3 origin;
 			glm::vec3 direction;
 		};
-
-		Ray screenPointToRay(int x, int y, glm::mat4& mvp);
+		
+		void screenPointToRay(int x, int y, Ray& ray);
 
 	private:
 		double _mouseX, _mouseY;

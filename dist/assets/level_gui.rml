@@ -1,0 +1,26 @@
+<rml>
+<head>
+	<link type="text/css" href="gui.rcss"/>
+	<title>Window</title>
+	<style>
+		body
+		{
+			margin: auto;
+			
+			font-family: Delicious;
+			font-weight: normal;
+			font-style: normal;
+			font-size: 15;
+			color: white;
+		}
+		
+		body.window
+		{
+			background: #000000;
+		}
+	</style>
+</head>
+<body class="window">
+
+</body>
+</rml>
