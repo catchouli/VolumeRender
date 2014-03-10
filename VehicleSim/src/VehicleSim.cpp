@@ -1,191 +1,131 @@
 #include "VehicleSim.h"
 
-#include <Rocket/Core.h>
-#include <iostream>
-
 #include <util/Util.h>
+
+#include "input/InputConverter.h"
 
 namespace vlr
 {
 	const char* fontDir = "assets/fonts";
 
+	const b2Vec2 gravity(0.0f, -10.0f);
+	
+	const float DEFAULT_SCALE = 10.0f;
+
 	VehicleSim::VehicleSim()
-		: Application(800, 600)
+		: Application(800, 600), _mode(MODE_SIMULATE), _physWorld(gravity),
+		_worldRenderer(&_physWorld), _lastPhysicsUpdate(glfwGetTime()),
+		_orthoScale(DEFAULT_SCALE), _simulationRunning(false),
+		_currentTool(Tools::NONE), _currentToolButton(nullptr)
 	{
+		// Update window pointer
+		glfwSetWindowUserPointer(_window, this);
+
 		// Set callbacks
  		glfwSetCursorPosCallback(_window, mouse_move_callback);
 		glfwSetMouseButtonCallback(_window, mouse_callback);
 		glfwSetKeyCallback(_window, key_callback);
 		glfwSetScrollCallback(_window, scroll_callback);
 		glfwSetWindowSizeCallback(_window, resize_callback);
+		glfwSetCharCallback(_window, char_callback);
 
-		// Initialise Rocket
-		Rocket::Core::SetSystemInterface(&_rocketSystem);
-		Rocket::Core::SetRenderInterface(&_rocketRenderer);
+		// Initialise gwen
+		_guiRenderer = new Gwen::Renderer::OpenGL_DebugFont();
+		_guiRenderer->Init();
 
-		if (!Rocket::Core::Initialise())
-		{
-			fprintf(stderr, "Failed to initialise librocket\n");
-		}
+		_guiSkin = new Gwen::Skin::TexturedBase(_guiRenderer);
+		_guiSkin->Init("DefaultSkin.png");
 
-		// Load fonts
-		std::vector<std::string> fonts = common::filesInDir(fontDir);
-
-		for (auto it = fonts.begin(); it != fonts.end(); ++it)
-		{
-			if (*it != "." && *it != "..")
-			{
-				std::string fontFile = fontDir + std::string("/") + *it;
-				Rocket::Core::FontDatabase::LoadFontFace(Rocket::Core::String(fontFile.c_str()));
-			}
-		}
+		_guiCanvas = new Gwen::Controls::Canvas(_guiSkin);
+		_guiCanvas->SetSize(getWidth(), getHeight());
 		
-		// Create Rocket context
-		_rocketContext = Rocket::Core::CreateContext("default",
-			Rocket::Core::Vector2i(getWidth(), getHeight()));
-
 		// Initialise camera & viewport etc
 		resize(getWidth(), getHeight());
-		_camera.translate(glm::vec3(0, 0, 10.0f));
 
-		// Load document
-		_document = _rocketContext->LoadDocument("assets/demo.rml");
-		if (_document != nullptr)
-			_document->Show();
+		// Initialise input state
+		glfwGetCursorPos(_window, &_mouseX, &_mouseY);
+
+		// Initialise GUI
+		initGui();
 	}
 
 	VehicleSim::~VehicleSim()
 	{
-		_rocketContext->RemoveReference();
-		_rocketContext = nullptr;
+
 	}
 
 	void VehicleSim::update(double dt)
 	{
 		const float MOVE_SPEED = 2.0f;
 
+		// Get inner area of dock
+		Gwen::Rect innerBounds = _guiDock->GetInnerBounds();
+
+		// Update camera's viewport
+		_camera.setViewport(innerBounds.x, innerBounds.y, innerBounds.w, innerBounds.h);
+
+		// Update camera's matrix
+		if (innerBounds.h > 0)
+		{
+			float aspect = (float)innerBounds.w / innerBounds.h;
+			_camera.orthographic(_orthoScale, aspect);
+		}
+
+		// Update physics system
+		double time = glfwGetTime();
+		while (_lastPhysicsUpdate + VEHICLESIM_PHYSICS_STEP_TIME < time)
+		{
+			if (_simulationRunning)
+				_physWorld.Step(VEHICLESIM_PHYSICS_STEP_TIME, 6, 2);
+
+			_lastPhysicsUpdate += VEHICLESIM_PHYSICS_STEP_TIME;
+		}
+
 		// Set window title
 		const int TITLE_LEN = 1024;
 		char title[1024];
 		sprintf(title, "FPS: %d\n", getFPS());
 		glfwSetWindowTitle(_window, title);
-
-		// Update rocket
-		_rocketContext->Update();
 	}
 
 	void VehicleSim::render()
 	{
-		// Clear screen
-		glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
-		// Update opengl matrices
+		// Clear background
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		// Reset opengl state at the start of each frame
+		// Since gwen's opengl renderer is too rude to do it itself
+		glDisable(GL_TEXTURE_2D);
+		glDisable(GL_SCISSOR_TEST);
+		glDisable(GL_BLEND);
+		glDisableClientState(GL_VERTEX_ARRAY);
+		glDisableClientState(GL_COLOR_ARRAY);
+		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+		// Update from camera
 		_camera.updateGL();
 
-		// Set up view
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
+		// Render
+		_worldRenderer.render();
 
 		// Reset matrices
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
 		float width = (float)_width;
 		float height = (float)_height;
-		glOrtho(0, width, height, 0, 0, 1000.0f);
+		glOrtho(0, width, height, 0, -1.0f, 1.0f);
+		glViewport(0, 0, width, height);
 
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 
-		// Render Rocket
-		_rocketContext->Render();
+		// Render GUI
+		_guiCanvas->RenderCanvas();
 	}
 
-	void VehicleSim::resize(int width, int height)
+	void VehicleSim::setMode(Mode newMode)
 	{
-		_rocketContext->SetDimensions(Rocket::Core::Vector2i(width, height));
-		_rocketRenderer.setSize(width, height);
-
-		_width = getWidth();
-		_height = getHeight();
-		_aspect = (float)_width / (float)_height;
-
-		_camera.setViewport(0, 0, _width, _height);
-		_camera.orthographic(10, _aspect);
-		//_camera.perspective((float)(3.14159265358 / 2.0), aspect, 0.01f, 100.0f);
-
-	}
-
-	void VehicleSim::mouse_callback(GLFWwindow* window, int button,
-		int action, int mods)
-	{
-		// Get class instance
-		VehicleSim* app = (VehicleSim*)glfwGetWindowUserPointer(window);
-		Rocket::Core::Context* context = app->_rocketContext;
-		const InputConverter& converter = app->_inputConverter;
-
-		// Update rocket
-		if (action == GLFW_PRESS)
-			context->ProcessMouseButtonDown(button, converter.convertMod(mods));
-		if (action == GLFW_RELEASE)
-			context->ProcessMouseButtonUp(button, converter.convertMod(mods));
-	}
-
-	void VehicleSim::mouse_move_callback(GLFWwindow* window, double x, double y)
-	{
-		// Get class instance
-		VehicleSim* app = (VehicleSim*)glfwGetWindowUserPointer(window);
-		Rocket::Core::Context* context = app->_rocketContext;
-
-		// Update rocket
-		context->ProcessMouseMove((int)x, (int)y, 0);
-	}
-
-	void VehicleSim::key_callback(GLFWwindow* window, int key,
-		int scancode, int action, int mods)
-	{
-		// Do default action (exit on esc)
-		_default_key_callback(window, key, scancode, action, mods);
-
-		// Get class instance
-		VehicleSim* app = (VehicleSim*)glfwGetWindowUserPointer(window);
-		Rocket::Core::Context* context = app->_rocketContext;
-		const InputConverter& converter = app->_inputConverter;
-
-		// Update rocket
-		if (action == GLFW_PRESS)
-			context->ProcessKeyDown(converter.convertKeycode(key), converter.convertMod(mods));
-		if (action == GLFW_RELEASE)
-			context->ProcessKeyUp(converter.convertKeycode(key), converter.convertMod(mods));
-	}
-	
-	void VehicleSim::scroll_callback(GLFWwindow* window, double x, double y)
-	{
-		// Get class instance
-		VehicleSim* app = (VehicleSim*)glfwGetWindowUserPointer(window);
-		Rocket::Core::Context* context = app->_rocketContext;
-
-		// Update rocket
-		context->ProcessMouseWheel((int)y, 0);
-	}
-	
-	void VehicleSim::scroll_callback(GLFWwindow* window,
-			unsigned int codepoint)
-	{
-		// Get class instance
-		VehicleSim* app = (VehicleSim*)glfwGetWindowUserPointer(window);
-		Rocket::Core::Context* context = app->_rocketContext;
-
-		// Update rocket
-		context->ProcessTextInput(codepoint);
-	}
-	
-	void VehicleSim::resize_callback(GLFWwindow* window,
-			int width, int height)
-	{
-		// Get class instance
-		VehicleSim* app = (VehicleSim*)glfwGetWindowUserPointer(window);
-
-		app->resize(width, height);
+		_mode = newMode;
 	}
 }

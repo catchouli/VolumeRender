@@ -54,6 +54,8 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>include;$(SolutionDir)\common\include;$(SolutionDir)\dep\include</AdditionalIncludeDirectories>
       <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS /D GLM_FORCE_RADIANS %(AdditionalOptions)</AdditionalOptions>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -71,6 +73,8 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>include;$(SolutionDir)\common\include;$(SolutionDir)\dep\include</AdditionalIncludeDirectories>
       <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS /D GLM_FORCE_RADIANS %(AdditionalOptions)</AdditionalOptions>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

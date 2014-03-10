@@ -51,6 +51,8 @@ namespace vlr
 		int* grid, glm::mat4* mvp, glm::vec3* origin, int w,
 		int h, int d)
 	{
+		return;
+
 		int x = blockIdx.x;
 		int y = blockIdx.y;
 
@@ -248,9 +250,9 @@ namespace vlr
 		gpuErrchk(cudaGraphicsUnmapResources(1, &_glFb, 0));
 
 		// Render pbo to screen
-		glBindBuffer(GL_PIXEL_UNPACK_BUFFER, _pbo);
-		glDrawPixels(_width, _height, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-		glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+		//glBindBuffer(GL_PIXEL_UNPACK_BUFFER, _pbo);
+		//glDrawPixels(_width, _height, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+		//glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 
 		//glBegin(GL_QUADS);
 		//glVertex2f(-1.0f, -1.0f);

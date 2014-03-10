@@ -1,0 +1,69 @@
+<rml>
+<head>
+	<link type="text/css" href="gui.rcss"/>
+	<title>Window</title>
+	<style>
+		body
+		{
+			margin: auto;
+			
+			font-family: Delicious;
+			font-weight: normal;
+			font-style: normal;
+			font-size: 15;
+			color: white;
+		}
+		
+		body.window
+		{
+			background: #000000;
+		}
+		
+		.menu
+		{
+			width: 100%;
+		}
+		
+		.menu_row
+		{
+			width: 100%;
+		}
+		
+		.menu_item
+		{
+			padding-left: 10px;
+			padding-right: 10px;
+		}
+		
+		.menu_item:hover
+		{
+			background: #333333;
+		}
+		
+		#modetext
+		{
+			margin-left: 50px;
+		}
+	</style>
+</head>
+<body class="window">
+	<div class="menu">
+		<div class="menu_row">
+			<span id="simulate" class="menu_item">
+				simulate
+			</span>
+			<span id="leveledit" class="menu_item">
+				edit level
+			</span>
+			<span id="objectedit" class="menu_item">
+				edit object
+			</span>
+			<div id="modetext">
+				<p>
+					Current mode: <p id="currentmode">simulate</p>
+				</p>
+			</div>
+		</div>
+	</div>
+</body>
+</rml>
