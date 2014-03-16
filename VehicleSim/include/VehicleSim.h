@@ -6,6 +6,7 @@
 #include "app/Framebuffer.h"
 #include "rendering/Camera.h"
 #include "rendering/Box2DWorldRenderer.h"
+#include "tools/Tool.h"
 
 // Box2D
 #include <Box2D/Box2D.h>
@@ -17,46 +18,40 @@
 // Gwen controls
 #include <Gwen/Skins/TexturedBase.h>
 #include <Gwen/Controls/DockBase.h>
+#include <Gwen/Controls/TabButton.h>
+
+// Options
+#include "tools/gui/FloatOption.h"
+#include "options/WorldOptions.h"
 
 // Standard headers
 #include <stdio.h>
 #include <vector>
+#include <unordered_map>
 
 #include "Resources.h"
 
 namespace vlr
 {
 	const int VEHICLESIM_PHYSICS_STEP = 60;
-	const float VEHICLESIM_PHYSICS_STEP_TIME = 1.0f / (float)VEHICLESIM_PHYSICS_STEP;
+	const int VEHICLESIM_VELOCITY_ITERATIONS = 6;
+	const int VEHICLESIM_POSITION_ITERATIONS = 2;
 
 	const float VEHICLESIM_MIN_SCALE = 2.0f;
-
-	namespace Tools
-	{
-		enum Tool
-		{
-			NONE,
-			SCROLL,
-			CIRCLE
-		};
-	}
-
-	typedef Tools::Tool Tool;
 
 	class VehicleSim
 		: public Gwen::Event::Handler, public common::Application
 	{
 	public:
-		enum Mode;
-
 		VehicleSim();
 		~VehicleSim();
 
+		void doStep();
 		void update(double dt);
 
 		void render();
 
-		void setMode(Mode newMode);
+		void doFrameInput(float dt);
 
 		// Input Callbacks
 		static void mouse_move_callback(GLFWwindow* window,
@@ -72,17 +67,21 @@ namespace vlr
 		static void resize_callback(GLFWwindow* window,
 			int width, int height);
 
+		void disableSim();
+
 		// GUI callbacks
 		void setSimulationRunning(Gwen::Event::Info);
+		void resetSimulation(Gwen::Event::Info);
 		void selectTool(Gwen::Event::Info info);
 		void deselectTool(Gwen::Event::Info info);
 
-		enum Mode
-		{
-			MODE_SIMULATE,
-			MODE_LEVELEDIT,
-			MODE_OBJECTEDIT
-		};
+		// Menu bar
+		void getString(Gwen::Event::Info info);
+		void newDocument(Gwen::Event::Info info);
+		void saveDocument(Gwen::Event::Info info);
+		void saveDocumentAs(Gwen::Event::Info info);
+		void loadDocument(Gwen::Event::Info info);
+		void exitApplication(Gwen::Event::Info info);
 
 	protected:
 		VehicleSim(const VehicleSim&);
@@ -92,14 +91,40 @@ namespace vlr
 		void initGui();
 
 	private:
+		friend class Tool;
+		friend class MovementTool;
+		friend class CircleTool;
+		friend class SquareTool;
+		friend class PolyTool;
+		friend class ZoomTool;
+		friend class SelectionTool;
+		friend class RotateTool;
+
+		friend class DistanceTool;
+		friend class RevoluteTool;
+		friend class PrismaticTool;
+		friend class PulleyTool;
+		friend class WheelTool;
+		friend class WeldTool;
+
 		// State
-		Tool _currentTool;
+		int _timeStep;
+		int _velocityIterations;
+		int _positionIterations;
+
+		std::string _storedState;
+		Tool* _currentTool;
+		std::vector<Tool*> _tools;
 		Gwen::Controls::Base* _currentToolButton;
 
+		bool _gotString;
+		std::string _lastString;
+		std::string _filename;
+
 		bool _simulationRunning;
-		Mode _mode;
 		double _lastPhysicsUpdate;
 		std::vector<glm::vec2> _points;
+		std::unordered_map<std::string, Gwen::Controls::Base*> _options;
 
 		// Camera
 		common::Camera _camera;
@@ -119,9 +144,15 @@ namespace vlr
 		Gwen::Skin::TexturedBase* _guiSkin;
 		Gwen::Controls::Canvas* _guiCanvas;
 		Gwen::Controls::DockBase* _guiDock;
+		Gwen::Controls::Label* _statusLabel;
+
+		WorldOptions _worldOptions;
+		std::vector<Updatable*> _updatableOptions;
+		Gwen::Controls::TabButton* _worldOptionsTabButton;
 
 		// GUI elements
 		Gwen::Controls::Button* _simButton;
+		Gwen::Controls::Button* _resetButton;
 		std::vector<Gwen::Controls::Button*> _toolButtons;
 	};
 

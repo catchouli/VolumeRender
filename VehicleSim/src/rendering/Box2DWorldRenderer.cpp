@@ -19,50 +19,83 @@ namespace vlr
 		initCircleMesh();
 	}
 
-	void Box2DWorldRenderer::render()
+	void Box2DWorldRenderer::DrawPolygon(const b2Vec2* vertices, int32 vertexCount,
+		const b2Color& color)
 	{
-		//static float diameter = 10.0f;
-		////diameter += 0.01f;
-		//fillCircle(2.5f, 0, diameter);
 
-		// Render all bodies
-		b2Body* bodies = _world->GetBodyList();
+		drawPolyClosed(vertices, vertexCount);
+	}
 
-		for (b2Body* body = bodies; body; body = body->GetNext())
-		{
-			// Get all fixtures for this body
-			b2Fixture* fixtures = body->GetFixtureList();
+	void Box2DWorldRenderer::DrawSolidPolygon(const b2Vec2* vertices, int32 vertexCount,
+		const b2Color& color)
+	{
+		// Enable blending
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_ONE, GL_ONE);
 
-			for (b2Fixture* fixture = fixtures; fixture; fixture = fixture->GetNext())
-			{
-				switch (fixture->GetType())
-				{
-				case b2Shape::Type::e_polygon:
-					{
-						b2PolygonShape* shape = (b2PolygonShape*)fixture->GetShape();
+		// Set colour
+		glColor4f(color.r, color.b, color.b, 0.5f);
 
-						glMatrixMode(GL_MODELVIEW);
-						glPushMatrix();
+		// Enable vertex arrays
+		glEnableClientState(GL_VERTEX_ARRAY);
 
-						// TODO: render;
+		// Set vertex pointer
+		glVertexPointer(2, GL_FLOAT, 0, vertices);
 
-						glPopMatrix();
-					}
-					break;
-				case b2Shape::Type::e_circle:
-					{
-						b2CircleShape* shape = (b2CircleShape*)fixture->GetShape();
+		// Draw polygon
+		glDrawArrays(GL_POLYGON, 0, vertexCount);
 
-						glColor3f(1, 1, 1);
-						fillCircle(body->GetPosition().x, body->GetPosition().y, shape->m_radius);
-					}
-					break;
-				default:
-					fprintf(stderr, "Fixture of invalid type found\n");
-					break;
-				}
-			}
-		}
+		// Disable vertex arrays
+		glDisableClientState(GL_VERTEX_ARRAY);
+
+		// Draw outline
+		DrawPolygon(vertices, vertexCount, color);
+
+		// Disable blending
+		glDisable(GL_BLEND);
+	}
+
+	void Box2DWorldRenderer::DrawCircle(const b2Vec2& center, float32 radius,
+		const b2Color& color)
+	{
+		// Draw circle
+		glColor3f(color.r, color.g, color.b);
+		drawCircle(center.x, center.y, radius*2);
+	}
+
+	void Box2DWorldRenderer::DrawSolidCircle(const b2Vec2& center, float32 radius,
+		const b2Vec2& axis, const b2Color& color)
+	{
+		// Enable blending
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_ONE, GL_ONE);
+
+		// Fill circle
+		glColor4f(color.r, color.g, color.b, 0.5f);
+		fillCircle(center.x, center.y, radius*2);
+
+		// Draw outline
+		glColor4f(color.r, color.g, color.b, 1.0f);
+		DrawCircle(center, radius, color);
+
+		// Disable blending
+		glDisable(GL_BLEND);
+	}
+
+	void Box2DWorldRenderer::DrawSegment(const b2Vec2& p1, const b2Vec2& p2,
+		const b2Color& color)
+	{
+		glColor3f(color.r, color.g, color.b);
+
+		glBegin(GL_LINES);
+		glVertex2f(p1.x, p1.y);
+		glVertex2f(p2.x, p2.y);
+		glEnd();
+	}
+
+	void Box2DWorldRenderer::DrawTransform(const b2Transform& xf)
+	{
+
 	}
 
 	void Box2DWorldRenderer::initCircleMesh()
@@ -77,8 +110,63 @@ namespace vlr
 			_circleVertexArray[2*i + 1] = 0.5f * sin(step * i);
 		}
 	}
+	
+	void Box2DWorldRenderer::drawCircle(float x, float y, float diameter)
+	{
+		renderCircle(x, y, diameter, GL_LINE_STRIP);
+	}
 
 	void Box2DWorldRenderer::fillCircle(float x, float y, float diameter)
+	{
+		renderCircle(x, y, diameter, GL_TRIANGLE_FAN);
+	}
+
+	void Box2DWorldRenderer::drawPoly(const b2Vec2* vertices, int32 vertexCount)
+	{
+		// Enable vertex arrays
+		glEnableClientState(GL_VERTEX_ARRAY);
+
+		// Set vertex pointer
+		glVertexPointer(2, GL_FLOAT, 0, vertices);
+
+		// Draw polygon
+		glDrawArrays(GL_LINE_STRIP, 0, vertexCount);
+
+		// Disable vertex arrays
+		glDisableClientState(GL_VERTEX_ARRAY);
+	}
+
+	void Box2DWorldRenderer::drawPolyClosed(const b2Vec2* vertices, int32 vertexCount)
+	{
+		// Enable vertex arrays
+		glEnableClientState(GL_VERTEX_ARRAY);
+
+		// Set vertex pointer
+		glVertexPointer(2, GL_FLOAT, 0, vertices);
+
+		// Draw polygon
+		glDrawArrays(GL_LINE_LOOP, 0, vertexCount);
+
+		// Disable vertex arrays
+		glDisableClientState(GL_VERTEX_ARRAY);
+	}
+
+	void Box2DWorldRenderer::drawPoints(const b2Vec2* vertices, int32 vertexCount)
+	{
+		// Enable vertex arrays
+		glEnableClientState(GL_VERTEX_ARRAY);
+
+		// Set vertex pointer
+		glVertexPointer(2, GL_FLOAT, 0, vertices);
+
+		// Draw polygon
+		glDrawArrays(GL_POINTS, 0, vertexCount);
+
+		// Disable vertex arrays
+		glDisableClientState(GL_VERTEX_ARRAY);
+	}
+
+	void Box2DWorldRenderer::renderCircle(float x, float y, float diameter, GLenum mode)
 	{
 		// Switch to modelview matrix
 		glMatrixMode(GL_MODELVIEW);
@@ -91,10 +179,9 @@ namespace vlr
 		glScalef(diameter, diameter, 1);
 
 		// Render
-		glColor3f(1, 1, 1);
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glVertexPointer(2, GL_FLOAT, 0, _circleVertexArray);
-		glDrawArrays(GL_TRIANGLE_FAN, 0, CIRCLE_DIVISIONS);
+		glDrawArrays(mode, 0, CIRCLE_DIVISIONS);
 		glDisableClientState(GL_VERTEX_ARRAY);
 
 		// Restore modelview matrix

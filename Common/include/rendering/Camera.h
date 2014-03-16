@@ -44,7 +44,7 @@ namespace vlr
 
 			inline Viewport getViewport() const;
 
-			glm::vec3 screenSpaceToWorld(float x, float y,
+			glm::vec3 worldSpaceToWorld(float x, float y,
 				float dist) const;
 
 			void setViewport(int x, int y, int width, int height);
