@@ -2308,5 +2308,7 @@ GLFWAPI GLFWglproc glfwGetProcAddress(const char* procname);
 }
 #endif
 
+#undef APIENTRY
+
 #endif /* _glfw3_h_ */
 

@@ -91,7 +91,7 @@ namespace vlr
 			_rotation *= glm::quat(euler);
 		}
 
-		glm::vec3 Camera::screenSpaceToWorld(float x, float y,
+		glm::vec3 Camera::worldSpaceToWorld(float x, float y,
 			float dist) const
 		{
 			// Calculate viewport space of cursor

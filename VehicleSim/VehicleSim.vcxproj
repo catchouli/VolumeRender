@@ -42,10 +42,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\obj\$(Configuration)\$(ProjectName)\</IntDir>
+    <TargetName>PhysicsSandbox</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\obj\$(Configuration)\$(ProjectName)\</IntDir>
+    <TargetName>PhysicsSandbox</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -59,7 +61,7 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)\dep\lib;$(SolutionDir)\bin\$(Configuration)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>Box2Dd.lib;glfw3dll.lib;glew32.lib;Common.lib;opengl32.lib;FreeImage.lib;gwend.lib;controlfactoryd.lib;GWEN-Renderer-OpenGL_DebugFontd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>jsoncppd.lib;Box2Dd.lib;glfw3dll.lib;glew32.lib;Common.lib;opengl32.lib;FreeImage.lib;gwend.lib;controlfactoryd.lib;GWEN-Renderer-OpenGL_DebugFontd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <AdditionalOptions>/ignore:4204 /ignore:4099 %(AdditionalOptions)</AdditionalOptions>
     </Link>
@@ -84,23 +86,56 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(SolutionDir)\dep\lib;$(SolutionDir)\bin\$(Configuration)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>Box2D.lib;glfw3dll.lib;glew32.lib;Common.lib;opengl32.lib;FreeImage.lib;gwen.lib;controlfactory.lib;GWEN-Renderer-OpenGL_DebugFont.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>jsoncpp.lib;Box2D.lib;glfw3dll.lib;glew32.lib;Common.lib;opengl32.lib;FreeImage.lib;gwen.lib;controlfactory.lib;GWEN-Renderer-OpenGL_DebugFont.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
       <AdditionalOptions>/ignore:4204 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\events\Gui.cpp" />
-    <ClCompile Include="src\input\Input.cpp" />
+    <ClCompile Include="src\application\Gui.cpp" />
+    <ClCompile Include="src\application\Input.cpp" />
+    <ClCompile Include="src\application\Render.cpp" />
+    <ClCompile Include="src\application\Update.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\rendering\Box2DWorldRenderer.cpp" />
-    <ClCompile Include="src\VehicleSim.cpp" />
+    <ClCompile Include="src\application\VehicleSim.cpp" />
+    <ClCompile Include="src\serialisation\Serialiser.cpp" />
+    <ClCompile Include="src\tools\ToolGui.cpp" />
+    <ClCompile Include="src\tools\ToolInput.cpp" />
+    <ClCompile Include="src\tools\Tool.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Input\InputConverter.h" />
+    <ClInclude Include="include\input\MotorInput.h" />
+    <ClInclude Include="include\misc\GetterSetter.h" />
+    <ClInclude Include="include\misc\Updatable.h" />
+    <ClInclude Include="include\options\WorldOptions.h" />
     <ClInclude Include="include\rendering\Box2DWorldRenderer.h" />
     <ClInclude Include="include\Resources.h" />
+    <ClInclude Include="include\serialisation\Serialiser.h" />
+    <ClInclude Include="include\tools\gui\BoolOption.h" />
+    <ClInclude Include="include\tools\gui\FloatOption.h" />
+    <ClInclude Include="include\tools\gui\IntOption.h" />
+    <ClInclude Include="include\tools\gui\MultiOption.h" />
+    <ClInclude Include="include\tools\gui\OptionBase.h" />
+    <ClInclude Include="include\tools\gui\SliderOption.h" />
+    <ClInclude Include="include\tools\gui\VectorOption.h" />
+    <ClInclude Include="include\tools\tools\CircleTool.h" />
+    <ClInclude Include="include\tools\joints\DistanceTool.h" />
+    <ClInclude Include="include\tools\tools\MovementTool.h" />
+    <ClInclude Include="include\tools\tools\PolyTool.h" />
+    <ClInclude Include="include\tools\joints\PrismaticTool.h" />
+    <ClInclude Include="include\tools\joints\PulleyTool.h" />
+    <ClInclude Include="include\tools\joints\RevoluteTool.h" />
+    <ClInclude Include="include\tools\tools\RotateTool.h" />
+    <ClInclude Include="include\tools\SampleTool.h" />
+    <ClInclude Include="include\tools\tools\SelectionTool.h" />
+    <ClInclude Include="include\tools\tools\SquareTool.h" />
+    <ClInclude Include="include\tools\Tool.h" />
+    <ClInclude Include="include\tools\joints\WeldTool.h" />
+    <ClInclude Include="include\tools\joints\WheelTool.h" />
+    <ClInclude Include="include\tools\tools\ZoomTool.h" />
     <ClInclude Include="include\VehicleSim.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
