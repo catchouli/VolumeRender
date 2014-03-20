@@ -43,7 +43,9 @@
 #include "tools/tools/PolyTool.h"
 #include "tools/tools/ZoomTool.h"
 #include "tools/tools/RotateTool.h"
+#include "tools/tools/CamFollow.h"
 
+#include "tools/joints/NoCollideTool.h"
 #include "tools/joints/DistanceTool.h"
 #include "tools/joints/RevoluteTool.h"
 #include "tools/joints/PrismaticTool.h"
@@ -72,9 +74,10 @@ namespace vlr
 			Gwen::Controls::MenuItem* file = menu->AddItem("File");
 			
 			file->GetMenu()->AddItem("New", res::file::icon::NONE)->SetAction(this, &VehicleSim::newDocument);
-			file->GetMenu()->AddItem("Open", res::file::icon::NONE)->SetAction(this, &VehicleSim::loadDocument);
+			file->GetMenu()->AddItem("Open...", res::file::icon::NONE)->SetAction(this, &VehicleSim::loadDocument);
 			file->GetMenu()->AddItem("Save", res::file::icon::NONE)->SetAction(this, &VehicleSim::saveDocument);
-			file->GetMenu()->AddItem("Save As", res::file::icon::NONE)->SetAction(this, &VehicleSim::saveDocumentAs);
+			file->GetMenu()->AddItem("Save As...", res::file::icon::NONE)->SetAction(this, &VehicleSim::saveDocumentAs);
+			file->GetMenu()->AddItem("Import & Combine...", res::file::icon::NONE)->SetAction(this, &VehicleSim::importDocument);
 			file->GetMenu()->AddItem("Exit", res::file::icon::NONE)->SetAction(this, &VehicleSim::exitApplication);
 		}
 		menu->SetWidth(getWidth());
@@ -140,176 +143,95 @@ namespace vlr
 			float ypos = 0;
 
 			// Create options
-			Label* label;
 			BoolOption<WorldOptions>* bo;
+			VectorOption<b2World>* vob2w;
 
 			// Gravity options
-			label = new Label(worldOptionsBase);
-			label->SetText("Gravity");
-			label->SetPos(5, ypos);
-
-			VectorOption<b2World>* vob2w =
-				new VectorOption<b2World>(worldOptionsBase,
-				&_physWorld, &b2World::GetGravity, &b2World::SetGravity);
-			
-			vob2w->getTextBoxX()->SetPos(xstart, ypos);
-			vob2w->getTextBoxX()->SetWidth(xwidth - xstart);
-			ypos += TEXTBOX_HEIGHT;
-
-			vob2w->getTextBoxY()->SetPos(xstart, ypos);
-			vob2w->getTextBoxY()->SetWidth(xwidth - xstart);
-			ypos += TEXTBOX_HEIGHT;
-
+			vob2w = Tool::createVectorOption("Gravity", worldOptionsBase, 5, ypos,
+				GetterSetter<b2World, b2Vec2>(&_physWorld, &b2World::GetGravity, &b2World::SetGravity));
 			_updatableOptions.push_back(vob2w);
+			ypos += TEXTBOX_HEIGHT * 3;
 
 			// Drawing options
-			ypos += 25;
-			label = new Label(worldOptionsBase);
-			label->SetText("Drawing options");
-			label->SetPos(5, ypos);
+			Tool::createLabel("Drawing options", worldOptionsBase, 5, ypos);
 			ypos += TEXTBOX_HEIGHT;
 
 			// Draw shapes
-			label = new Label(worldOptionsBase);
-			label->SetText("  Draw shapes");
-			label->SetPos(5, ypos);
-
-			bo =
-				new BoolOption<WorldOptions>(worldOptionsBase, &_worldOptions,
-				&WorldOptions::getEnableDrawShapes, &WorldOptions::setEnableDrawShapes);
+			bo = Tool::createBoolOption("  Draw shapes", worldOptionsBase, 5, ypos,
+				GetterSetter<WorldOptions, bool>(&_worldOptions, &WorldOptions::getEnableDrawShapes, &WorldOptions::setEnableDrawShapes));
 			_updatableOptions.push_back(bo);
-			bo->getCheckBox()->SetPos(xstart, ypos);
-
 			ypos += TEXTBOX_HEIGHT;
 
 			// Draw joints
-			label = new Label(worldOptionsBase);
-			label->SetText("  Draw joints");
-			label->SetPos(5, ypos);
-
-			bo =
-				new BoolOption<WorldOptions>(worldOptionsBase, &_worldOptions,
-				&WorldOptions::getEnableDrawJoints, &WorldOptions::setEnableDrawJoints);
+			bo = Tool::createBoolOption("  Draw joints", worldOptionsBase, 5, ypos,
+				GetterSetter<WorldOptions, bool>(&_worldOptions, &WorldOptions::getEnableDrawJoints, &WorldOptions::setEnableDrawJoints));
 			_updatableOptions.push_back(bo);
-			bo->getCheckBox()->SetPos(xstart, ypos);
-
 			ypos += TEXTBOX_HEIGHT;
 
-			// Draw AABBs
-			label = new Label(worldOptionsBase);
-			label->SetText("  Draw AABBs");
-			label->SetPos(5, ypos);
-
-			bo =
-				new BoolOption<WorldOptions>(worldOptionsBase, &_worldOptions,
-				&WorldOptions::getEnableDrawAABBs, &WorldOptions::setEnableDrawAABBs);
+			// Draw joints
+			bo = Tool::createBoolOption("  Draw AABBs", worldOptionsBase, 5, ypos,
+				GetterSetter<WorldOptions, bool>(&_worldOptions,
+				&WorldOptions::getEnableDrawAABBs, &WorldOptions::setEnableDrawAABBs));
 			_updatableOptions.push_back(bo);
-			bo->getCheckBox()->SetPos(xstart, ypos);
-
-			ypos += TEXTBOX_HEIGHT;
+			ypos += TEXTBOX_HEIGHT * 2;
 
 			// Simulation settings
-			ypos += 25;
-			label = new Label(worldOptionsBase);
-			label->SetText("Simulation settings");
-			label->SetPos(5, ypos);
+			Tool::createLabel("Simulation settings", worldOptionsBase, 5, ypos);
 			ypos += TEXTBOX_HEIGHT;
 
 			// Steps per second
-			label = new Label(worldOptionsBase);
-			label->SetText("  Steps per second");
-			label->SetPos(5, ypos);
-
-			IntOption<VehicleSim>* iovs = 
-				new IntOption<VehicleSim>(worldOptionsBase,
-				this, &_timeStep);
+			IntOption<VehicleSim>* iovs = Tool::createIntOption("  Steps per second",
+				worldOptionsBase, 5, ypos, GetterSetter<VehicleSim, int>(this, &VehicleSim::_timeStep));
 			_updatableOptions.push_back(iovs);
-			
-			iovs->getTextBox()->SetPos(xstart, ypos);
-			iovs->getTextBox()->SetWidth(xwidth - xstart);
 			ypos += TEXTBOX_HEIGHT;
 
 			// Velocity iterations
-			label = new Label(worldOptionsBase);
-			label->SetText("  Velocity iterations");
-			label->SetPos(5, ypos);
-
-			iovs = 
-				new IntOption<VehicleSim>(worldOptionsBase,
-				this, &_velocityIterations);
+			iovs = Tool::createIntOption("  Velocity iterations", worldOptionsBase, 5,
+				ypos, GetterSetter<VehicleSim, int>(this, &VehicleSim::_velocityIterations));
 			_updatableOptions.push_back(iovs);
-			
-			iovs->getTextBox()->SetPos(xstart, ypos);
-			iovs->getTextBox()->SetWidth(xwidth - xstart);
 			ypos += TEXTBOX_HEIGHT;
 
 			// Position iterations
-			label = new Label(worldOptionsBase);
-			label->SetText("  Position iterations");
-			label->SetPos(5, ypos);
-
-			iovs = 
-				new IntOption<VehicleSim>(worldOptionsBase,
-				this, &_positionIterations);
+			iovs = Tool::createIntOption("  Position iterations", worldOptionsBase, 5,
+				ypos, GetterSetter<VehicleSim, int>(this, &VehicleSim::_positionIterations));
 			_updatableOptions.push_back(iovs);
-			
-			iovs->getTextBox()->SetPos(xstart, ypos);
-			iovs->getTextBox()->SetWidth(xwidth - xstart);
-			ypos += TEXTBOX_HEIGHT;
+			ypos += TEXTBOX_HEIGHT * 2;
 
 			// Testing settings
-			ypos += 25;
-			label = new Label(worldOptionsBase);
-			label->SetText("Testing settings");
-			label->SetPos(5, ypos);
+			Tool::createLabel("Testing settings", worldOptionsBase, 5, ypos);
 			ypos += TEXTBOX_HEIGHT;
 
 			// Allow sleeping
-			label = new Label(worldOptionsBase);
-			label->SetText("  Allow sleeping");
-			label->SetPos(5, ypos);
-
-			BoolOption<b2World>* bob2w =
-				new BoolOption<b2World>(worldOptionsBase, &_physWorld,
-				&b2World::GetAllowSleeping, &b2World::SetAllowSleeping);
+			BoolOption<b2World>* bob2w = Tool::createBoolOption("  Allow Sleeping",
+				worldOptionsBase, 5, ypos,
+				GetterSetter<b2World, bool>(&_physWorld,
+				&b2World::GetAllowSleeping, &b2World::SetAllowSleeping));
 			_updatableOptions.push_back(bob2w);
-			bob2w->getCheckBox()->SetPos(xstart, ypos);
 			ypos += TEXTBOX_HEIGHT;
 
 			// Warm starting
-			label = new Label(worldOptionsBase);
-			label->SetText("  Warm starting");
-			label->SetPos(5, ypos);
-
-			bob2w =
-				new BoolOption<b2World>(worldOptionsBase, &_physWorld,
-				&b2World::GetWarmStarting, &b2World::SetWarmStarting);
+			Tool::createBoolOption("  Warm starting",
+				worldOptionsBase, 5, ypos,
+				GetterSetter<b2World, bool>(&_physWorld,
+				&b2World::GetWarmStarting, &b2World::SetWarmStarting));
 			_updatableOptions.push_back(bob2w);
-			bob2w->getCheckBox()->SetPos(xstart, ypos);
 			ypos += TEXTBOX_HEIGHT;
 
 			// Continuous physics
-			label = new Label(worldOptionsBase);
-			label->SetText("  Continuous physics");
-			label->SetPos(5, ypos);
-
-			bob2w =
-				new BoolOption<b2World>(worldOptionsBase, &_physWorld,
-				&b2World::GetContinuousPhysics, &b2World::SetContinuousPhysics);
+			Tool::createBoolOption("  Continuous physics",
+				worldOptionsBase, 5, ypos,
+				GetterSetter<b2World, bool>(&_physWorld,
+				&b2World::GetContinuousPhysics, &b2World::SetContinuousPhysics));
 			_updatableOptions.push_back(bob2w);
-			bob2w->getCheckBox()->SetPos(xstart, ypos);
 			ypos += TEXTBOX_HEIGHT;
 
 			// Sub stepping
-			label = new Label(worldOptionsBase);
-			label->SetText("  Sub stepping");
-			label->SetPos(5, ypos);
-
-			bob2w =
-				new BoolOption<b2World>(worldOptionsBase, &_physWorld,
-				&b2World::GetSubStepping, &b2World::SetSubStepping);
+			Tool::createBoolOption("  Sub stepping",
+				worldOptionsBase, 5, ypos,
+				GetterSetter<b2World, bool>(&_physWorld,
+				&b2World::GetSubStepping, &b2World::SetSubStepping));
 			_updatableOptions.push_back(bob2w);
-			bob2w->getCheckBox()->SetPos(xstart, ypos);
+			ypos += TEXTBOX_HEIGHT;
 		}
 
 		// Create tools
@@ -320,7 +242,9 @@ namespace vlr
 		new SquareTool(this, toolPanel, _guiDock->GetRight()->GetTabControl(), res::file::icon::SQUARE);
 		new PolyTool(this, toolPanel, _guiDock->GetRight()->GetTabControl(), res::file::icon::POLY);
 		new ZoomTool(this, toolPanel, _guiDock->GetRight()->GetTabControl(), res::file::icon::ZOOM);
+		_cf = new CamFollow(this, toolPanel, _guiDock->GetRight()->GetTabControl(), res::file::icon::CAMFOLLOW);
 
+		new NoCollideTool(this, jointPanel, _guiDock->GetRight()->GetTabControl(), res::file::icon::NOCOLLIDE);
 		new DistanceTool(this, jointPanel, _guiDock->GetRight()->GetTabControl(), res::file::icon::DISTANCE);
 		new RevoluteTool(this, jointPanel, _guiDock->GetRight()->GetTabControl(), res::file::icon::REVOLUTE);
 		new PrismaticTool(this, jointPanel, _guiDock->GetRight()->GetTabControl(), res::file::icon::PRISMATIC);
@@ -341,7 +265,7 @@ namespace vlr
 		if (_simulationRunning)
 		{
 			// Store state
-			_storedState = Serialiser::serialiseWorld(&_physWorld);
+			_storedState = Serialiser::serialiseWorld(this, &_physWorld);
 			_resetButton->SetDisabled(false);
 		}
 		else
@@ -349,8 +273,8 @@ namespace vlr
 			// Restore state
 			if (_currentTool != nullptr)
 				_currentTool->reset();
-			Serialiser::destroyWorld(&_physWorld);
-			Serialiser::deserialiseWorld(&_physWorld, _storedState);
+			Serialiser::destroyWorld(this, &_physWorld);
+			Serialiser::deserialiseWorld(this, &_physWorld, _storedState);
 			_resetButton->SetDisabled(true);
 		}
 	}
@@ -360,8 +284,8 @@ namespace vlr
 		if (_currentTool != nullptr)
 			_currentTool->reset();
 
-		Serialiser::destroyWorld(&_physWorld);
-		Serialiser::deserialiseWorld(&_physWorld, _storedState);
+		Serialiser::destroyWorld(this, &_physWorld);
+		Serialiser::deserialiseWorld(this, &_physWorld, _storedState);
 	}
 
 	void VehicleSim::selectTool(Gwen::Event::Info info)
@@ -413,15 +337,14 @@ namespace vlr
 
 	void VehicleSim::newDocument(Gwen::Event::Info info)
 	{
+		// Disable simulation
+		disableSim();
+
 		if (_currentTool != nullptr)
 			_currentTool->reset();
 
 		// Reset world
-		Serialiser::destroyWorld(&_physWorld);
-
-		// Disable simulation
-		disableSim();
-		doStep();
+		Serialiser::destroyWorld(this, &_physWorld);
 
 		_filename = "";
 	}
@@ -430,10 +353,9 @@ namespace vlr
 	{
 		// Disable simulation
 		disableSim();
-		doStep();
 
 		// Serialize world
-		std::string world = Serialiser::serialiseWorld(&_physWorld);
+		std::string world = Serialiser::serialiseWorld(this, &_physWorld);
 
 		// Try to save file as current filename if set
 		if (_filename != "")
@@ -464,10 +386,9 @@ namespace vlr
 	{
 		// Disable simulation
 		disableSim();
-		doStep();		
 
 		// Serialize world
-		std::string world = Serialiser::serialiseWorld(&_physWorld);
+		std::string world = Serialiser::serialiseWorld(this, &_physWorld);
 
 		// Get file path and name from user
 		_gotString = false;
@@ -499,12 +420,6 @@ namespace vlr
 		if (_currentTool != nullptr)
 			_currentTool->reset();
 
-		// Reset world
-		Serialiser::destroyWorld(&_physWorld);
-
-		// Disable simulation
-		disableSim();
-
 		// Get file path and name from user
 		_gotString = false;
 		Gwen::Dialogs::FileOpen(true, "Load simulation", ".", "Simulated world (*.sim) | *.sim", this, &VehicleSim::getString);
@@ -514,6 +429,12 @@ namespace vlr
 		{
 			long len;
 			char* buffer;
+
+			// Reset world
+			Serialiser::destroyWorld(this, &_physWorld);
+
+			// Disable simulation
+			disableSim();
 
 			// Load document
 			FILE* file = fopen(_lastString.c_str(), "rb");
@@ -541,7 +462,58 @@ namespace vlr
 			}
 
 			// Parse it to json
-			Serialiser::deserialiseWorld(&_physWorld, buffer);
+			Serialiser::deserialiseWorld(this, &_physWorld, buffer);
+
+			free(buffer);
+			_filename = _lastString;
+		}
+	}
+
+	void VehicleSim::importDocument(Gwen::Event::Info info)
+	{
+		if (_currentTool != nullptr)
+			_currentTool->reset();
+
+		// Get file path and name from user
+		_gotString = false;
+		Gwen::Dialogs::FileOpen(true, "Load simulation", ".", "Simulated world (*.sim) | *.sim", this, &VehicleSim::getString);
+
+		// Load file
+		if (_gotString)
+		{
+			long len;
+			char* buffer;
+
+			// Disable simulation
+			disableSim();
+
+			// Load document
+			FILE* file = fopen(_lastString.c_str(), "rb");
+
+			if (file == 0)
+			{
+				loadDocument(info);
+				return;
+			}
+
+			// Get file length
+			fseek(file, 0, SEEK_END);
+			len = ftell(file);
+			fseek(file, 0, SEEK_SET);
+
+			// Load data
+			buffer = (char*)malloc(len);
+			size_t read = fread(buffer, 1, len, file);
+			fclose(file);
+
+			if (read <= 0)
+			{
+				free(buffer);
+				loadDocument(info);
+			}
+
+			// Parse it to json
+			Serialiser::deserialiseWorld(this, &_physWorld, buffer);
 
 			free(buffer);
 			_filename = _lastString;

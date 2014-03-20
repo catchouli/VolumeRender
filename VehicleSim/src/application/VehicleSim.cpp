@@ -7,7 +7,7 @@
 
 namespace vlr
 {
-	const b2Vec2 gravity(0.0f, -10.0f);
+	const b2Vec2 gravity(0.0f, -50.0f);
 	
 	const float DEFAULT_SCALE = 10.0f;
 
@@ -19,7 +19,8 @@ namespace vlr
 		_worldOptions(&_physWorld, &_worldRenderer),
 		_timeStep(VEHICLESIM_PHYSICS_STEP),
 		_velocityIterations(VEHICLESIM_VELOCITY_ITERATIONS),
-		_positionIterations(VEHICLESIM_POSITION_ITERATIONS)
+		_positionIterations(VEHICLESIM_POSITION_ITERATIONS),
+		_camFollow(nullptr)
 	{
 		// Update window pointer
 		glfwSetWindowUserPointer(_window, this);

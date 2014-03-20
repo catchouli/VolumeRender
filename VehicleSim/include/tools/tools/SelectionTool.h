@@ -7,10 +7,10 @@
 #include <math.h>
 #include <Gwen/Controls/ListBox.h>
 
+#include "VehicleSim.h"
+#include "input/InputConverter.h"
 #include "rendering/Box2DWorldRenderer.h"
 #include "tools/gui/OptionBase.h"
-
-#include "input/InputConverter.h"
 
 namespace vlr
 {
@@ -72,6 +72,12 @@ namespace vlr
 
 			if (joint != _currentJoint)
 			{
+				for (auto it = _jointOptionsUpdatables.begin(); it != _jointOptionsUpdatables.end(); ++it)
+				{
+					(*it)->setEnabled(false);
+				}
+				_jointOptionsUpdatables.clear();
+
 				_currentJoint = joint;
 				selectJoint(_currentJoint);
 			}
@@ -84,11 +90,15 @@ namespace vlr
 				_physWorld->DestroyJoint(_currentJoint);
 				_currentJoint = nullptr;
 
+				_listBox->Clear();
+				getJoints(_currentBody);
+				_jointOptions->Hide();
+
 				for (auto it = _jointOptionsUpdatables.begin(); it != _jointOptionsUpdatables.end(); ++it)
 				{
 					(*it)->setEnabled(false);
 				}
-			_jointOptionsUpdatables.clear();
+				_jointOptionsUpdatables.clear();
 			}
 		}
 
@@ -150,8 +160,9 @@ namespace vlr
 
 		void getJoints(b2Body* body)
 		{
-			Gwen::Controls::Layout::TableRow* first = nullptr;
+			Gwen::Controls::Layout::TableRow* last;
 
+			int i = 0;
 			for (b2JointEdge* jointEdge = body->GetJointList();
 				jointEdge; jointEdge = jointEdge->next)
 			{
@@ -165,7 +176,7 @@ namespace vlr
 					typeStr = "Distance Joint";
 					break;
 				case b2JointType::e_frictionJoint:
-					typeStr = "Friction Joint";
+					typeStr = "No collide";
 					break;
 				case b2JointType::e_motorJoint:
 					typeStr = "Motor Joint";
@@ -199,8 +210,9 @@ namespace vlr
 				auto item = _listBox->AddItem(typeStr);
 				item->UserData.Set("joint", joint);
 
-				if (first == nullptr)
-					first = item;
+				i++;
+
+				last = item;
 			}
 		}
 
@@ -385,7 +397,13 @@ namespace vlr
 					// Iterate through every fixture
 					for (b2Fixture* fixture = body->GetFixtureList(); fixture; fixture = fixture->GetNext())
 					{
+						bool active = body->IsActive();
+
+						// Make body active for a moment if it's not
+						// (inactive bodies don't have AABBs for some reason)
+						body->SetActive(true);
 						const b2AABB& aabb = fixture->GetAABB(0);
+						body->SetActive(active);
 
 						if (aabb.lowerBound.x <= worldPoint.x &&
 							aabb.lowerBound.y <= worldPoint.y &&
@@ -430,7 +448,7 @@ namespace vlr
 
 		virtual void mousemove(double x, double y, double dx, double dy) override
 		{
-			const float MIN_DRAG = 30.0f;
+			const float MIN_DRAG = 5.0f;
 
 			if (_enabled && _mousedown)
 			{
@@ -484,10 +502,81 @@ namespace vlr
 				{
 					for (unsigned int i = 0; i < _selected.size(); ++i)
 					{
-						_physWorld->DestroyBody(_selected[i]);
+						b2Body* body = _selected[i];
+
+						if (_app->_camFollow == body)
+							_app->_camFollow = nullptr;
+
+						_physWorld->DestroyBody(body);
 					}
 
 					reset();
+				}
+
+				if ((mods & GLFW_MOD_CONTROL) > 0 && key == GLFW_KEY_D)
+				{
+					// Dulpicate each body
+					for (auto it = _selected.begin(); it != _selected.end(); ++it)
+					{
+						b2Body* body = *it;
+
+						b2BodyDef bodyDef;
+						bodyDef.active = body->IsActive();
+						bodyDef.type = body->GetType();
+						bodyDef.position = body->GetPosition();
+						bodyDef.angle = body->GetAngle();
+						bodyDef.linearDamping = body->GetLinearDamping();
+						bodyDef.linearVelocity = body->GetLinearVelocity();
+						bodyDef.angularDamping = body->GetAngularDamping();
+						bodyDef.angularVelocity = body->GetAngularVelocity();
+						bodyDef.allowSleep = body->IsSleepingAllowed();
+						bodyDef.awake = body->IsAwake();
+						bodyDef.bullet = body->IsBullet();
+						bodyDef.fixedRotation = body->IsFixedRotation();
+						bodyDef.active = body->IsActive();
+						bodyDef.gravityScale = body->GetGravityScale();
+
+						b2Body* newBody = _physWorld->CreateBody(&bodyDef);
+
+						for (b2Fixture* fix = body->GetFixtureList(); fix; fix = fix->GetNext())
+						{
+							b2FixtureDef fixDef;
+							fixDef.density = fix->GetDensity();
+							fixDef.filter = fix->GetFilterData();
+							fixDef.friction = fix->GetFriction();
+							fixDef.isSensor = fix->IsSensor();
+							fixDef.restitution = fix->GetRestitution();
+
+							b2Shape* shape = fix->GetShape();
+							
+							switch (shape->GetType())
+							{
+							case b2Shape::e_circle:
+								{
+									b2CircleShape circle;
+									circle.m_p = ((b2CircleShape*)shape)->m_p;
+									circle.m_radius = ((b2CircleShape*)shape)->m_radius;
+
+									fixDef.shape = &circle;
+
+									newBody->CreateFixture(&fixDef);
+								}
+								break;
+							case b2Shape::e_polygon:
+								{
+									b2PolygonShape poly;
+									poly.Set(&((b2PolygonShape*)shape)->GetVertex(0), ((b2PolygonShape*)shape)->GetVertexCount());
+
+									fixDef.shape = &poly;
+
+									newBody->CreateFixture(&fixDef);
+								}
+								break;
+							default:
+								break;
+							}
+						}
+					}
 				}
 			}
 		}

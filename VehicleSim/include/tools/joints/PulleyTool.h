@@ -145,7 +145,7 @@ namespace vlr
 
 		void createJoint()
 		{
-			b2PulleyJointDef jointDef;
+			b2PulleyJointDef jointDef = _pulleyJointDef;
 
 			jointDef.collideConnected = false;
 

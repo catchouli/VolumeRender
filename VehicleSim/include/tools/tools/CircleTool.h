@@ -72,7 +72,7 @@ namespace vlr
 				_radius = glm::length(pos - startpos);
 
 				_app->_worldRenderer.DrawSolidCircle(b2Vec2(startpos.x, startpos.y),
-					_radius, b2Vec2(), b2Color(1, 1, 1));
+					_radius, b2Vec2(0, 0), b2Color(1, 1, 1));
 			}
 		}
 

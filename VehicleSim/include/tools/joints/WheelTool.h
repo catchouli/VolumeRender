@@ -137,7 +137,7 @@ namespace vlr
 
 		void createJoint()
 		{
-			b2WheelJointDef jointDef;
+			b2WheelJointDef jointDef = _wheelJointDef;
 
 			jointDef.collideConnected = false;
 

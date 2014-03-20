@@ -8,7 +8,7 @@
 namespace vlr
 {
 	const float MIN_ORTHO_SCALE = 1.0f;
-	const float MAX_ORTHO_SCALE = 30.0f;
+	const float MAX_ORTHO_SCALE = 100.0f;
 
 	const float MOUSEMOVE_ZOOM_SPEED = 0.1f;
 

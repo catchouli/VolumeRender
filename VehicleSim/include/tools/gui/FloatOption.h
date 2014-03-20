@@ -16,12 +16,21 @@ namespace vlr
 	public:
 		typedef float type;
 
+		typedef GetterSetter<baseType, type> GetterType;
+
 		typedef type (baseType::*getterPointerType)() const;
 		typedef void (baseType::*setterPointerType)(type);
 
 		FloatOption(Gwen::Controls::Base* parent,
-			baseType* base, type* pval)
+			baseType* base, typename GetterType::finalPointerType pval)
 			: _parent(parent), _getter(base, pval), OptionBase(base)
+		{
+			init();
+		}
+
+		FloatOption(Gwen::Controls::Base* parent,
+			GetterType getter)
+			: _parent(parent), _getter(getter), OptionBase(getter.getBase())
 		{
 			init();
 		}
@@ -100,7 +109,7 @@ namespace vlr
 		}
 
 	private:
-		GetterSetter<baseType, type> _getter;
+		GetterType _getter;
 
 		Gwen::Controls::Base* _parent;
 		Gwen::Controls::TextBox* _textBox;

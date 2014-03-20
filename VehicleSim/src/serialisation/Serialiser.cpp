@@ -4,11 +4,14 @@
 #include <Box2D/Box2D.h>
 #include <map>
 
+#include "VehicleSim.h"
 #include "input/MotorInput.h"
+#include "tools/tools/CamFollow.h"
 
 namespace vlr
 {
-	std::string Serialiser::serialiseWorld(const b2World* world)
+	std::string Serialiser::serialiseWorld(const VehicleSim* vehicleSim,
+		const b2World* world)
 	{
 		unsigned int lastBodyId = 0;
 		std::map<const b2Body*, unsigned int> bodyIds;
@@ -20,8 +23,17 @@ namespace vlr
 		Json::Value root;
 
 		// Populate root
+		root["drawBodies"] = (vehicleSim->_worldRenderer.GetFlags() & b2Draw::e_shapeBit) > 0;
+		root["drawJoints"] = (vehicleSim->_worldRenderer.GetFlags() & b2Draw::e_jointBit) > 0;
+		root["drawAABBs"] = (vehicleSim->_worldRenderer.GetFlags() & b2Draw::e_aabbBit) > 0;
+
 		root["gravity"]["x"] = (double)world->GetGravity().x;
 		root["gravity"]["y"] = (double)world->GetGravity().y;
+		
+		root["camPos"]["x"] = vehicleSim->_camera.getPos().x;
+		root["camPos"]["y"] = vehicleSim->_camera.getPos().y;
+
+		root["camOrthoScale"] = vehicleSim->_orthoScale;
 
 		// Save bodies
 		root["bodyCount"] = world->GetBodyCount();
@@ -148,10 +160,11 @@ namespace vlr
 			
 				// Store motor input info
 				jointVal["mo"]["set"] = true;
-				jointVal["mo"]["maxForce"] = mo->maxForce;
-				jointVal["mo"]["speed"] = mo->speed;
-				jointVal["mo"]["forwardButton"] = mo->forwardButton;
-				jointVal["mo"]["reverseButton"] = mo->reverseButton;
+				jointVal["mo"]["enabled"] = mo->getEnabled();
+				jointVal["mo"]["maxForce"] = mo->getMaxForce();
+				jointVal["mo"]["speed"] = mo->getSpeed();
+				jointVal["mo"]["forwardButton"] = mo->getForwardKey();
+				jointVal["mo"]["reverseButton"] = mo->getReverseKey();
 			}
 			else
 			{
@@ -352,11 +365,16 @@ namespace vlr
 			currentJoint++;
 		}
 
+		// Save the body that's being followed (if any)
+		root["camFollowOn"] = vehicleSim->_cf->getSelected();
+		if (vehicleSim->_camFollow != nullptr)
+			root["camFollow"] = bodyIds[vehicleSim->_camFollow];
+
 		// Serialise root
 		return writer.write(root);
 	}
 
-	void Serialiser::deserialiseWorld(b2World* world, std::string string)
+	void Serialiser::deserialiseWorld(VehicleSim* vehicleSim, b2World* world, std::string string)
 	{
 		std::map<int, b2Body*> bodyMap;
 
@@ -375,10 +393,31 @@ namespace vlr
 			return;
 		}
 
+		// Load drawing settings
+		if (root["drawBodies"].asBool())
+			vehicleSim->_worldRenderer.AppendFlags(b2Draw::e_shapeBit);
+		else
+			vehicleSim->_worldRenderer.ClearFlags(b2Draw::e_shapeBit);
+
+		if (root["drawJoints"].asBool())
+			vehicleSim->_worldRenderer.AppendFlags(b2Draw::e_jointBit);
+		else
+			vehicleSim->_worldRenderer.ClearFlags(b2Draw::e_jointBit);
+
+		if (root["drawAABBs"].asBool())
+			vehicleSim->_worldRenderer.AppendFlags(b2Draw::e_aabbBit);
+		else
+			vehicleSim->_worldRenderer.ClearFlags(b2Draw::e_aabbBit);
+
 		// Load gravity
 		b2Vec2 gravity;
 		gravity.x = root["gravity"]["x"].asFloat();
 		gravity.y = root["gravity"]["y"].asFloat();
+
+		vehicleSim->_camera.setPos(glm::vec3(root["camPos"]["x"].asFloat(),
+			root["camPos"]["y"].asFloat(), 0));
+
+		vehicleSim->_orthoScale = root["camOrthoScale"].asFloat();
 
 		world->SetGravity(gravity);
 
@@ -781,19 +820,29 @@ namespace vlr
 				{
 					MotorInput mo;
 					
-					mo.maxForce = jointVal["mo"]["maxForce"].asFloat();
-					mo.speed = jointVal["mo"]["speed"].asFloat();
-					mo.forwardButton = jointVal["mo"]["forwardButton"].asInt();
-					mo.reverseButton = jointVal["mo"]["reverseButton"].asInt();
+					mo.setEnabled(jointVal["mo"]["enabled"].asBool());
+					mo.setMaxForce(jointVal["mo"]["maxForce"].asFloat());
+					mo.setSpeed(jointVal["mo"]["speed"].asFloat());
+					mo.setForwardKey(jointVal["mo"]["forwardButton"].asInt());
+					mo.setReverseKey(jointVal["mo"]["reverseButton"].asInt());
 
 					joint->SetUserData(new MotorInput(mo));
 				}
 			}
 		}
+
+		// Load the body that's being followed (if any)
+		vehicleSim->_cf->setSelected(root["camFollowOn"].asBool());
+		if (root.isMember("camFollow"))
+		{
+			vehicleSim->_camFollow = bodyMap[root["camFollow"].asInt()];
+		}
 	}
 
-	void Serialiser::destroyWorld(b2World* world)
+	void Serialiser::destroyWorld(VehicleSim* vehicleSim, b2World* world)
 	{
+		vehicleSim->_camFollow = nullptr;
+
 		b2Body* body;
 		while ((body = world->GetBodyList()) != 0)
 		{
