@@ -1,0 +1,1241 @@
+{
+   "bodies" : [
+      {
+         "active" : true,
+         "allowSleep" : true,
+         "angle" : 0.0,
+         "angularDampening" : 0.0,
+         "angularVelocity" : 0.0,
+         "bullet" : false,
+         "fixedRotation" : false,
+         "fixtureCount" : 40,
+         "fixtures" : [
+            {
+               "density" : 1.0,
+               "filter" : {
+                  "categoryBits" : 1,
+                  "groupIndex" : 0,
+                  "maskBits" : 65535
+               },
+               "friction" : 0.2000000029802322,
+               "id" : 0,
+               "isSensor" : false,
+               "restitution" : 0.0,
+               "shape" : {
+                  "type" : 2,
+                  "vertexCount" : 3,
+                  "vertices" : [
+                     {
+                        "x" : -96.41399383544922,
+                        "y" : -2.056962013244629
+                     },
+                     {
+                        "x" : -104.4497146606445,
+                        "y" : 1.826966762542725
+                     },
+                     {
+                        "x" : -112.6193542480469,
+                        "y" : -0.04803299903869629
+                     }
+                  ]
+               }
+            },
+            {
+               "density" : 1.0,
+               "filter" : {
+                  "categoryBits" : 1,
+                  "groupIndex" : 0,
+                  "maskBits" : 65535
+               },
+               "friction" : 0.2000000029802322,
+               "id" : 1,
+               "isSensor" : false,
+               "restitution" : 0.0,
+               "shape" : {
+                  "type" : 2,
+                  "vertexCount" : 3,
+                  "vertices" : [
+                     {
+                        "x" : -94.67292785644531,
+                        "y" : -4.065890312194824
+                     },
+                     {
+                        "x" : -96.41399383544922,
+                        "y" : -2.056962013244629
+                     },
+                     {
+                        "x" : -112.6193542480469,
+                        "y" : -0.04803299903869629
+                     }
+                  ]
+               }
+            },
+            {
+               "density" : 1.0,
+               "filter" : {
+                  "categoryBits" : 1,
+                  "groupIndex" : 0,
+                  "maskBits" : 65535
+               },
+               "friction" : 0.2000000029802322,
+               "id" : 2,
+               "isSensor" : false,
+               "restitution" : 0.0,
+               "shape" : {
+                  "type" : 2,
+                  "vertexCount" : 3,
+                  "vertices" : [
+                     {
+                        "x" : 130.8650054931641,
+                        "y" : -8.349152565002441
+                     },
+                     {
+                        "x" : 126.2209091186523,
+                        "y" : 7.270998954772949
+                     },
+                     {
+                        "x" : 127.3350601196289,
+                        "y" : -15.98308086395264
+                     }
+                  ]
+               }
+            },
+            {
+               "density" : 1.0,
+               "filter" : {
+                  "categoryBits" : 1,
+                  "groupIndex" : 0,
+                  "maskBits" : 65535
+               },
+               "friction" : 0.2000000029802322,
+               "id" : 3,
+               "isSensor" : false,
+               "restitution" : 0.0,
+               "shape" : {
+                  "type" : 2,
+                  "vertexCount" : 3,
+                  "vertices" : [
+                     {
+                        "x" : 127.3350601196289,
+                        "y" : -15.98308086395264
+                     },
+                     {
+                        "x" : 126.2209091186523,
+                        "y" : 7.270998954772949
+                     },
+                     {
+                        "x" : 121.3283309936523,
+                        "y" : 12.56535816192627
+                     }
+                  ]
+               }
+            },
+            {
+               "density" : 1.0,
+               "filter" : {
+                  "categoryBits" : 1,
+                  "groupIndex" : 0,
+                  "maskBits" : 65535
+               },
+               "friction" : 0.2000000029802322,
+               "id" : 4,
+               "isSensor" : false,
+               "restitution" : 0.0,
+               "shape" : {
+                  "type" : 2,
+                  "vertexCount" : 3,
+                  "vertices" : [
+                     {
+                        "x" : 116.2108535766602,
+                        "y" : 19.02212905883789
+                     },
+                     {
+                        "x" : 111.1250534057617,
+                        "y" : 25.07532119750977
+                     },
+                     {
+                        "x" : 101.0016937255859,
+                        "y" : 21.81595230102539
+                     }
+                  ]
+               }
+            },
+            {
+               "density" : 1.0,
+               "filter" : {
+                  "categoryBits" : 1,
+                  "groupIndex" : 0,
+                  "maskBits" : 65535
+               },
+               "friction" : 0.2000000029802322,
+               "id" : 5,
+               "isSensor" : false,
+               "restitution" : 0.0,
+               "shape" : {
+                  "type" : 2,
+                  "vertexCount" : 3,
+                  "vertices" : [
+                     {
+                        "x" : 116.2108535766602,
+                        "y" : 19.02212905883789
+                     },
+                     {
+                        "x" : 101.0016937255859,
+                        "y" : 21.81595230102539
+                     },
+                     {
+                        "x" : 95.88368225097656,
+                        "y" : 16.56402206420898
+                     }
+                  ]
+               }
+            },
+            {
+               "density" : 1.0,
+               "filter" : {
+                  "categoryBits" : 1,
+                  "groupIndex" : 0,
+                  "maskBits" : 65535
+               },
+               "friction" : 0.2000000029802322,
+               "id" : 6,
+               "isSensor" : false,
+               "restitution" : 0.0,
+               "shape" : {
+                  "type" : 2,
+                  "vertexCount" : 3,
+                  "vertices" : [
+                     {
+                        "x" : 121.3283309936523,
+                        "y" : 12.56535816192627
+                     },
+                     {
+                        "x" : 116.2108535766602,
+                        "y" : 19.02212905883789
+                     },
+                     {
+                        "x" : 95.88368225097656,
+                        "y" : 16.56402206420898
+                     }
+                  ]
+               }
+            },
+            {
+               "density" : 1.0,
+               "filter" : {
+                  "categoryBits" : 1,
+                  "groupIndex" : 0,
+                  "maskBits" : 65535
+               },
+               "friction" : 0.2000000029802322,
+               "id" : 7,
+               "isSensor" : false,
+               "restitution" : 0.0,
+               "shape" : {
+                  "type" : 2,
+                  "vertexCount" : 3,
+                  "vertices" : [
+                     {
+                        "x" : 127.3350601196289,
+                        "y" : -15.98308086395264
+                     },
+                     {
+                        "x" : 121.3283309936523,
+                        "y" : 12.56535816192627
+                     },
+                     {
+                        "x" : 95.88368225097656,
+                        "y" : 16.56402206420898
+                     }
+                  ]
+               }
+            },
+            {
+               "density" : 1.0,
+               "filter" : {
+                  "categoryBits" : 1,
+                  "groupIndex" : 0,
+                  "maskBits" : 65535
+               },
+               "friction" : 0.2000000029802322,
+               "id" : 8,
+               "isSensor" : false,
+               "restitution" : 0.0,
+               "shape" : {
+                  "type" : 2,
+                  "vertexCount" : 3,
+                  "vertices" : [
+                     {
+                        "x" : 127.3350601196289,
+                        "y" : -15.98308086395264
+                     },
+                     {
+                        "x" : 95.88368225097656,
+                        "y" : 16.56402206420898
+                     },
+                     {
+                        "x" : 80.25189971923828,
+                        "y" : 0.245889425277710
+                     }
+                  ]
+               }
+            },
+            {
+               "density" : 1.0,
+               "filter" : {
+                  "categoryBits" : 1,
+                  "groupIndex" : 0,
+                  "maskBits" : 65535
+               },
+               "friction" : 0.2000000029802322,
+               "id" : 9,
+               "isSensor" : false,
+               "restitution" : 0.0,
+               "shape" : {
+                  "type" : 2,
+                  "vertexCount" : 3,
+                  "vertices" : [
+                     {
+                        "x" : 127.3350601196289,
+                        "y" : -15.98308086395264
+                     },
+                     {
+                        "x" : 80.25189971923828,
+                        "y" : 0.245889425277710
+                     },
+                     {
+                        "x" : 67.94921112060547,
+                        "y" : -1.495182037353516
+                     }
+                  ]
+               }
+            },
+            {
+               "density" : 1.0,
+               "filter" : {
+                  "categoryBits" : 1,
+                  "groupIndex" : 0,
+                  "maskBits" : 65535
+               },
+               "friction" : 0.2000000029802322,
+               "id" : 10,
+               "isSensor" : false,
+               "restitution" : 0.0,
+               "shape" : {
+                  "type" : 2,
+                  "vertexCount" : 3,
+                  "vertices" : [
+                     {
+                        "x" : 47.57264709472656,
+                        "y" : 6.538062095642090
+                     },
+                     {
+                        "x" : 40.64416122436523,
+                        "y" : 8.814847946166992
+                     },
+                     {
+                        "x" : 27.90925025939941,
+                        "y" : -1.521247386932373
+                     }
+                  ]
+               }
+            },
+            {
+               "density" : 1.0,
+               "filter" : {
+                  "categoryBits" : 1,
+                  "groupIndex" : 0,
+                  "maskBits" : 65535
+               },
+               "friction" : 0.2000000029802322,
+               "id" : 11,
+               "isSensor" : false,
+               "restitution" : 0.0,
+               "shape" : {
+                  "type" : 2,
+                  "vertexCount" : 3,
+                  "vertices" : [
+                     {
+                        "x" : 58.82326126098633,
+                        "y" : 0.7524948120117188
+                     },
+                     {
+                        "x" : 47.57264709472656,
+                        "y" : 6.538062095642090
+                     },
+                     {
+                        "x" : 27.90925025939941,
+                        "y" : -1.521247386932373
+                     }
+                  ]
+               }
+            },
+            {
+               "density" : 1.0,
+               "filter" : {
+                  "categoryBits" : 1,
+                  "groupIndex" : 0,
+                  "maskBits" : 65535
+               },
+               "friction" : 0.2000000029802322,
+               "id" : 12,
+               "isSensor" : false,
+               "restitution" : 0.0,
+               "shape" : {
+                  "type" : 2,
+                  "vertexCount" : 3,
+                  "vertices" : [
+                     {
+                        "x" : 63.03676986694336,
+                        "y" : -1.227324485778809
+                     },
+                     {
+                        "x" : 58.82326126098633,
+                        "y" : 0.7524948120117188
+                     },
+                     {
+                        "x" : 27.90925025939941,
+                        "y" : -1.521247386932373
+                     }
+                  ]
+               }
+            },
+            {
+               "density" : 1.0,
+               "filter" : {
+                  "categoryBits" : 1,
+                  "groupIndex" : 0,
+                  "maskBits" : 65535
+               },
+               "friction" : 0.2000000029802322,
+               "id" : 13,
+               "isSensor" : false,
+               "restitution" : 0.0,
+               "shape" : {
+                  "type" : 2,
+                  "vertexCount" : 3,
+                  "vertices" : [
+                     {
+                        "x" : 63.03676986694336,
+                        "y" : -1.227324485778809
+                     },
+                     {
+                        "x" : 27.90925025939941,
+                        "y" : -1.521247386932373
+                     },
+                     {
+                        "x" : 23.50100708007813,
+                        "y" : -4.467676162719727
+                     }
+                  ]
+               }
+            },
+            {
+               "density" : 1.0,
+               "filter" : {
+                  "categoryBits" : 1,
+                  "groupIndex" : 0,
+                  "maskBits" : 65535
+               },
+               "friction" : 0.2000000029802322,
+               "id" : 14,
+               "isSensor" : false,
+               "restitution" : 0.0,
+               "shape" : {
+                  "type" : 2,
+                  "vertexCount" : 3,
+                  "vertices" : [
+                     {
+                        "x" : 67.94921112060547,
+                        "y" : -1.495182037353516
+                     },
+                     {
+                        "x" : 63.03676986694336,
+                        "y" : -1.227324485778809
+                     },
+                     {
+                        "x" : 23.50100708007813,
+                        "y" : -4.467676162719727
+                     }
+                  ]
+               }
+            },
+            {
+               "density" : 1.0,
+               "filter" : {
+                  "categoryBits" : 1,
+                  "groupIndex" : 0,
+                  "maskBits" : 65535
+               },
+               "friction" : 0.2000000029802322,
+               "id" : 15,
+               "isSensor" : false,
+               "restitution" : 0.0,
+               "shape" : {
+                  "type" : 2,
+                  "vertexCount" : 3,
+                  "vertices" : [
+                     {
+                        "x" : 67.94921112060547,
+                        "y" : -1.495182037353516
+                     },
+                     {
+                        "x" : 23.50100708007813,
+                        "y" : -4.467676162719727
+                     },
+                     {
+                        "x" : 16.92569732666016,
+                        "y" : -5.940890312194824
+                     }
+                  ]
+               }
+            },
+            {
+               "density" : 1.0,
+               "filter" : {
+                  "categoryBits" : 1,
+                  "groupIndex" : 0,
+                  "maskBits" : 65535
+               },
+               "friction" : 0.2000000029802322,
+               "id" : 16,
+               "isSensor" : false,
+               "restitution" : 0.0,
+               "shape" : {
+                  "type" : 2,
+                  "vertexCount" : 3,
+                  "vertices" : [
+                     {
+                        "x" : 127.3350601196289,
+                        "y" : -15.98308086395264
+                     },
+                     {
+                        "x" : 67.94921112060547,
+                        "y" : -1.495182037353516
+                     },
+                     {
+                        "x" : 16.92569732666016,
+                        "y" : -5.940890312194824
+                     }
+                  ]
+               }
+            },
+            {
+               "density" : 1.0,
+               "filter" : {
+                  "categoryBits" : 1,
+                  "groupIndex" : 0,
+                  "maskBits" : 65535
+               },
+               "friction" : 0.2000000029802322,
+               "id" : 17,
+               "isSensor" : false,
+               "restitution" : 0.0,
+               "shape" : {
+                  "type" : 2,
+                  "vertexCount" : 3,
+                  "vertices" : [
+                     {
+                        "x" : 127.3350601196289,
+                        "y" : -15.98308086395264
+                     },
+                     {
+                        "x" : 16.92569732666016,
+                        "y" : -5.940890312194824
+                     },
+                     {
+                        "x" : -120.1586685180664,
+                        "y" : -15.31343746185303
+                     }
+                  ]
+               }
+            },
+            {
+               "density" : 1.0,
+               "filter" : {
+                  "categoryBits" : 1,
+                  "groupIndex" : 0,
+                  "maskBits" : 65535
+               },
+               "friction" : 0.2000000029802322,
+               "id" : 18,
+               "isSensor" : false,
+               "restitution" : 0.0,
+               "shape" : {
+                  "type" : 2,
+                  "vertexCount" : 3,
+                  "vertices" : [
+                     {
+                        "x" : 16.92569732666016,
+                        "y" : -5.940890312194824
+                     },
+                     {
+                        "x" : 10.73437690734863,
+                        "y" : -5.806962013244629
+                     },
+                     {
+                        "x" : -120.1586685180664,
+                        "y" : -15.31343746185303
+                     }
+                  ]
+               }
+            },
+            {
+               "density" : 1.0,
+               "filter" : {
+                  "categoryBits" : 1,
+                  "groupIndex" : 0,
+                  "maskBits" : 65535
+               },
+               "friction" : 0.2000000029802322,
+               "id" : 19,
+               "isSensor" : false,
+               "restitution" : 0.0,
+               "shape" : {
+                  "type" : 2,
+                  "vertexCount" : 3,
+                  "vertices" : [
+                     {
+                        "x" : 10.73437690734863,
+                        "y" : -5.806962013244629
+                     },
+                     {
+                        "x" : 5.529366016387940,
+                        "y" : -3.262318611145020
+                     },
+                     {
+                        "x" : 0.4858498573303223,
+                        "y" : -2.458746910095215
+                     }
+                  ]
+               }
+            },
+            {
+               "density" : 1.0,
+               "filter" : {
+                  "categoryBits" : 1,
+                  "groupIndex" : 0,
+                  "maskBits" : 65535
+               },
+               "friction" : 0.2000000029802322,
+               "id" : 20,
+               "isSensor" : false,
+               "restitution" : 0.0,
+               "shape" : {
+                  "type" : 2,
+                  "vertexCount" : 3,
+                  "vertices" : [
+                     {
+                        "x" : 0.4858498573303223,
+                        "y" : -2.458746910095215
+                     },
+                     {
+                        "x" : -3.552192211151123,
+                        "y" : -1.923032760620117
+                     },
+                     {
+                        "x" : -8.181318283081055,
+                        "y" : -2.190890312194824
+                     }
+                  ]
+               }
+            },
+            {
+               "density" : 1.0,
+               "filter" : {
+                  "categoryBits" : 1,
+                  "groupIndex" : 0,
+                  "maskBits" : 65535
+               },
+               "friction" : 0.2000000029802322,
+               "id" : 21,
+               "isSensor" : false,
+               "restitution" : 0.0,
+               "shape" : {
+                  "type" : 2,
+                  "vertexCount" : 3,
+                  "vertices" : [
+                     {
+                        "x" : 10.73437690734863,
+                        "y" : -5.806962013244629
+                     },
+                     {
+                        "x" : 0.4858498573303223,
+                        "y" : -2.458746910095215
+                     },
+                     {
+                        "x" : -8.181318283081055,
+                        "y" : -2.190890312194824
+                     }
+                  ]
+               }
+            },
+            {
+               "density" : 1.0,
+               "filter" : {
+                  "categoryBits" : 1,
+                  "groupIndex" : 0,
+                  "maskBits" : 65535
+               },
+               "friction" : 0.2000000029802322,
+               "id" : 22,
+               "isSensor" : false,
+               "restitution" : 0.0,
+               "shape" : {
+                  "type" : 2,
+                  "vertexCount" : 3,
+                  "vertices" : [
+                     {
+                        "x" : 10.73437690734863,
+                        "y" : -5.806962013244629
+                     },
+                     {
+                        "x" : -8.181318283081055,
+                        "y" : -2.190890312194824
+                     },
+                     {
+                        "x" : -12.83340454101563,
+                        "y" : -2.726604461669922
+                     }
+                  ]
+               }
+            },
+            {
+               "density" : 1.0,
+               "filter" : {
+                  "categoryBits" : 1,
+                  "groupIndex" : 0,
+                  "maskBits" : 65535
+               },
+               "friction" : 0.2000000029802322,
+               "id" : 23,
+               "isSensor" : false,
+               "restitution" : 0.0,
+               "shape" : {
+                  "type" : 2,
+                  "vertexCount" : 3,
+                  "vertices" : [
+                     {
+                        "x" : 10.73437690734863,
+                        "y" : -5.806962013244629
+                     },
+                     {
+                        "x" : -12.83340454101563,
+                        "y" : -2.726604461669922
+                     },
+                     {
+                        "x" : -18.61381912231445,
+                        "y" : -3.798033237457275
+                     }
+                  ]
+               }
+            },
+            {
+               "density" : 1.0,
+               "filter" : {
+                  "categoryBits" : 1,
+                  "groupIndex" : 0,
+                  "maskBits" : 65535
+               },
+               "friction" : 0.2000000029802322,
+               "id" : 24,
+               "isSensor" : false,
+               "restitution" : 0.0,
+               "shape" : {
+                  "type" : 2,
+                  "vertexCount" : 3,
+                  "vertices" : [
+                     {
+                        "x" : 10.73437690734863,
+                        "y" : -5.806962013244629
+                     },
+                     {
+                        "x" : -18.61381912231445,
+                        "y" : -3.798033237457275
+                     },
+                     {
+                        "x" : -23.73839187622070,
+                        "y" : -4.601604461669922
+                     }
+                  ]
+               }
+            },
+            {
+               "density" : 1.0,
+               "filter" : {
+                  "categoryBits" : 1,
+                  "groupIndex" : 0,
+                  "maskBits" : 65535
+               },
+               "friction" : 0.2000000029802322,
+               "id" : 25,
+               "isSensor" : false,
+               "restitution" : 0.0,
+               "shape" : {
+                  "type" : 2,
+                  "vertexCount" : 3,
+                  "vertices" : [
+                     {
+                        "x" : 10.73437690734863,
+                        "y" : -5.806962013244629
+                     },
+                     {
+                        "x" : -23.73839187622070,
+                        "y" : -4.601604461669922
+                     },
+                     {
+                        "x" : -28.85087394714356,
+                        "y" : -5.003390312194824
+                     }
+                  ]
+               }
+            },
+            {
+               "density" : 1.0,
+               "filter" : {
+                  "categoryBits" : 1,
+                  "groupIndex" : 0,
+                  "maskBits" : 65535
+               },
+               "friction" : 0.2000000029802322,
+               "id" : 26,
+               "isSensor" : false,
+               "restitution" : 0.0,
+               "shape" : {
+                  "type" : 2,
+                  "vertexCount" : 3,
+                  "vertices" : [
+                     {
+                        "x" : 10.73437690734863,
+                        "y" : -5.806962013244629
+                     },
+                     {
+                        "x" : -28.85087394714356,
+                        "y" : -5.003390312194824
+                     },
+                     {
+                        "x" : -120.1586685180664,
+                        "y" : -15.31343746185303
+                     }
+                  ]
+               }
+            },
+            {
+               "density" : 1.0,
+               "filter" : {
+                  "categoryBits" : 1,
+                  "groupIndex" : 0,
+                  "maskBits" : 65535
+               },
+               "friction" : 0.2000000029802322,
+               "id" : 27,
+               "isSensor" : false,
+               "restitution" : 0.0,
+               "shape" : {
+                  "type" : 2,
+                  "vertexCount" : 3,
+                  "vertices" : [
+                     {
+                        "x" : -60.26274490356445,
+                        "y" : 0.6216096878051758
+                     },
+                     {
+                        "x" : -64.40506744384766,
+                        "y" : 0.6216096878051758
+                     },
+                     {
+                        "x" : -65.87828826904297,
+                        "y" : -0.3158903121948242
+                     }
+                  ]
+               }
+            },
+            {
+               "density" : 1.0,
+               "filter" : {
+                  "categoryBits" : 1,
+                  "groupIndex" : 0,
+                  "maskBits" : 65535
+               },
+               "friction" : 0.2000000029802322,
+               "id" : 28,
+               "isSensor" : false,
+               "restitution" : 0.0,
+               "shape" : {
+                  "type" : 2,
+                  "vertexCount" : 3,
+                  "vertices" : [
+                     {
+                        "x" : -60.26274490356445,
+                        "y" : 0.6216096878051758
+                     },
+                     {
+                        "x" : -65.87828826904297,
+                        "y" : -0.3158903121948242
+                     },
+                     {
+                        "x" : -67.75328826904297,
+                        "y" : -1.655176162719727
+                     }
+                  ]
+               }
+            },
+            {
+               "density" : 1.0,
+               "filter" : {
+                  "categoryBits" : 1,
+                  "groupIndex" : 0,
+                  "maskBits" : 65535
+               },
+               "friction" : 0.2000000029802322,
+               "id" : 29,
+               "isSensor" : false,
+               "restitution" : 0.0,
+               "shape" : {
+                  "type" : 2,
+                  "vertexCount" : 3,
+                  "vertices" : [
+                     {
+                        "x" : -51.89139175415039,
+                        "y" : -0.04803299903869629
+                     },
+                     {
+                        "x" : -60.26274490356445,
+                        "y" : 0.6216096878051758
+                     },
+                     {
+                        "x" : -67.75328826904297,
+                        "y" : -1.655176162719727
+                     }
+                  ]
+               }
+            },
+            {
+               "density" : 1.0,
+               "filter" : {
+                  "categoryBits" : 1,
+                  "groupIndex" : 0,
+                  "maskBits" : 65535
+               },
+               "friction" : 0.2000000029802322,
+               "id" : 30,
+               "isSensor" : false,
+               "restitution" : 0.0,
+               "shape" : {
+                  "type" : 2,
+                  "vertexCount" : 3,
+                  "vertices" : [
+                     {
+                        "x" : -51.89139175415039,
+                        "y" : -0.04803299903869629
+                     },
+                     {
+                        "x" : -67.75328826904297,
+                        "y" : -1.655176162719727
+                     },
+                     {
+                        "x" : -75.78900146484375,
+                        "y" : -5.940890312194824
+                     }
+                  ]
+               }
+            },
+            {
+               "density" : 1.0,
+               "filter" : {
+                  "categoryBits" : 1,
+                  "groupIndex" : 0,
+                  "maskBits" : 65535
+               },
+               "friction" : 0.2000000029802322,
+               "id" : 31,
+               "isSensor" : false,
+               "restitution" : 0.0,
+               "shape" : {
+                  "type" : 2,
+                  "vertexCount" : 3,
+                  "vertices" : [
+                     {
+                        "x" : -41.53024673461914,
+                        "y" : -1.923032760620117
+                     },
+                     {
+                        "x" : -51.89139175415039,
+                        "y" : -0.04803299903869629
+                     },
+                     {
+                        "x" : -75.78900146484375,
+                        "y" : -5.940890312194824
+                     }
+                  ]
+               }
+            },
+            {
+               "density" : 1.0,
+               "filter" : {
+                  "categoryBits" : 1,
+                  "groupIndex" : 0,
+                  "maskBits" : 65535
+               },
+               "friction" : 0.2000000029802322,
+               "id" : 32,
+               "isSensor" : false,
+               "restitution" : 0.0,
+               "shape" : {
+                  "type" : 2,
+                  "vertexCount" : 3,
+                  "vertices" : [
+                     {
+                        "x" : -28.85087394714356,
+                        "y" : -5.003390312194824
+                     },
+                     {
+                        "x" : -30.22067642211914,
+                        "y" : -4.333746910095215
+                     },
+                     {
+                        "x" : -41.53024673461914,
+                        "y" : -1.923032760620117
+                     }
+                  ]
+               }
+            },
+            {
+               "density" : 1.0,
+               "filter" : {
+                  "categoryBits" : 1,
+                  "groupIndex" : 0,
+                  "maskBits" : 65535
+               },
+               "friction" : 0.2000000029802322,
+               "id" : 33,
+               "isSensor" : false,
+               "restitution" : 0.0,
+               "shape" : {
+                  "type" : 2,
+                  "vertexCount" : 3,
+                  "vertices" : [
+                     {
+                        "x" : -28.85087394714356,
+                        "y" : -5.003390312194824
+                     },
+                     {
+                        "x" : -41.53024673461914,
+                        "y" : -1.923032760620117
+                     },
+                     {
+                        "x" : -75.78900146484375,
+                        "y" : -5.940890312194824
+                     }
+                  ]
+               }
+            },
+            {
+               "density" : 1.0,
+               "filter" : {
+                  "categoryBits" : 1,
+                  "groupIndex" : 0,
+                  "maskBits" : 65535
+               },
+               "friction" : 0.2000000029802322,
+               "id" : 34,
+               "isSensor" : false,
+               "restitution" : 0.0,
+               "shape" : {
+                  "type" : 2,
+                  "vertexCount" : 3,
+                  "vertices" : [
+                     {
+                        "x" : -28.85087394714356,
+                        "y" : -5.003390312194824
+                     },
+                     {
+                        "x" : -75.78900146484375,
+                        "y" : -5.940890312194824
+                     },
+                     {
+                        "x" : -120.1586685180664,
+                        "y" : -15.31343746185303
+                     }
+                  ]
+               }
+            },
+            {
+               "density" : 1.0,
+               "filter" : {
+                  "categoryBits" : 1,
+                  "groupIndex" : 0,
+                  "maskBits" : 65535
+               },
+               "friction" : 0.2000000029802322,
+               "id" : 35,
+               "isSensor" : false,
+               "restitution" : 0.0,
+               "shape" : {
+                  "type" : 2,
+                  "vertexCount" : 3,
+                  "vertices" : [
+                     {
+                        "x" : -75.78900146484375,
+                        "y" : -5.940890312194824
+                     },
+                     {
+                        "x" : -83.95864105224609,
+                        "y" : -6.208746910095215
+                     },
+                     {
+                        "x" : -120.1586685180664,
+                        "y" : -15.31343746185303
+                     }
+                  ]
+               }
+            },
+            {
+               "density" : 1.0,
+               "filter" : {
+                  "categoryBits" : 1,
+                  "groupIndex" : 0,
+                  "maskBits" : 65535
+               },
+               "friction" : 0.2000000029802322,
+               "id" : 36,
+               "isSensor" : false,
+               "restitution" : 0.0,
+               "shape" : {
+                  "type" : 2,
+                  "vertexCount" : 3,
+                  "vertices" : [
+                     {
+                        "x" : -83.95864105224609,
+                        "y" : -6.208746910095215
+                     },
+                     {
+                        "x" : -89.98542785644531,
+                        "y" : -5.806962013244629
+                     },
+                     {
+                        "x" : -120.1586685180664,
+                        "y" : -15.31343746185303
+                     }
+                  ]
+               }
+            },
+            {
+               "density" : 1.0,
+               "filter" : {
+                  "categoryBits" : 1,
+                  "groupIndex" : 0,
+                  "maskBits" : 65535
+               },
+               "friction" : 0.2000000029802322,
+               "id" : 37,
+               "isSensor" : false,
+               "restitution" : 0.0,
+               "shape" : {
+                  "type" : 2,
+                  "vertexCount" : 3,
+                  "vertices" : [
+                     {
+                        "x" : -89.98542785644531,
+                        "y" : -5.806962013244629
+                     },
+                     {
+                        "x" : -94.67292785644531,
+                        "y" : -4.065890312194824
+                     },
+                     {
+                        "x" : -120.1586685180664,
+                        "y" : -15.31343746185303
+                     }
+                  ]
+               }
+            },
+            {
+               "density" : 1.0,
+               "filter" : {
+                  "categoryBits" : 1,
+                  "groupIndex" : 0,
+                  "maskBits" : 65535
+               },
+               "friction" : 0.2000000029802322,
+               "id" : 38,
+               "isSensor" : false,
+               "restitution" : 0.0,
+               "shape" : {
+                  "type" : 2,
+                  "vertexCount" : 3,
+                  "vertices" : [
+                     {
+                        "x" : -94.67292785644531,
+                        "y" : -4.065890312194824
+                     },
+                     {
+                        "x" : -112.6193542480469,
+                        "y" : -0.04803299903869629
+                     },
+                     {
+                        "x" : -120.1586685180664,
+                        "y" : -15.31343746185303
+                     }
+                  ]
+               }
+            },
+            {
+               "density" : 1.0,
+               "filter" : {
+                  "categoryBits" : 1,
+                  "groupIndex" : 0,
+                  "maskBits" : 65535
+               },
+               "friction" : 0.2000000029802322,
+               "id" : 39,
+               "isSensor" : false,
+               "restitution" : 0.0,
+               "shape" : {
+                  "type" : 2,
+                  "vertexCount" : 3,
+                  "vertices" : [
+                     {
+                        "x" : -112.6193542480469,
+                        "y" : -0.04803299903869629
+                     },
+                     {
+                        "x" : -117.574707031250,
+                        "y" : -3.262318611145020
+                     },
+                     {
+                        "x" : -120.1586685180664,
+                        "y" : -15.31343746185303
+                     }
+                  ]
+               }
+            }
+         ],
+         "gravityScale" : 1.0,
+         "id" : 0,
+         "linearVelocity" : {
+            "x" : 0.0,
+            "y" : 0.0
+         },
+         "lineardamping" : 0.0,
+         "position" : {
+            "x" : 7.452138423919678,
+            "y" : -3.946421623229981
+         },
+         "type" : 0
+      }
+   ],
+   "bodyCount" : 1,
+   "camFollowOn" : false,
+   "camOrthoScale" : 30.0,
+   "camPos" : {
+      "x" : -76.58451080322266,
+      "y" : 6.422068119049072
+   },
+   "gravity" : {
+      "x" : 0.0,
+      "y" : -10.0
+   },
+   "jointCount" : 0,
+   "joints" : []
+}
