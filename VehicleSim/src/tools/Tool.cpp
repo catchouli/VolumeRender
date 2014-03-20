@@ -27,6 +27,8 @@ namespace vlr
 		: _app(application), _optionsPanel(optionsPanel),
 		_dragging(false), _enabled(false), _options(nullptr)
 	{
+		_bodyDef.linearDamping = 0.5f;
+		_bodyDef.angularDamping = 0.5f;
 		_button = new Button(toolPanel);
 		_button->SetIsToggle(true);
 		_button->SetSize(36, 36);
@@ -50,11 +52,6 @@ namespace vlr
 		_camera = &application->_camera;
 		_options = &application->_options;
 		_statusLabel = application->_statusLabel;
-	}
-
-	glm::vec2 Tool::worldSpace(float x, float y)
-	{
-		return glm::vec2(_camera->worldSpaceToWorld(x, y, 0));
 	}
 
 	void Tool::setEnabled(bool value)
@@ -89,6 +86,16 @@ namespace vlr
 	void Tool::reset()
 	{
 
+	}
+
+	void Tool::setSelected(bool val)
+	{
+		_button->SetToggleState(val);
+	}
+
+	bool Tool::getSelected() const
+	{
+		return _button->GetToggleState();
 	}
 
 	void Tool::resetOptions()

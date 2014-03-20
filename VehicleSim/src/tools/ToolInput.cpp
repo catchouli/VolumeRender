@@ -63,7 +63,8 @@ namespace vlr
 		{
 			for (unsigned int i = 0; i < buttons.size(); ++i)
 			{
-				*(buttons[i]->UserData.Get<int*>("updateKey")) = key;
+				int* updateKey = buttons[i]->UserData.Get<int*>("updateKey");
+				*updateKey = key;
 				buttons[i]->SetText(InputConverter::translateCharToString(key));
 				buttons[i]->SetToggleState(false);
 			}

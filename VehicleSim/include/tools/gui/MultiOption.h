@@ -15,8 +15,17 @@ namespace vlr
 	public:
 		typedef setType type;
 
+		typedef GetterSetter<baseType, type> GetterType;
+
 		typedef type (baseType::*getterPointerType)() const;
 		typedef void (baseType::*setterPointerType)(type);
+
+		MultiOption(Gwen::Controls::Base* parent,
+			GetterType getter)
+			: _parent(parent), _getter(getter), OptionBase(getter.getBase())
+		{
+			init();
+		}
 
 		MultiOption(Gwen::Controls::Base* parent,
 			baseType* base, type* pval)
@@ -101,7 +110,7 @@ namespace vlr
 		}
 
 	private:
-		GetterSetter<baseType, type> _getter;
+		GetterType _getter;
 
 		Gwen::Controls::Base* _parent;
 		Gwen::Controls::ComboBox* _comboBox;

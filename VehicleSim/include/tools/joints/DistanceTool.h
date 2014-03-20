@@ -132,7 +132,7 @@ namespace vlr
 
 		void createJoint()
 		{
-			b2DistanceJointDef jointDef;
+			b2DistanceJointDef jointDef = _distanceJointDef;
 			jointDef.collideConnected = false;
 			jointDef.bodyA = _selected[0];
 			jointDef.bodyB = _selected[1];

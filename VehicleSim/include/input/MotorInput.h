@@ -9,7 +9,7 @@ namespace vlr
 	struct MotorInput
 	{
 		MotorInput()
-			: maxForce(0), speed(0),
+			: enabled(false), maxForce(0), speed(0),
 			forwardButton(GLFW_KEY_UNKNOWN), reverseButton(GLFW_KEY_UNKNOWN)
 		{
 
@@ -17,10 +17,13 @@ namespace vlr
 
 		void update(GLFWwindow* window, b2Joint* joint)
 		{
+			if (!enabled)
+				return;
+
 			bool forwardKey = glfwGetKey(window, forwardButton) != 0;
 			bool reverseKey = glfwGetKey(window, reverseButton) != 0;
 
-			bool enableMotor = forwardKey != reverseKey;
+			bool enableMotor = enabled && (forwardKey != reverseKey);
 
 			switch (joint->GetType())
 			{
@@ -68,6 +71,7 @@ namespace vlr
 			}
 		}
 
+		bool enabled;
 		float maxForce, speed;
 		int forwardButton, reverseButton;
 	};

@@ -7,12 +7,16 @@ class b2World;
 
 namespace vlr
 {
+	class VehicleSim;
+
 	class Serialiser
 	{
 	public:
-		static std::string serialiseWorld(const b2World* world);
-		static void deserialiseWorld(b2World* world, std::string string);
-		static void destroyWorld(b2World* world);
+		static std::string serialiseWorld(const VehicleSim* vehicleSim,
+			const b2World* world);
+		static void deserialiseWorld(VehicleSim* vehicleSim, b2World* world,
+			std::string string);
+		static void destroyWorld(VehicleSim* vehicleSim, b2World* world);
 
 	protected:
 		Serialiser();

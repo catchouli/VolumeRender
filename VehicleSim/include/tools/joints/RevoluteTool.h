@@ -131,7 +131,7 @@ namespace vlr
 
 		void createJoint()
 		{
-			b2RevoluteJointDef jointDef;
+			b2RevoluteJointDef jointDef = _revoluteJointDef;
 			jointDef.collideConnected = false;
 			jointDef.bodyA = _selected[0];
 			jointDef.bodyB = _selected[1];

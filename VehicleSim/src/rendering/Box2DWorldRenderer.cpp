@@ -61,6 +61,11 @@ namespace vlr
 		// Draw circle
 		glColor3f(color.r, color.g, color.b);
 		drawCircle(center.x, center.y, radius*2);
+		glPointSize(3);
+		glBegin(GL_POINTS);
+		glVertex2f(center.x, center.y);
+		glEnd();
+		glPointSize(1);
 	}
 
 	void Box2DWorldRenderer::DrawSolidCircle(const b2Vec2& center, float32 radius,
@@ -77,6 +82,12 @@ namespace vlr
 		// Draw outline
 		glColor4f(color.r, color.g, color.b, 1.0f);
 		DrawCircle(center, radius, color);
+
+		glColor3f(1, 1, 1);
+		glBegin(GL_LINES);
+		glVertex2f(center.x, center.y);
+		glVertex2f(center.x + axis.x * radius, center.y + axis.y * radius);
+		glEnd();
 
 		// Disable blending
 		glDisable(GL_BLEND);

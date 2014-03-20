@@ -81,6 +81,7 @@ namespace vlr
 		void saveDocument(Gwen::Event::Info info);
 		void saveDocumentAs(Gwen::Event::Info info);
 		void loadDocument(Gwen::Event::Info info);
+		void importDocument(Gwen::Event::Info info);
 		void exitApplication(Gwen::Event::Info info);
 
 	protected:
@@ -91,6 +92,8 @@ namespace vlr
 		void initGui();
 
 	private:
+		friend class Serialiser;
+
 		friend class Tool;
 		friend class MovementTool;
 		friend class CircleTool;
@@ -99,7 +102,9 @@ namespace vlr
 		friend class ZoomTool;
 		friend class SelectionTool;
 		friend class RotateTool;
-
+		friend class CamFollow;
+		
+		friend class NoCollideTool;
 		friend class DistanceTool;
 		friend class RevoluteTool;
 		friend class PrismaticTool;
@@ -128,6 +133,8 @@ namespace vlr
 
 		// Camera
 		common::Camera _camera;
+		b2Body* _camFollow;
+		CamFollow* _cf;
 		float _width, _height, _aspect;
 		float _orthoScale;
 
@@ -138,6 +145,8 @@ namespace vlr
 
 		// Box2d renderer
 		Box2DWorldRenderer _worldRenderer;
+
+		//std::vector<
 
 		// Gwen
 		Gwen::Renderer::OpenGL* _guiRenderer;

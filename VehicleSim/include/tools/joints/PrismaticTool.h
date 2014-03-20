@@ -131,7 +131,7 @@ namespace vlr
 
 		void createJoint()
 		{
-			b2PrismaticJointDef jointDef;
+			b2PrismaticJointDef jointDef = _prismaticJointDef;
 
 			jointDef.bodyA = _selected[0];
 			jointDef.bodyB = _selected[1];

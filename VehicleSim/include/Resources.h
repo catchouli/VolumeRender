@@ -20,6 +20,7 @@ namespace vlr
 				static const char* RESET = "assets/images/buttons/reset.png";
 				
 				static const char* MOVE = "assets/images/buttons/move.png";
+				static const char* CAMFOLLOW = "assets/images/buttons/camfollow.png";
 				static const char* SELECT = "assets/images/buttons/select.png";
 				static const char* CIRCLE = "assets/images/buttons/circle.png";
 				static const char* SQUARE = "assets/images/buttons/square.png";
@@ -27,6 +28,7 @@ namespace vlr
 				static const char* ZOOM = "assets/images/buttons/zoom.png";
 				static const char* ROTATE = "assets/images/buttons/rotate.png";
 				
+				static const char* NOCOLLIDE = "assets/images/buttons/nocollide.png";
 				static const char* DISTANCE = "assets/images/buttons/distance.png";
 				static const char* REVOLUTE = "assets/images/buttons/revolute.png";
 				static const char* PRISMATIC = "assets/images/buttons/prismatic.png";

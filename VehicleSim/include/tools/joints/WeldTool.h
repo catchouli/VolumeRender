@@ -131,7 +131,9 @@ namespace vlr
 
 		void createJoint()
 		{
-			b2WeldJointDef jointDef;
+			b2WeldJointDef jointDef = _weldJointDef;
+			jointDef.referenceAngle -= _selected[0]->GetAngle();
+			jointDef.referenceAngle += _selected[1]->GetAngle();
 			jointDef.collideConnected = false;
 			jointDef.bodyA = _selected[0];
 			jointDef.bodyB = _selected[1];
