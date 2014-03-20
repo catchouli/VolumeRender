@@ -380,6 +380,9 @@ public:
 	b2World* GetWorld();
 	const b2World* GetWorld() const;
 
+	// Get the forces acting on this body
+	inline const b2Vec2& getForces() const;
+
 	/// Dump this body to a log file
 	void Dump();
 
@@ -855,6 +858,11 @@ inline b2World* b2Body::GetWorld()
 inline const b2World* b2Body::GetWorld() const
 {
 	return m_world;
+}
+
+inline const b2Vec2& b2Body::getForces() const
+{
+	return m_force;
 }
 
 #endif
