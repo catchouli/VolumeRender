@@ -1,3 +1,6 @@
 [submodule "Common"]
 	path = Common
 	url = https://github.com/Catchouli/Common.git
+[submodule "vlrRendering"]
+	path = vlrRendering
+	url = https://github.com/Catchouli/vlrRendering.git

@@ -53,13 +53,13 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>include;$(SolutionDir)\common\include;$(SolutionDir)\dep\include;$(CUDA_PATH)\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include;$(SolutionDir)\vlrRendering\include;$(SolutionDir)\dep\include;$(CUDA_PATH)\include</AdditionalIncludeDirectories>
       <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS /D GLM_FORCE_RADIANS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)\dep\lib;$(SolutionDir)\bin\$(Configuration);$(CUDA_PATH)\lib\$(PlatformName)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3dll.lib;glew32.lib;Common.lib;opengl32.lib;cudart.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3dll.lib;glew32.lib;vlrRendering.lib;opengl32.lib;cudart.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
     <CudaCompile>
@@ -78,7 +78,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>include;$(SolutionDir)\common\include;$(SolutionDir)\dep\include;$(CUDA_PATH)\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include;$(SolutionDir)\vlrRendering\include;$(SolutionDir)\dep\include;$(CUDA_PATH)\include</AdditionalIncludeDirectories>
       <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS /D GLM_FORCE_RADIANS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -86,7 +86,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(SolutionDir)\dep\lib;$(SolutionDir)\bin\$(Configuration);$(CUDA_PATH)\lib\$(PlatformName)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3dll.lib;glew32.lib;Common.lib;opengl32.lib;cudart.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3dll.lib;glew32.lib;vlrRendering.lib;opengl32.lib;cudart.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>
