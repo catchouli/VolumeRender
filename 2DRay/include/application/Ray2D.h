@@ -3,6 +3,7 @@
 
 #include "app/Application.h"
 #include "app/Framebuffer.h"
+#include "maths/Types.h"
 #include "rendering/Camera.h"
 #include "rendering/Mesh.h"
 #include "rendering/Octree.h"
@@ -15,19 +16,9 @@ namespace vlr
 	const int RAY2D_GRID_WIDTH = 8;
 	const int RAY2D_GRID_HEIGHT = 8;
 	const int RAY2D_GRID_DEPTH = 8;
-
-	union colour
-	{
-		struct
-		{
-			char r, g, b, a;
-		};
-
-		int col;
-	};
-
+	
 	class Ray2D
-	: public common::Application
+		: public rendering::Application
 	{
 	public:
 		Ray2D();
@@ -37,18 +28,15 @@ namespace vlr
 		void render();
 
 		void genGrid();
-		void genOctree(common::Octree& tree);
-		void genNode(common::OctNode** node, glm::vec3 min, glm::vec3 max, int depth, int maxDepth);
-		void renderOctreeGL(common::Octree tree);
-		void renderNodeGL(common::OctNode* node, glm::vec3 min, glm::vec3 max);
+		void genOctree(rendering::Octree& tree);
+		void genNode(rendering::OctNode** node, glm::vec3 min, glm::vec3 max, int depth, int maxDepth);
 
-		bool raycastScreenPointGrid(int x, int y);
-		bool raycastGrid(glm::vec3 origin, glm::vec3 direction);
-
-		bool raycastScreenPointOctree(int x, int y);
-		bool raycastOctree(int* pixel, glm::vec3 origin, glm::vec3 direction);
+		void renderOctreeGL(rendering::Octree tree);
+		void renderNodeGL(rendering::OctNode* node, glm::vec3 min, glm::vec3 max);
 
 		// Callbacks
+		static void resize_callback(GLFWwindow* window,
+			int width, int height);
 		static void mouse_move_callback(GLFWwindow* window,
 			double x, double y);
 		static void mouse_callback(GLFWwindow* window, int button,
@@ -56,30 +44,21 @@ namespace vlr
 		static void key_callback(GLFWwindow* window, int key,
 			int scancode, int action, int mods);
 
-	protected:
-		struct Ray
-		{
-			glm::vec3 origin;
-			glm::vec3 direction;
-		};
-		
-		void screenPointToRay(int x, int y, Ray& ray);
-
 	private:
 		double _mouseX, _mouseY;
 		
 		glm::vec3 normal;
 		int lastx, lasty, lastz;
 		
-		common::Camera _camera;
+		rendering::Camera _camera;
 
 		int _grid[RAY2D_GRID_WIDTH][RAY2D_GRID_HEIGHT][RAY2D_GRID_DEPTH];
 
-		common::Octree _tree;
+		rendering::Octree _tree;
 
-		common::Framebuffer _fb;
+		rendering::Framebuffer _fb;
 
-		common::Mesh mesh;
+		rendering::Mesh mesh;
 
 		float _rot;
 
@@ -89,8 +68,6 @@ namespace vlr
 
 		glm::vec3 lastraypos;
 		glm::vec3 lastraydir;
-
-		glm::mat4 _mvp;
 	};
 
 }
