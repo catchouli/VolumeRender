@@ -31,6 +31,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 6.0.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -56,11 +57,12 @@
       <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS /D GLM_FORCE_RADIANS %(AdditionalOptions)</AdditionalOptions>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <FloatingPointModel>Fast</FloatingPointModel>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)\dep\lib;$(SolutionDir)\bin\$(Configuration)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3dll.lib;glew32.lib;vlrRendering.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\dep\lib;$(SolutionDir)\bin\$(Configuration);$(CUDA_PATH)\lib\$(PlatformName)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3dll.lib;glew32.lib;vlrRendering.lib;opengl32.lib;cudart.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
@@ -80,20 +82,32 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(SolutionDir)\dep\lib;$(SolutionDir)\bin\$(Configuration)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3dll.lib;glew32.lib;vlrRendering.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\dep\lib;$(SolutionDir)\bin\$(Configuration);$(CUDA_PATH)\lib\$(PlatformName)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3dll.lib;glew32.lib;vlrRendering.lib;opengl32.lib;cudart.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\application\Generation.cpp" />
+    <ClCompile Include="src\application\Input.cpp" />
+    <ClCompile Include="src\application\Rendering.cpp" />
+    <ClCompile Include="src\application\RenderingGL.cpp" />
+    <ClCompile Include="src\application\Update.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\Ray2D.cpp" />
+    <ClCompile Include="src\application\Ray2D.cpp" />
+    <ClCompile Include="src\rendering\Raycast.cpp" />
+    <ClCompile Include="src\rendering\Raycast_CPU.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\Ray2D.h" />
+    <ClInclude Include="include\application\Ray2D.h" />
+    <ClInclude Include="include\rendering\Raycast.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="src\rendering\Raycast_CUDA.cu" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 6.0.targets" />
   </ImportGroup>
 </Project>
