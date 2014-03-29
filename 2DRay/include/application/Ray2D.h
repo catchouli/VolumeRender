@@ -30,6 +30,7 @@ namespace vlr
 		void genGrid();
 		void genOctree(rendering::Octree& tree);
 		void genNode(rendering::OctNode** node, glm::vec3 min, glm::vec3 max, int depth, int maxDepth);
+		void genContiguousTree(rendering::Octree& tree, rendering::OctNode* root);
 
 		void renderOctreeGL(rendering::Octree tree);
 		void renderNodeGL(rendering::OctNode* node, glm::vec3 min, glm::vec3 max);
@@ -55,6 +56,9 @@ namespace vlr
 		int _grid[RAY2D_GRID_WIDTH][RAY2D_GRID_HEIGHT][RAY2D_GRID_DEPTH];
 
 		rendering::Octree _tree;
+		rendering::Octree* _currentTree;
+		rendering::Octree* _cpuTree;
+		rendering::Octree* _gpuTree;
 
 		rendering::Framebuffer _fb;
 
@@ -64,10 +68,7 @@ namespace vlr
 
 		bool _cursorLocked;
 
-		glm::vec3 unprojected;
-
-		glm::vec3 lastraypos;
-		glm::vec3 lastraydir;
+		glm::vec3 _camRot;
 	};
 
 }
