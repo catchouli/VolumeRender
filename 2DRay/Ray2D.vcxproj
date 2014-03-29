@@ -69,7 +69,7 @@
       <Include>
       </Include>
       <CodeGeneration>compute_20,sm_21</CodeGeneration>
-      <AdditionalOptions>-D GLM_FORCE_RADIANS -D CUDACC %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>-D GLM_FORCE_RADIANS -D CUDACC -G %(AdditionalOptions)</AdditionalOptions>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -97,7 +97,7 @@
       <Include>
       </Include>
       <CodeGeneration>compute_20,sm_21</CodeGeneration>
-      <AdditionalOptions>-D GLM_FORCE_RADIANS -D CUDACC %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>-D GLM_FORCE_RADIANS -D CUDACC -G %(AdditionalOptions)</AdditionalOptions>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>

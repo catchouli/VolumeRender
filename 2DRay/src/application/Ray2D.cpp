@@ -33,12 +33,12 @@ namespace vlr
 		float aspect = (float)height / (float)width;
 
 		_camRot = glm::vec3(0.5f, -0.5f, 0);
-		_camRot = glm::vec3();
+		//_camRot = glm::vec3();
 
 		_camera.setViewport(0, 0, width, height);
 		_camera.perspective((float)(3.14159265358 / 2.0), aspect, 0.01f, 100.0f);
-		//_camera.translate(glm::vec3(1.36f, 1.18f, 2.6f));
-		_camera.translate(glm::vec3(-1.5f, -1.5f, 10.0f));
+		_camera.translate(glm::vec3(1.36f, 1.18f, 2.6f));
+		//_camera.translate(glm::vec3(-1.5f, -1.5f, 10.0f));
 
 		_camera.rotate(glm::vec3(_camRot.x, 0, 0));
 		_camera.rotate(glm::vec3(0, _camRot.y, 0));
