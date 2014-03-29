@@ -17,13 +17,27 @@ namespace vlr
 	{
 		const int MAX_DEPTH = 3;
 
-		tree.root = new rendering::OctNode();
-		tree.min = glm::vec3();
-		tree.max = glm::vec3(RAY2D_GRID_WIDTH, RAY2D_GRID_HEIGHT,
+		// Make noncontiguous tree
+		rendering::OctNode* root = new rendering::OctNode();
+		
+		// Calculate position
+		const glm::vec3 pos(0, 0, 10);
+
+		glm::vec3 min(0, 0, 0);
+		glm::vec3 max(RAY2D_GRID_WIDTH, RAY2D_GRID_HEIGHT,
 			RAY2D_GRID_DEPTH);
+
+		// Generate nodes
+		genNode(&root, min, max, 0, MAX_DEPTH);
+
+		// Make tree contiguous
+		genContiguousTree(tree, root);
+		tree.min = min;
+		tree.max = max;
 		tree.depth = MAX_DEPTH;
 
-		genNode(&tree.root, tree.min, tree.max, 0, MAX_DEPTH);
+		// Clean up old nodes
+		delete root;
 	}
 
 	void Ray2D::genNode(rendering::OctNode** node, glm::vec3 min, glm::vec3 max, int depth, int maxDepth)
@@ -76,9 +90,11 @@ namespace vlr
 					glm::vec3 newMax = newMin + halfwidth + halfheight
 						+ halfdepth;
 
-					int idx = x*4 + y*2 + z;
+					// Calculate index of children (low order bit is x, second bit is y, third bit is z dir)
+					int idx = (z << 2) | (y << 1) | x;
 
 					rendering::OctNode** nextChild = &((*node)->children[idx]);
+					(*node)->far[idx] = true;
 					
 					genNode(nextChild, newMin, newMax, depth+1, maxDepth);
 
@@ -96,5 +112,67 @@ namespace vlr
 				return;
 			}
 		}
+	}
+
+	int nodeCount(rendering::OctNode* node)
+	{
+		if (node == nullptr)
+			return 0;
+
+		int nodes = 1;
+
+		for (int i = 0; i < 8; ++i)
+		{
+			nodes += nodeCount(node->children[i]);
+		}
+
+		return nodes;
+	}
+
+	rendering::OctNode* copyToArray(rendering::OctNode* node, rendering::OctNode* array, int& current)
+	{
+		if (node == 0)
+			return (rendering::OctNode*)0;
+
+		int baseNodeId = current;
+		rendering::OctNode* currentNode = &array[current++];
+
+		currentNode->leaf = node->leaf;
+
+		for (int i = 0; i < 8; ++i)
+		{
+			// Copy children and store relative pointers
+			rendering::OctNode* ptr = copyToArray(node->children[i], array, current);
+
+			// Copy pointer
+			currentNode->children[i] = ptr;
+
+			// Convert to relative pointer if not null
+			if (ptr != nullptr)
+			{
+				// Convert pointer to relative pointer
+				currentNode->far[i] = false;
+				currentNode->children[i] = (rendering::OctNode*)(ptr - currentNode);
+			}
+		}
+
+		return currentNode;
+	}
+
+	void Ray2D::genContiguousTree(rendering::Octree& tree, rendering::OctNode* root)
+	{
+		int currentNode = 0;
+
+		// Recursively count nodes
+		int allNodes = nodeCount(root);
+
+		tree.root = new rendering::OctNode[allNodes];
+		tree.nodeCount = allNodes;
+
+		rendering::OctNode* array = copyToArray(root, tree.root, currentNode);
+
+		// Check I didn't mess this up
+		assert(tree.root == array);
+		assert(currentNode == allNodes);
 	}
 }

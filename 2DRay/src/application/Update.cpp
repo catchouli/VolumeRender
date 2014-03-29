@@ -9,7 +9,9 @@ namespace vlr
 		// Set window title
 		const int TITLE_LEN = 1024;
 		char title[1024];
-		sprintf(title, "FPS: %d\n", getFPS());
+		sprintf(title, "FPS: %d\n, Camera pos: %.2f %.2f %.2f, Camera rotation: %.2f %.2f %.2f\n",
+			getFPS(), _camera.getPos().x, _camera.getPos().y, _camera.getPos().z,
+			_camRot.x, _camRot.y, _camRot.z);
 		glfwSetWindowTitle(_window, title);
 
 		// Rotate cube

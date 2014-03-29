@@ -3,9 +3,9 @@
 #ifdef VLR_RAYCAST_CPU
 
 #include "app/Framebuffer.h"
+#include "maths/Matrix.h"
 #include "maths/Types.h"
 #include "util/Util.h"
-#include "rendering/Camera.h"
 
 namespace vlr
 {
@@ -13,7 +13,8 @@ namespace vlr
 	{
 		void raycastOctree(int* p, const ray* ray);
 
-		void renderOctree(const float4* origin, const mat4* mvp, const viewport* viewport)
+		void renderOctree(const Octree* octree, const float4* origin,
+			const mat4* mvp, const viewport* viewport)
 		{
 			const int width = viewport->w;
 			const int height = viewport->h;
@@ -48,7 +49,7 @@ namespace vlr
 			float4 o = ray->origin;
 			float4 d = ray->direction;
 
-			float cubePos[3] = { 0, 0, 10 };
+			float cubePos[3] = { 0.5f, 0.5f, 0.5f };
 			float cubeScale = 1.0f;
 		
 			float cubeMin[3] = {
@@ -103,13 +104,15 @@ namespace vlr
 			float tcy = cubeCentre[1] * ty_coef + ty_bias;
 			float tcz = cubeCentre[2] * tz_coef + tz_bias;
 		
-			bool r = tcx < tmin;
-			bool g = tcy < tmin;
-			bool b = tcz < tmin;
+			bool r = (tcx < tmin) == (d.x >= 0.0f);
+			bool g = (tcy < tmin) == (d.y >= 0.0f);
+			bool b = (tcz < tmin) == (d.z >= 0.0f);
+			//bool g = tcy < tmin;
+			//bool b = tcz < tmin;
 		
-			if (d.x < 0.0f) r = !r;
-			if (d.y < 0.0f) g = !g;
-			if (d.z < 0.0f) b = !b;
+			//if (d.x < 0.0f) r = !r;
+			//if (d.y < 0.0f) g = !g;
+			//if (d.z < 0.0f) b = !b;
 
 			colour col;
 			col.col = -1;

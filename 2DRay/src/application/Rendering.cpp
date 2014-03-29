@@ -30,7 +30,6 @@ namespace vlr
 		// Set up view
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
-		glTranslatef(unprojected.x, unprojected.y, unprojected.z);
 
 		// Render raycasted
 		int width = getWidth();
@@ -38,7 +37,7 @@ namespace vlr
 
 		if (raycast)
 		{
-			float4 origin;
+			rendering::float4 origin;
 			mat4 mvp;
 			viewport viewport = _camera.getViewport();
 
@@ -47,35 +46,7 @@ namespace vlr
 			
 			memcpy(mvp.data, &_camera.getMVP(), sizeof(mvp));
 
-			renderOctree(&origin, &mvp, &viewport);
-
-#ifndef VLR_RAYCAST_CPU
-
-			
-
-#else
-
-			//int width = getWidth();
-			//int height = getHeight();
-			//for (int y = 0; y < height; ++y)
-			//{
-			//	for (int x = 0; x < width; ++x)
-			//	{
-			//		int* pixel = _fb.getPointer() + y * width + x;
-
-			//		// Calculate ray
-			//		ray ray;
-			//		screenPointToRay(x, y, &_camera, &ray);
-
-			//		// Do raycast
-			//		raycastOctree(pixel, &ray);
-			//	}
-			//}
-
-			//_fb.render();
-
-#endif /* VLR_RAYCAST_CPU */
-
+			renderOctree(_currentTree, &origin, &mvp, &viewport);
 		}
 		else
 		{

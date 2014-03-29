@@ -8,6 +8,9 @@ namespace vlr
 		Ray2D* ray2d = (Ray2D*)glfwGetWindowUserPointer(window);
 		rendering::Camera& cam = ray2d->_camera;
 
+		if (width == 0 || height == 0)
+			return;
+
 		cam.setViewport(0, 0, width, height);
 
 		float aspect = (float)height / (float)width;
@@ -36,21 +39,17 @@ namespace vlr
 		ray2d->_mouseX = x;
 		ray2d->_mouseY = y;
 
-		// Camera rotation x and y
-		static float camRotX = 0;
-		static float camRotY = 0;
-
 		if (ray2d->_cursorLocked)
 		{
 			// Update camera rotation
-			camRotX += (float)diffY * 0.001f;
-			camRotY += (float)diffX * 0.001f;
+			ray2d->_camRot.x += (float)diffY * 0.001f;
+			ray2d->_camRot.y += (float)diffX * 0.001f;
 
 			// Rotate camera with mouse movement
 			// Calculate rotation
 			cam.setRot(glm::quat());
-			cam.rotate(glm::vec3(camRotX, 0, 0));
-			cam.rotate(glm::vec3(0, camRotY, 0));
+			cam.rotate(glm::vec3(ray2d->_camRot.x, 0, 0));
+			cam.rotate(glm::vec3(0, ray2d->_camRot.y, 0));
 		}
 	}
 

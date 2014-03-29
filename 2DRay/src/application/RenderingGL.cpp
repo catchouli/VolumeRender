@@ -40,10 +40,17 @@ namespace vlr
 					int idx = x*4 + y*2 + z;
 
 					// Get node
-					rendering::OctNode* newNode = node->children[idx];
-					if (newNode != nullptr)
-						renderNodeGL(newNode, newMin, newMax);
+					if (node->children[idx] != 0)
+					{
+						rendering::OctNode* newNode;
+						
+						if (node->far[idx])
+							newNode = node->children[idx];
+						else
+							newNode = node + (int)node->children[idx];
 
+						renderNodeGL(newNode, newMin, newMax);
+					}
 				}
 			}
 		}
