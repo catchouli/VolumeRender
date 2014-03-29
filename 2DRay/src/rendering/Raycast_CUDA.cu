@@ -33,7 +33,7 @@ namespace vlr
 			const int s_max = 23;
 			const float epsilon = exp2f(-23);
 
-			StackEntry stack[s_max];
+			StackEntry stack[s_max + 1];
 
 			memset(stack, 0, sizeof(StackEntry) * 23);
 
@@ -76,22 +76,6 @@ namespace vlr
 			if (fabs(d.x) < epsilon) d.x = (d.x < 0.0f ? -epsilon : epsilon);
 			if (fabs(d.y) < epsilon) d.y = (d.y < 0.0f ? -epsilon : epsilon);
 			if (fabs(d.z) < epsilon) d.z = (d.z < 0.0f ? -epsilon : epsilon);
-			
-			if (d.x > 0)
-			{
-				d.x = -d.x;
-				cubePos[0] = 0.5f;
-			}
-			if (d.y > 0)
-			{
-				d.y = -d.y;
-				cubePos[1] = 0.5f;
-			}
-			if (d.z > 0)
-			{
-				d.z = -d.z;
-				cubePos[2] = 0.5f;
-			}
 		
 			float cubeMin[3] = {
 				cubePos[0] - 0.5f * cubeScale,
@@ -129,11 +113,11 @@ namespace vlr
 			float tymax = cubeMax[1] * ty_coef + ty_bias;
 			float tzmax = cubeMax[2] * tz_coef + tz_bias;
 		
-			if (txmin > txmax)
+			if ((txmin > txmax) != (d.x > 0.0f))
 				swap(txmin, txmax);
-			if (tymin > tymax)
+			if ((tymin > tymax) != (d.y > 0.0f))
 				swap(tymin, tymax);
-			if (tzmin > tzmax)
+			if ((tzmin > tzmax) != (d.z > 0.0f))
 				swap(tzmin, tzmax);
 
 			// Calculate minimum and maximum t values for root
@@ -151,9 +135,9 @@ namespace vlr
 
 			// Calculate idx and initial pos
 			idx = 0;
-			if ((txcentre < trmin) == (d.x >= 0.0f)) { idx ^= 1 << 0; pos.x = 1.5f; }
-			if ((tycentre < trmin) == (d.y >= 0.0f)) { idx ^= 1 << 1; pos.y = 1.5f; }
-			if ((tzcentre < trmin) == (d.z >= 0.0f)) { idx ^= 1 << 2; pos.z = 1.5f; }
+			if ((txcentre < trmin)) { idx ^= 1 << 0; pos.x = 1.5f; }
+			if ((tycentre < trmin)) { idx ^= 1 << 1; pos.y = 1.5f; }
+			if ((tzcentre < trmin)) { idx ^= 1 << 2; pos.z = 1.5f; }
 
 			// Get root node and initialise parent
 			OctNode* parent = tree->root;
@@ -202,11 +186,11 @@ namespace vlr
 				tymax = (pos.y + scale_exp2) * ty_coef + ty_bias;
 				tzmax = (pos.z + scale_exp2) * tz_coef + tz_bias;
 		
-				if (txmin > txmax)
+				if ((txmin > txmax) != (d.x > 0.0f))
 					swap(txmin, txmax);
-				if (tymin > tymax)
+				if ((tymin > tymax) != (d.y > 0.0f))
 					swap(tymin, tymax);
-				if (tzmin > tzmax)
+				if ((tzmin > tzmax) != (d.y > 0.0f))
 					swap(tzmin, tzmax);
 
 				// Calculate minimum and maximum t values for node
@@ -239,9 +223,6 @@ namespace vlr
 							stack[scale].tmax = tmax;
 						}
 
-						// h <- tmax
-						//h = tmax;
-
 						// parent = find child descriptor(parent, idx)
 						parent = parent + (int)parent->children[idx];
 
@@ -250,9 +231,9 @@ namespace vlr
 
 						idx = 0;
 						scale -= 1;
-						if ((txcentre < tvmin) == (d.x >= 0.0f)) { idx ^= ((d.x >= 0)) << 0; pos.x += exp2f(scale - s_max); }
-						if ((tycentre < tvmin) == (d.y >= 0.0f)) { idx ^= ((d.y >= 0)) << 1; pos.y += exp2f(scale - s_max); }
-						if ((tzcentre < tvmin) == (d.z >= 0.0f)) { idx ^= ((d.z >= 0)) << 2; pos.z += exp2f(scale - s_max); }
+						if ((txcentre < tvmin)) { idx ^= 1; pos.x += exp2f(scale - s_max); }
+						if ((tycentre < tvmin)) { idx ^= 2; pos.y += exp2f(scale - s_max); }
+						if ((tzcentre < tvmin)) { idx ^= 4; pos.z += exp2f(scale - s_max); }
 
 						continue;
 					}
@@ -263,48 +244,54 @@ namespace vlr
 
 				int step_mask = 0;
 				int step_dir = 0;
+				int ray_dir_mask = 0;
+
 				if (txmax <= tcmax)
 				{
-					step_mask ^= 1;
+					step_mask ^= (1 << 0);
 
 					pos.x += copysign(scale_exp2, d.x);
+
+					ray_dir_mask ^= (d.x > 0) << 0;
 
 					if ((idx & (1 << 0)) == 0)
 						step_dir ^= (1 << 0);
 				}
 				if (tymax <= tcmax)
 				{
-					step_mask ^= 2;
+					step_mask ^= (1 << 1);
 					pos.y += copysign(scale_exp2, d.y);
 
+					ray_dir_mask ^= (d.y > 0) << 1;
+
 					if ((idx & (1 << 1)) == 0)
-						step_dir ^= (1 << 0);
+						step_dir ^= (1 << 1);
 				}
 				if (tzmax <= tcmax)
 				{
-					step_mask ^= 4;
+					step_mask ^= (1 << 2);
 					pos.z += copysign(scale_exp2, d.z);
 
-					if ((idx & (1 << 2)) == 0)
-						step_dir ^= (1 << 0);
-				}
+					ray_dir_mask ^= (d.z > 0) << 2;
 
-				int ray_dir_mask = 0;
-				if (d.x > 0) ray_dir_mask |= (1 << 0);
-				if (d.x > 0) ray_dir_mask |= (1 << 1);
-				if (d.x > 0) ray_dir_mask |= (1 << 2);
+					if ((idx & (1 << 2)) == 0)
+						step_dir ^= (1 << 2);
+				}
 
 				tmin = tcmax;
 				idx ^= step_mask;
 
 				// Pop
 				// If idx update disagrees with ray then
-				if ((idx & step_mask) != 0)
+				if ((ray_dir_mask ^ step_dir) != 0)
 				{
+					unsigned int posx = __float_as_int(pos.x);
+					unsigned int oldposx = __float_as_int(old_pos.x);
+
 					unsigned int differing_bits = 0;
-					if ((step_mask & 1) != 0) differing_bits |= __float_as_int(pos.x) ^ __float_as_int(pos.x + scale_exp2);
-					if ((step_mask & 2) != 0) differing_bits |= __float_as_int(pos.x) ^ __float_as_int(pos.y + scale_exp2);
-					if ((step_mask & 4) != 0) differing_bits |= __float_as_int(pos.x) ^ __float_as_int(pos.z + scale_exp2);
+					if ((step_mask & 1) != 0) differing_bits |= __float_as_int(pos.x) ^ __float_as_int(old_pos.x);
+					if ((step_mask & 2) != 0) differing_bits |= __float_as_int(pos.y) ^ __float_as_int(old_pos.y);
+					if ((step_mask & 4) != 0) differing_bits |= __float_as_int(pos.z) ^ __float_as_int(old_pos.z);
 					float oldScale = scale;
 					scale = (__float_as_int((float)differing_bits) >> 23) - 127;
 					scale_exp2 = __int_as_float((scale - s_max + 127) << 23);
