@@ -3,6 +3,8 @@
 #include "util/CUDAUtil.h"
 #include "rendering/Raycast.h"
 
+#include "rendering/OctNode.h"
+
 namespace vlr
 {
 	Ray2D::Ray2D()
@@ -32,14 +34,14 @@ namespace vlr
 		int height = getHeight();
 		float aspect = (float)height / (float)width;
 
-		_camRot = glm::vec3(0.5f, -0.5f, 0);
-		//_camRot = glm::vec3();
+		// Set camera rotation
+		_camRot = glm::vec3(0.6f, -0.65f, 0);
 
 		_camera.setViewport(0, 0, width, height);
 		_camera.perspective((float)(3.14159265358 / 2.0), aspect, 0.01f, 100.0f);
-		_camera.translate(glm::vec3(1.36f, 1.18f, 2.6f));
-		//_camera.translate(glm::vec3(-1.5f, -1.5f, 10.0f));
+		_camera.translate(glm::vec3(2.7f, 2.8f, 2.9f));
 
+		// Rotate camera to initial rotation
 		_camera.rotate(glm::vec3(_camRot.x, 0, 0));
 		_camera.rotate(glm::vec3(0, _camRot.y, 0));
 		_camera.rotate(glm::vec3(0, 0, _camRot.z));
@@ -48,7 +50,10 @@ namespace vlr
 		genGrid();
 
 		// Generate octree from grid
-		genOctree(_tree);
+		//genOctreeGrid(_tree, &_grid[0][0][0], glm::vec3(RAY2D_GRID_WIDTH, RAY2D_GRID_HEIGHT, RAY2D_GRID_DEPTH));
+
+		// Generate octree from sphere
+		genOctreeSphere(_tree, glm::vec3(0.5f, 0.5f, 0.5f), 0.5f);
 
 		// Initialise pointers
 		_cpuTree = &_tree;

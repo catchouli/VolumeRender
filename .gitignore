@@ -10,3 +10,10 @@
 *.psess
 *.vsp
 *.pdb
+*.obj
+*.log
+*.tlog
+*.lastbuildstate
+*.unsuccessfulbuild
+*.cache
+*.deps

@@ -28,8 +28,13 @@ namespace vlr
 		void render();
 
 		void genGrid();
-		void genOctree(rendering::Octree& tree);
-		void genNode(rendering::OctNode** node, glm::vec3 min, glm::vec3 max, int depth, int maxDepth);
+
+		void genOctreeGrid(rendering::Octree& tree, int* grid, glm::vec3 size);
+		void genNodeGrid(rendering::OctNode** node, int* grid, glm::vec3 min, glm::vec3 max, int depth, int maxDepth);
+
+		void genOctreeSphere(rendering::Octree& tree, glm::vec3 pos, float radius);
+		void genNodeSphere(rendering::OctNode** node, glm::vec3 pos, float radius, glm::vec3 min, glm::vec3 max, int depth, int maxDepth);
+
 		void genContiguousTree(rendering::Octree& tree, rendering::OctNode* root);
 
 		void renderOctreeGL(rendering::Octree tree);
