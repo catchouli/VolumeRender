@@ -69,7 +69,7 @@
       <Include>
       </Include>
       <CodeGeneration>compute_20,sm_21</CodeGeneration>
-      <AdditionalOptions>-D GLM_FORCE_RADIANS -D CUDACC -G %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>-D GLM_FORCE_RADIANS -D CUDACC %(AdditionalOptions)</AdditionalOptions>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -97,26 +97,20 @@
       <Include>
       </Include>
       <CodeGeneration>compute_20,sm_21</CodeGeneration>
-      <AdditionalOptions>-D GLM_FORCE_RADIANS -D CUDACC -G %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>-D GLM_FORCE_RADIANS -D CUDACC %(AdditionalOptions)</AdditionalOptions>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\application\Generation.cpp" />
     <ClCompile Include="src\application\Input.cpp" />
-    <ClCompile Include="src\application\Rendering.cpp" />
+    <ClCompile Include="src\application\RenderLoop.cpp" />
     <ClCompile Include="src\application\RenderingGL.cpp" />
     <ClCompile Include="src\application\Update.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\application\Ray2D.cpp" />
-    <ClCompile Include="src\rendering\Raycast.cpp" />
-    <ClCompile Include="src\rendering\Raycast_CPU.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\application\Ray2D.h" />
-    <ClInclude Include="include\rendering\Raycast.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <CudaCompile Include="src\rendering\Raycast_CUDA.cu" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
