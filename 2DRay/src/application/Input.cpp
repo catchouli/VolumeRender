@@ -62,15 +62,7 @@ namespace vlr
 		// Get class instance
 		Ray2D* ray2d = (Ray2D*)glfwGetWindowUserPointer(window);
 		rendering::Camera& cam = ray2d->_camera;
-
-		// Regenerate grid
-		if (key == GLFW_KEY_TAB && action == GLFW_PRESS)
-		{
-			ray2d->genGrid();
-			ray2d->genOctreeGrid(ray2d->_tree, (int*)ray2d->_grid,
-				glm::vec3(RAY2D_GRID_WIDTH, RAY2D_GRID_HEIGHT, RAY2D_GRID_DEPTH));
-		}
-
+		
 		// Lock/unlock cursor & disable input
 		if (key == GLFW_KEY_L && action == GLFW_PRESS)
 		{

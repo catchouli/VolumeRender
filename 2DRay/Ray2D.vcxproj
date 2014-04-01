@@ -101,10 +101,8 @@
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\application\Generation.cpp" />
     <ClCompile Include="src\application\Input.cpp" />
     <ClCompile Include="src\application\RenderLoop.cpp" />
-    <ClCompile Include="src\application\RenderingGL.cpp" />
     <ClCompile Include="src\application\Update.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\application\Ray2D.cpp" />

@@ -1,14 +1,13 @@
 #include "application/Ray2D.h"
 
-#include "util/CUDAUtil.h"
 #include "rendering/Raycast.h"
-
 #include "rendering/OctNode.h"
+#include "util/CUDAUtil.h"
 
 namespace vlr
 {
 	Ray2D::Ray2D()
-		: Application(513, 512), _rot(0)
+		: Application(512, 512), _rot(0)
 	{
 		// Set callbacks
 		glfwSetFramebufferSizeCallback(_window, resize_callback);
@@ -46,22 +45,14 @@ namespace vlr
 		_camera.rotate(glm::vec3(0, _camRot.y, 0));
 		_camera.rotate(glm::vec3(0, 0, _camRot.z));
 
-		// Generate grid
-		genGrid();
+		// Generate sphere
+		int* sphere;
+		int size =
+			rendering::genOctreeSphere(&sphere, 4,
+			glm::vec3(0.5f, 0.5f, 0.5f), 0.5f);
 
-		// Generate octree from grid
-		//genOctreeGrid(_tree, &_grid[0][0][0], glm::vec3(RAY2D_GRID_WIDTH, RAY2D_GRID_HEIGHT, RAY2D_GRID_DEPTH));
-
-		// Generate octree from sphere
-		genOctreeSphere(_tree, glm::vec3(0.5f, 0.5f, 0.5f), 0.5f);
-
-		// Initialise pointers
-		_cpuTree = &_tree;
-
-#ifndef VLR_RAYCAST_CPU
-		// Initialise GPU tree pointer and copy data
-		_gpuTree = uploadOctreeCuda(*_cpuTree);
-		_currentTree = _gpuTree;
-#endif
+		// Upload sphere to GPU
+		gpuErrchk(cudaMalloc((void**)&_gpuTree, size * sizeof(int)));
+		gpuErrchk(cudaMemcpy(_gpuTree, sphere, size * sizeof(int), cudaMemcpyHostToDevice));
 	}
 }
