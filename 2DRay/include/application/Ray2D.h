@@ -29,17 +29,6 @@ namespace vlr
 
 		void genGrid();
 
-		void genOctreeGrid(rendering::Octree& tree, int* grid, glm::vec3 size);
-		void genNodeGrid(rendering::OctNode** node, int* grid, glm::vec3 min, glm::vec3 max, int depth, int maxDepth);
-
-		void genOctreeSphere(rendering::Octree& tree, glm::vec3 pos, float radius);
-		void genNodeSphere(rendering::OctNode** node, glm::vec3 pos, float radius, glm::vec3 min, glm::vec3 max, int depth, int maxDepth);
-
-		void genContiguousTree(rendering::Octree& tree, rendering::OctNode* root);
-
-		void renderOctreeGL(rendering::Octree tree);
-		void renderNodeGL(rendering::OctNode* node, glm::vec3 min, glm::vec3 max);
-
 		// Callbacks
 		static void resize_callback(GLFWwindow* window,
 			int width, int height);
@@ -58,12 +47,8 @@ namespace vlr
 		
 		rendering::Camera _camera;
 
-		int _grid[RAY2D_GRID_WIDTH][RAY2D_GRID_HEIGHT][RAY2D_GRID_DEPTH];
-
-		rendering::Octree _tree;
-		rendering::Octree* _currentTree;
-		rendering::Octree* _cpuTree;
-		rendering::Octree* _gpuTree;
+		int* _gpuTree;
+		const int* itree;
 
 		rendering::Framebuffer _fb;
 
