@@ -48,11 +48,13 @@ namespace vlr
 		// Generate sphere
 		int* sphere;
 		int size =
-			rendering::genOctreeSphere(&sphere, 4,
+			rendering::genOctreeSphere(&sphere, 6,
 			glm::vec3(0.5f, 0.5f, 0.5f), 0.5f);
 
+		printf("%d\n", size);
+
 		// Upload sphere to GPU
-		gpuErrchk(cudaMalloc((void**)&_gpuTree, size * sizeof(int)));
-		gpuErrchk(cudaMemcpy(_gpuTree, sphere, size * sizeof(int), cudaMemcpyHostToDevice));
+		gpuErrchk(cudaMalloc((void**)&_gpuTree, size));
+		gpuErrchk(cudaMemcpy(_gpuTree, sphere, size, cudaMemcpyHostToDevice));
 	}
 }
