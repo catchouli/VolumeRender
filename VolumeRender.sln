@@ -18,19 +18,25 @@ Global
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{E164C7DE-82BB-47D6-BF90-C70DD3674A25}.Debug|Win32.ActiveCfg = Debug|Win32
 		{E164C7DE-82BB-47D6-BF90-C70DD3674A25}.Debug|Win32.Build.0 = Debug|Win32
-		{E164C7DE-82BB-47D6-BF90-C70DD3674A25}.Debug|x64.ActiveCfg = Debug|Win32
+		{E164C7DE-82BB-47D6-BF90-C70DD3674A25}.Debug|x64.ActiveCfg = Debug|x64
+		{E164C7DE-82BB-47D6-BF90-C70DD3674A25}.Debug|x64.Build.0 = Debug|x64
 		{E164C7DE-82BB-47D6-BF90-C70DD3674A25}.Release|Win32.ActiveCfg = Release|Win32
 		{E164C7DE-82BB-47D6-BF90-C70DD3674A25}.Release|Win32.Build.0 = Release|Win32
-		{E164C7DE-82BB-47D6-BF90-C70DD3674A25}.Release|x64.ActiveCfg = Release|Win32
-		{E164C7DE-82BB-47D6-BF90-C70DD3674A25}.Release|x64.Build.0 = Release|Win32
+		{E164C7DE-82BB-47D6-BF90-C70DD3674A25}.Release|x64.ActiveCfg = Release|x64
+		{E164C7DE-82BB-47D6-BF90-C70DD3674A25}.Release|x64.Build.0 = Release|x64
 		{8563CE39-78FA-4500-8E85-8D53F8929BF1}.Debug|Win32.ActiveCfg = Debug|Win32
 		{8563CE39-78FA-4500-8E85-8D53F8929BF1}.Debug|Win32.Build.0 = Debug|Win32
-		{8563CE39-78FA-4500-8E85-8D53F8929BF1}.Debug|x64.ActiveCfg = Debug|Win32
+		{8563CE39-78FA-4500-8E85-8D53F8929BF1}.Debug|x64.ActiveCfg = Debug|x64
+		{8563CE39-78FA-4500-8E85-8D53F8929BF1}.Debug|x64.Build.0 = Debug|x64
 		{8563CE39-78FA-4500-8E85-8D53F8929BF1}.Release|Win32.ActiveCfg = Release|Win32
 		{8563CE39-78FA-4500-8E85-8D53F8929BF1}.Release|Win32.Build.0 = Release|Win32
-		{8563CE39-78FA-4500-8E85-8D53F8929BF1}.Release|x64.ActiveCfg = Release|Win32
+		{8563CE39-78FA-4500-8E85-8D53F8929BF1}.Release|x64.ActiveCfg = Release|x64
+		{8563CE39-78FA-4500-8E85-8D53F8929BF1}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
 	EndGlobalSection
 EndGlobal
