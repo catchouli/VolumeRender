@@ -599,7 +599,7 @@ readdir(
                 CP_ACP,                         /* Output code page */
                 0,                              /* Conversion flags */
                 wp->d_name,                     /* Input string */
-                wp->d_namlen,                   /* Length of input string */
+                (int)wp->d_namlen,              /* Length of input string */
                 dirp->ent.d_name,               /* Output buffer */
                 PATH_MAX,                       /* Size of output buffer */
                 NULL,                           /* Replacement character */

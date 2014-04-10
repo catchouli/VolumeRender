@@ -25,9 +25,6 @@ namespace vlr
 		// Initialise framebuffer
 		_fb.resize(getWidth(), getHeight());
 
-		// Generate cube
-		mesh.createCube();
-
 		// Initialise camera
 		int width = getWidth();
 		int height = getHeight();
@@ -45,13 +42,20 @@ namespace vlr
 		_camera.rotate(glm::vec3(0, _camRot.y, 0));
 		_camera.rotate(glm::vec3(0, 0, _camRot.z));
 
+		// Load mesh
+		_mesh.load("miku.md2");
+
 		// Generate sphere
 		int* sphere;
+
 		int size =
 			rendering::genOctreeSphere(&sphere, 6,
-			glm::vec3(0.5f, 0.5f, 0.5f), 0.5f);
+			glm::vec3(5.f, 5.f, 5.f), 5.0f);
+		//int size =
+		//	rendering::genOctreeMesh(&sphere, 3,
+		//	&_mesh);
 
-		printf("%d\n", size);
+		printf("%.2fMB\n", size / (1024.0f * 1024.0f));
 
 		// Upload sphere to GPU
 		gpuErrchk(cudaMalloc((void**)&_gpuTree, size));

@@ -5,9 +5,9 @@
 #include "app/Framebuffer.h"
 #include "maths/Types.h"
 #include "rendering/Camera.h"
-#include "rendering/Mesh.h"
 #include "rendering/Octree.h"
 #include "rendering/OctNode.h"
+#include "resources/Mesh.h"
 
 #include <stdio.h>
 
@@ -41,6 +41,8 @@ namespace vlr
 
 	private:
 		double _mouseX, _mouseY;
+
+		rendering::Mesh _mesh;
 		
 		glm::vec3 normal;
 		int lastx, lasty, lastz;
@@ -51,8 +53,6 @@ namespace vlr
 		const int* itree;
 
 		rendering::Framebuffer _fb;
-
-		rendering::Mesh mesh;
 
 		float _rot;
 
