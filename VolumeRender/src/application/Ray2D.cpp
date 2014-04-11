@@ -48,12 +48,12 @@ namespace vlr
 		// Generate sphere
 		int* sphere;
 
-		int size =
-			rendering::genOctreeSphere(&sphere, 6,
-			glm::vec3(5.f, 5.f, 5.f), 5.0f);
 		//int size =
-		//	rendering::genOctreeMesh(&sphere, 3,
-		//	&_mesh);
+		//	rendering::genOctreeSphere(&sphere, 9,
+		//	glm::vec3(5.f, 5.f, 5.f), 5.0f);
+		int size =
+			rendering::genOctreeMesh(&sphere, 7,
+			&_mesh);
 
 		printf("%.2fMB\n", size / (1024.0f * 1024.0f));
 
