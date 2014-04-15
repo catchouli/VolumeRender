@@ -1,27 +1,26 @@
-#ifndef VLR_RAY2D_APPLICATION
-#define VLR_RAY2D_APPLICATION
+#ifndef VLR_VOLUMERENDER_APPLICATION
+#define VLR_VOLUMERENDER_APPLICATION
 
 #include "app/Application.h"
 #include "app/Framebuffer.h"
 #include "maths/Types.h"
 #include "rendering/Camera.h"
 #include "rendering/Octree.h"
-#include "rendering/OctNode.h"
 #include "resources/Mesh.h"
 
 #include <stdio.h>
 
 namespace vlr
 {
-	const int RAY2D_GRID_WIDTH = 8;
-	const int RAY2D_GRID_HEIGHT = 8;
-	const int RAY2D_GRID_DEPTH = 8;
+	const int VolumeRender_GRID_WIDTH = 8;
+	const int VolumeRender_GRID_HEIGHT = 8;
+	const int VolumeRender_GRID_DEPTH = 8;
 	
-	class Ray2D
+	class VolumeRender
 		: public rendering::Application
 	{
 	public:
-		Ray2D();
+		VolumeRender(int argc, char** argv);
 
 		void update(double dt);
 
@@ -40,6 +39,8 @@ namespace vlr
 			int scancode, int action, int mods);
 
 	private:
+		const char* _treeFilename;
+
 		double _mouseX, _mouseY;
 
 		rendering::Mesh _mesh;
@@ -60,7 +61,6 @@ namespace vlr
 
 		glm::vec3 _camRot;
 	};
-
 }
 
-#endif /* VLR_RAY2D_APPLICATION */
+#endif /* VLR_VOLUMERENDER_APPLICATION */

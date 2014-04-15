@@ -1,4 +1,6 @@
-#include "application/Ray2D.h"
+#include "application/VolumeRender.h"
+
+#include <glm/glm.hpp>
 
 #include "rendering/Rendering.h"
 #include "maths/Types.h"
@@ -8,7 +10,7 @@ using namespace vlr::rendering;
 
 namespace vlr
 {
-	void Ray2D::render()
+	void VolumeRender::render()
 	{
 		bool raycast = !glfwGetKey(_window, GLFW_KEY_G);
 
@@ -38,13 +40,13 @@ namespace vlr
 		// Render octree
 		renderOctree(_gpuTree, &origin, &mvp, &viewport);
 
+		//// Render mesh with opengl
 		//// Set up OpenGL state
 		//// Set up culling & depth testing
 		//glFrontFace(GL_CW);
 		//glEnable(GL_CULL_FACE);
 		//glEnable(GL_DEPTH_TEST);
 		//
-
 		//// Set up view
 		//glMatrixMode(GL_MODELVIEW);
 		//glLoadIdentity();

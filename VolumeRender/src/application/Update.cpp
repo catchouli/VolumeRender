@@ -1,8 +1,8 @@
-#include "application/Ray2D.h"
+#include "application/VolumeRender.h"
 
 namespace vlr
 {
-	void Ray2D::update(double dt)
+	void VolumeRender::update(double dt)
 	{
 		const float MOVE_SPEED = 2.0f;
 
