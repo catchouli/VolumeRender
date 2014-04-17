@@ -4,6 +4,7 @@
 #include "app/Application.h"
 #include "app/Framebuffer.h"
 #include "maths/Types.h"
+#include "rendering/rendering_attributes.h"
 #include "rendering/Camera.h"
 #include "rendering/Octree.h"
 #include "resources/Mesh.h"
@@ -40,6 +41,8 @@ namespace vlr
 
 	private:
 		const char* _treeFilename;
+
+		rendering::rendering_attributes_t rendering_attributes;
 
 		double _mouseX, _mouseY;
 

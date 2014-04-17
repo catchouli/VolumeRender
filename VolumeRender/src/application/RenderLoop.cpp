@@ -24,21 +24,48 @@ namespace vlr
 		// Set up viewport
 		glViewport(0, 0, getWidth(), getHeight());
 
-		// Prepare to render octree
-		rendering::float4 origin;
-		mat4 mvp;
-		viewport viewport;
+		// Rotate directional
+		glm::vec3 lightDir = glm::vec3(0.0f, 0.0f, -1.0f) * glm::rotate(glm::quat(), (float)glfwGetTime() * 10.0f, glm::vec3(0.0f, 1.0f, 0.0f));
+		lightDir = glm::vec3(0, 0, -1);
 
-		// Update viewport, origin and mvp
-		viewport = _camera.getViewport();
+		// Set up origin, mvp, viewport
+		rendering_attributes.origin = _camera.getPos();
+		rendering_attributes.mvp = _camera.getMVP();
+		rendering_attributes.viewport = _camera.getViewport();
 
-		memcpy(origin.data, &_camera.getPos(), 3 * sizeof(float));
-		origin.w = 1.0f;
-			
-		memcpy(mvp.data, &_camera.getMVP(), sizeof(mvp));
+		// Set up rendering attributes for scene
+		// Lights
+		rendering_attributes.light_count = 10;
+
+		rendering_attributes.ambient_colour = glm::vec3(0.1f, 0.1f, 0.1f);
+
+		light_t* dir_light = &rendering_attributes.lights[0];
+		
+		dir_light->type = rendering::LightTypes::DIRECTIONAL;
+		dir_light->diffuse = glm::vec3(0.3f, 0.0f, 0.0f);
+		dir_light->specular = glm::vec3(0.5f, 0.5f, 0.5f) * 0.0f;
+		dir_light->direction = lightDir;
+		
+		dir_light->constant_att = 1.0f;
+		dir_light->linear_att = 0.0f;
+		dir_light->quadratic_att = 0.0f;
+
+		for (int i = 1; i < 10; ++i)
+		{
+			dir_light = &rendering_attributes.lights[i];
+		
+			dir_light->type = rendering::LightTypes::DIRECTIONAL;
+			dir_light->diffuse = glm::vec3(0, 0, 0.3f);
+			dir_light->specular = glm::vec3(0.5f, 0.5f, 0.5f) * 0.0f;
+			dir_light->direction = lightDir;
+		
+			dir_light->constant_att = 1.0f;
+			dir_light->linear_att = 0.0f;
+			dir_light->quadratic_att = 0.0f;
+		}
 
 		// Render octree
-		renderOctree(_gpuTree, &origin, &mvp, &viewport);
+		renderOctree(_gpuTree, rendering_attributes);
 
 		//// Render mesh with opengl
 		//// Set up OpenGL state
