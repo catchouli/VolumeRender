@@ -1,4 +1,4 @@
 VolumeRender
 ============
 
-A sparse voxel octree rendering library written in C++/cuda
+A sparse voxel octree rendering library written in C++/cuda (application side)
