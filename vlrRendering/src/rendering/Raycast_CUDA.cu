@@ -18,7 +18,7 @@
 #include "maths/Matrix.h"
 #include "maths/Types.h"
 #include "rendering/Octree.h"
-#include "rendering/Octnode.h"
+#include "rendering/Rendering.h"
 #include "util/Util.h"
 #include "util/CUDAUtil.h"
 
@@ -26,13 +26,13 @@ namespace vlr
 {
 	namespace rendering
 	{
-		__device__ void raycast(const Octree* tree, const rendering::ray* ray, float* out_hit_t,
-			float3* out_hit_pos, OctNode** out_hit_parent, int* out_hit_idx, int* out_hit_scale)
+		__device__ void raycast(const int* root, const rendering::ray* ray, float* out_hit_t,
+			glm::vec3* out_hit_pos, const int** out_hit_parent, int* out_hit_idx, int* out_hit_scale)
 		{
 			// An entry in the stack
 			struct StackEntry
 			{
-				rendering::OctNode* parent;
+				const int* parent;
 				float t_max;
 			};
 
@@ -43,8 +43,8 @@ namespace vlr
 			StackEntry stack[MAX_SCALE + 1];
 
 			// Get ray position and direction
-			const float4& origin = ray->origin;
-			float4 dir = ray->direction;
+			const glm::vec3& origin = ray->origin;
+			glm::vec3 dir = ray->direction;
 
 			// Eliminate small (zero) direction values to avoid division by zero
 			if (fabsf(dir.x) < min_float)
@@ -105,7 +105,7 @@ namespace vlr
 			float h = t_max;
 
 			// Get root node
-			OctNode* parent = tree->root;
+			const int* parent = root;
 
 			// Evaluate root at centre to get first child node
 			int idx = 0;
@@ -137,10 +137,17 @@ namespace vlr
 				idx ^= (1 << 2);
 				pos.z = 1.5f;
 			}
+
+			// Cached child descriptor
+			int2 child_descriptor = make_int2(0, 0);
 			
 			// Run until we pop the root voxel
 			while (scale < MAX_SCALE)
 			{
+				// Fetch child descriptor if not valid
+				if (child_descriptor.x == 0)
+					child_descriptor = *(int2*)parent;
+
 				// Calculate t_max for child
 				tx_max = pos.x * tx_coef - tx_constant;
 				ty_max = pos.y * ty_coef - ty_constant;
@@ -149,10 +156,11 @@ namespace vlr
 				float t_c_max = fminf(fminf(tx_max, ty_max), tz_max);
 
 				// Mirror idx to get child index
-				int child_mask = idx ^ dir_mask;
+				int child_idx = idx ^ dir_mask;
+				int child_mask = child_descriptor.x << child_idx;
 
 				// Process voxel if existent and the current span of t values is valid
-				if (parent->children[child_mask] != 0 && t_min <= t_max)
+				if ((child_mask & 0x8000) != 0 && t_min <= t_max)
 				{
 					// TODO:
 					// Check if voxel is small enough to terminate traversal
@@ -173,12 +181,8 @@ namespace vlr
 					// Descend if the resulting span is non-zero
 					if (t_min <= tvmax)
 					{
-						int offset = (int)parent->children[child_mask];
-
-						OctNode* current = parent + offset;
-
 						// Terminate if this is a leaf voxel
-						if (current->leaf)
+						if ((child_mask & 0x80) == 0)
 						{
 							break;
 						}
@@ -194,7 +198,14 @@ namespace vlr
 						h = t_c_max;
 
 						// Update parent voxel
-						parent = current;
+						int ofs = (unsigned int)(child_descriptor.x) >> 17;
+
+						// If this is a far pointer, load it
+						if ((child_descriptor.x & 0x10000) != 0)
+							ofs = parent[ofs * 4];
+
+						ofs += get_child_index(child_mask & 0x7F);
+						parent += 4 * ofs;
 
 						// Update scale
 						scale--;
@@ -222,8 +233,11 @@ namespace vlr
 							pos.z += scale_exp2;
 						}
 
-						// Update active t-span and invalidate cached child descriptor.
+						// Update max t value
 						t_max = tvmax;
+
+						// Invalidate cache child descriptor
+						child_descriptor.x = 0;
 
 						continue;
 					}
@@ -296,7 +310,7 @@ namespace vlr
 				}
 			}
 
-			// Undo mirroring of the coordinate system.
+			// Undo mirroring of the coordinate system
 			if ((dir_mask & (1 << 0)) == 0) pos.x = 3.0f - scale_exp2 - pos.x;
 			if ((dir_mask & (1 << 1)) == 0) pos.y = 3.0f - scale_exp2 - pos.y;
 			if ((dir_mask & (1 << 2)) == 0) pos.z = 3.0f - scale_exp2 - pos.z;
@@ -318,30 +332,6 @@ namespace vlr
 
 			// Output scale of hit voxel
 			*out_hit_scale = scale;
-		}
-
-		Octree* uploadOctreeCuda(const Octree& octree)
-		{
-			Octree gpuOctree = octree;
-			Octree* gpuPtr = nullptr;
-			OctNode* nodes = nullptr;
-
-			// Only a contiguous tree can be uploaded
-			if (octree.nodeCount == 0)
-			{
-				fprintf(stderr, "Only a contiguous tree can be uploaded\n");
-
-				return gpuPtr;
-			}
-			
-			gpuErrchk(cudaMalloc(&gpuPtr, sizeof(Octree)));
-			gpuErrchk(cudaMalloc(&nodes, octree.nodeCount * sizeof(OctNode)));
-
-			gpuOctree.root = nodes;
-			gpuErrchk(cudaMemcpy(nodes, octree.root, octree.nodeCount * sizeof(OctNode), cudaMemcpyHostToDevice));
-			gpuErrchk(cudaMemcpy(gpuPtr, &gpuOctree, sizeof(Octree), cudaMemcpyHostToDevice));
-
-			return gpuPtr;
 		}
 	}
 }

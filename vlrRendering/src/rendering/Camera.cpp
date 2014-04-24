@@ -28,7 +28,7 @@ namespace vlr
 		{
 			// Update view matrix
 			_rotationMatrix = glm::toMat4(_rotation);
-			_view = glm::translate(_rotationMatrix, -_position);
+			_view = glm::translate(_rotationMatrix, -(_position));
 
 			// Calculate mvp
 			glm::mat4 mvp = getMVP();

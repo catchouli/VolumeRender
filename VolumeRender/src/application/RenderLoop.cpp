@@ -35,14 +35,14 @@ namespace vlr
 
 		// Set up rendering attributes for scene
 		// Lights
-		rendering_attributes.light_count = 10;
+		rendering_attributes.light_count = 1;
 
 		rendering_attributes.ambient_colour = glm::vec3(0.1f, 0.1f, 0.1f);
 
 		light_t* dir_light = &rendering_attributes.lights[0];
 		
 		dir_light->type = rendering::LightTypes::DIRECTIONAL;
-		dir_light->diffuse = glm::vec3(0.3f, 0.0f, 0.0f);
+		dir_light->diffuse = glm::vec3(0.3f, 0.3f, 0.3f);
 		dir_light->specular = glm::vec3(0.5f, 0.5f, 0.5f) * 0.0f;
 		dir_light->direction = lightDir;
 		

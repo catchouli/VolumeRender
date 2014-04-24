@@ -1,41 +1,59 @@
 #ifndef VLR_RENDERING_OCTREE
 #define VLR_RENDERING_OCTREE
 
-#include "OctNode.h"
+#include "resources/Mesh.h"
 
-#include <glm/vec3.hpp>
+#include <glm/glm.hpp>
+#include <cuda.h>
+#include <cuda_runtime_api.h>
+
+#include <functional>
 
 namespace vlr
 {
 	namespace rendering
 	{
-		struct Octree
+		struct child_desc_builder
 		{
-			__host__ __device__ Octree()
-				: root(nullptr), nodeCount(0)
-			{
-
-			}
-
-			__host__ __device__ ~Octree()
-			{
-
-			}
-
-			// Depth of the tree
-			int depth;
-
-			// Min and max coordinates in world space
-			glm::vec3 min, max;
-
-			// The root node
-			// Will be an array of all nodes if nodeCount is set
-			OctNode* root;
-
-			// The number of nodes in root
-			// If 0, root is not an array
-			int nodeCount;
+			unsigned int child_id : 24;
+			unsigned int child_mask : 8;
+			unsigned int non_leaf_mask : 8;
+			
+			glm::vec3 norm;
+			glm::vec4 col;
 		};
+
+		struct child_desc_builder_block
+		{
+			// Per block attributes
+			unsigned int id : 32;
+			unsigned int depth : 8;
+			unsigned int count : 8;
+
+			unsigned int parent_id : 24;
+			unsigned int parent_block_id : 24;
+
+			// Per child desc attributes
+			child_desc_builder child_desc_builder[8];
+		};
+
+		struct pointer_desc
+		{
+			int ptr;
+			int rel;
+
+			bool far;
+			int far_ptr;
+		};
+
+		typedef std::function<bool(glm::vec3, glm::vec3, glm::vec3& normal, glm::vec4& colour)> point_test_func;
+		
+		int genOctree(int** ret, int max_depth,
+			point_test_func& test_point_func,
+			const glm::vec3& min, const glm::vec3& max);
+		
+		int genOctreeSphere(int** ret, int resolution, glm::vec3 pos, float radius);
+		int genOctreeMesh(int** ret, int resolution, Mesh* mesh);
 	}
 }
 

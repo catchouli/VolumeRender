@@ -105,7 +105,7 @@ namespace vlr
 		glm::mat4 Camera::getMVP() const
 		{
 			// Calculate MVP
-			return _projection * _view * _model;
+			return _projection * _model * _view;
 		}
 		
 		glm::vec3 Camera::getLeft() const

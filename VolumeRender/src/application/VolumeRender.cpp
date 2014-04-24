@@ -66,7 +66,7 @@ namespace vlr
 		//}
 
 		tree_size =
-			rendering::genOctreeSphere((int**)&tree_data, 8,
+			rendering::genOctreeSphere((int**)&tree_data, 4,
 			glm::vec3(5.f, 5.f, 5.f), 5.0f);
 
 		//if (_mesh.load("miku.md2"))
