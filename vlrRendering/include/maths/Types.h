@@ -2,6 +2,7 @@
 #define VLR_RENDERING_TYPES
 
 #include "Matrix.h"
+#include <glm/glm.hpp>
 
 namespace vlr
 {
@@ -19,8 +20,8 @@ namespace vlr
 
 		struct ray
 		{
-			float4 origin;
-			float4 direction;
+			glm::vec3 origin;
+			glm::vec3 direction;
 		};
 	}
 }

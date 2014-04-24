@@ -1,7 +1,10 @@
 #ifndef VLR_RENDERING_IMAGE
 #define VLR_RENDERING_IMAGE
 
+#include <string.h>
 #include <GL/glew.h>
+
+#include "util/CUDAUtil.h"
 
 namespace vlr
 {
@@ -10,46 +13,93 @@ namespace vlr
 		class Image
 		{
 		public:
-			Image();
+			inline HOST_DEVICE_FUNC Image();
 			Image(const char* filename);
-			~Image();
+			inline HOST_DEVICE_FUNC Image(const Image&);
+
+			inline HOST_DEVICE_FUNC ~Image();
+
+			inline HOST_DEVICE_FUNC Image& operator=(const Image& other);
 
 			bool load(const char* filename);
-			void unload();
+			inline HOST_DEVICE_FUNC void unload();
 
 			GLuint genGlTexture();
 
-			int getWidth() const;
-			int getHeight() const;
+			inline HOST_DEVICE_FUNC int getWidth() const;
+			inline HOST_DEVICE_FUNC int getHeight() const;
 
-			void* getPointer();
+			inline HOST_DEVICE_FUNC void* getPointer();
 
-			void setPointer(void* pointer, int width, int height);
-
-		protected:
-			Image(const Image&);
+			inline void setPointer(void* pointer, int width, int height);
 
 		private:
 			void* _pixels;
 			int _width, _height;
 		};
+		
+		Image::Image()
+			: _pixels(nullptr)
+		{
 
-		inline int Image::getWidth() const
+		}
+		
+		Image::Image(const Image& other)
+			: _pixels(nullptr)
+		{
+			if (_pixels != nullptr)
+			{
+				_width = other._width;
+				_height = other._height;
+
+				_pixels = new int[_width * _height];
+
+				memcpy(_pixels, other._pixels,
+					sizeof(int) * _width * _height);
+			}
+		}
+		
+		Image::~Image()
+		{
+			unload();
+		}
+
+		void Image::unload()
+		{
+			if (_pixels != nullptr)
+			{
+				free(_pixels);
+				_pixels = nullptr;
+			}
+		}
+
+		Image& Image::operator=(const Image& other)
+		{
+			Image temp(other);
+			
+			test::swap(_width, temp._width);
+			test::swap(_height, temp._height);
+			test::swap(_pixels, temp._pixels);
+
+			return *this;
+		}
+
+		int Image::getWidth() const
 		{
 			return _width;
 		}
 
-		inline int Image::getHeight() const
+		int Image::getHeight() const
 		{
 			return _height;
 		}
 
-		inline void* Image::getPointer()
+		void* Image::getPointer()
 		{
 			return _pixels;
 		}
 
-		inline void Image::setPointer(void* pointer, int width, int height)
+		void Image::setPointer(void* pointer, int width, int height)
 		{
 			_pixels = pointer;
 			_width = width;

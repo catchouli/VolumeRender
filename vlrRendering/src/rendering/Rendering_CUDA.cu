@@ -1,30 +1,68 @@
 #include "rendering/Rendering.h"
 
+#include "rendering/Shading.h"
+#include "rendering/rendering_attributes.h"
+#include "resources/Image.h"
+#include "util/Util.h"
 #include "util/CUDAUtil.h"
 
 #include <cuda.h>
 #include <cuda_runtime.h>
 #include <cuda_gl_interop.h>
 #include <device_launch_parameters.h>
+#include <glm/glm.hpp>
+
+#include <stdint.h>
 
 namespace vlr
 {
 	namespace rendering
 	{
-		__global__ void cudaRenderOctree(const Octree* tree, int* pixel_buffer, const rendering::float4* origin,
-			const mat4* mvp, const viewport* viewport)
+		__device__ __host__ inline ray screenPointToRay(int x, int y,
+			const rendering_attributes_t rendering_attributes)
 		{
-			const int width = viewport->w;		// Viewport width
-			const int height = viewport->h;		// Viewport height
+			ray ret;
+
+			// Origin is the camera position
+			ret.origin = rendering_attributes.origin;
+
+			// Calculate x position on viewport
+			float width = (float)rendering_attributes.viewport.w;
+			float height = (float)rendering_attributes.viewport.h;
+			float oneOverWidth = 1.0f / width;
+			float oneOverHeight = 1.0f / height;
+
+			float normx = x * oneOverWidth;
+			float normy = y * oneOverHeight;
+			
+			// Multiply viewport position by mvp to get world position
+			glm::vec4 viewportPos;
+			viewportPos.x = normx * 2.0f - 1.0f;
+			viewportPos.y = normy * 2.0f - 1.0f;
+			viewportPos.z = 1.0f;
+			viewportPos.w = 1.0f;
+
+			ret.direction = glm::vec3(viewportPos * rendering_attributes.mvp);
+
+			return ret;
+		}
+
+		__global__ void cudaRenderOctree(const int* root, int* pixel_buffer,
+			const rendering_attributes_t rendering_attributes)
+		{
+			const viewport& viewport = rendering_attributes.viewport;
+
+			const int width = viewport.w;		// Viewport width
+			const int height = viewport.h;		// Viewport height
 			
 			ray ray;							// Eye ray for this kernel
 			int x, y;							// x and y of this kernel's pixel
 			int* pixel;							// Pointer to this kernel's pixel
 
-			float hit_t;							// Resultant hit t value from raycast
-			float3 hit_pos;						// Resultant hit position from raycast
-			OctNode* hit_parent;					// Resultant hit parent voxel from raycast
-			int hit_idx;							// Resultant hit child index from raycast
+			float hit_t;						// Resultant hit t value from raycast
+			glm::vec3 hit_pos;					// Resultant hit position from raycast
+			const int* hit_parent;				// Resultant hit parent voxel from raycast
+			int hit_idx;						// Resultant hit child index from raycast
 			int hit_scale;						// Resultant hit scale from raycast
 
 			// Calculate x and y
@@ -42,40 +80,39 @@ namespace vlr
 			pixel = pixel_buffer + width * y + x;
 
 			// Calculate eye ray for pixel
-			screenPointToRay(x, y, origin, mvp, viewport, &ray);
+			ray = screenPointToRay(x, y, rendering_attributes);
 
 			// Clear to black
 			*pixel = 0;
+			
+			// Skip first child desc slot (it's a pointer to the info section)
+			const int* root_child_desc = root + child_desc_size_ints * sizeof(int32_t);
 
 			// Do raycast
-			raycast(tree, &ray, &hit_t, &hit_pos, &hit_parent, &hit_idx, &hit_scale);
+			raycast(root_child_desc, &ray, &hit_t, &hit_pos, &hit_parent, &hit_idx, &hit_scale);
 
-			// Shade
+			// If we hit a voxel in the tree
 			if (hit_scale < MAX_SCALE)
 			{
-				OctNode* child = hit_parent + (int)hit_parent->children[hit_idx];
-
-				int r = (int)(child->normal.x * 255.0f);
-				int g = (int)(child->normal.y * 255.0f);
-				int b = (int)(child->normal.z * 255.0f);
-
-				*pixel = (r) + (g << 8) + (b << 16);
+				*pixel = shade(rendering_attributes, ray.direction, hit_t, hit_pos, hit_parent, hit_idx, hit_scale);
 			}
 		}
 
-		void renderOctree(const Octree* octreeGpu, const rendering::float4* origin,
-			const mat4* mvp, const viewport* viewport)
+		void renderOctree(const int* treeGpu, const rendering_attributes_t rendering_attributes)
 		{
+			const char* blit_pixel_shader = "blit_buffer.ps";
+
+			const viewport& viewport = rendering_attributes.viewport;
+
 			void* ptr;
 			size_t size;
 
-			static rendering::float4* originGpu;
-			static mat4* mvpGpu;
-			static rendering::viewport* viewportGpu;
-
-			static GLuint texid = (unsigned int)-1;
-			static GLuint pbo = (unsigned int)-1;
+			static GLuint texid = (GLuint)-1;
+			static GLuint pbo = (GLuint)-1;
 			static cudaGraphicsResource* glFb = nullptr;
+			
+			static GLuint pixel_shader = (GLuint)-1;
+			static GLuint shader_program = (GLuint)-1;
 
 			static int width = -1;
 			static int height = -1;
@@ -89,28 +126,49 @@ namespace vlr
 				// Create opengl texture for cuda framebuffer
 				glGenTextures(1, &texid);
 
-				// Allocate memory on GPU
-				gpuErrchk(cudaMalloc(&originGpu, sizeof(rendering::float4)));
-				gpuErrchk(cudaMalloc(&mvpGpu, sizeof(rendering::mat4)));
-				gpuErrchk(cudaMalloc(&viewportGpu, sizeof(rendering::viewport)));
+				// Create pixel shader
+				pixel_shader = glCreateShader(GL_FRAGMENT_SHADER);
+
+				// Load pixel shader source
+				char* pixel_shader_source;
+				GLint len = (GLint)read_full_file(blit_pixel_shader, &pixel_shader_source);
+
+				if (pixel_shader_source == nullptr)
+				{
+					fprintf(stderr, "Failed to load fragment shader: %s\n", blit_pixel_shader);
+					//exit(EXIT_FAILURE);
+				}
+
+				// Compile shader
+				glShaderSource(pixel_shader, 1, (const GLchar**)&pixel_shader_source, &len);
+				glCompileShader(pixel_shader);
+
+				// Free pixel shader source memory
+				free(pixel_shader_source);
+
+				// Create shader program
+				shader_program = glCreateProgram();
+				glAttachShader(shader_program, pixel_shader);
 			}
 
 			// Resize buffers if size changed
-			if (width != viewport->w || height != viewport->h)
+			if (width != viewport.w || height != viewport.h)
 			{
-				width = viewport->w;
-				height = viewport->h;
+				width = viewport.w;
+				height = viewport.h;
 
 				// pixel_buffer object
 				glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pbo);
 				glBufferData(GL_PIXEL_UNPACK_BUFFER,
-					viewport->w * viewport->h * 4 * sizeof(GLubyte),
+					viewport.w * viewport.h * 4 * sizeof(GLubyte),
 					nullptr, GL_DYNAMIC_DRAW);
 				glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 
 				// Texture
 				glBindTexture(GL_TEXTURE_2D, texid);
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+				glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR/*or GL_NEAREST*/);
+				glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR/*or GL_NEAREST*/);
 				glBindTexture(GL_TEXTURE_2D, 0);
 
 				// Register buffer
@@ -118,11 +176,6 @@ namespace vlr
 					gpuErrchk(cudaGraphicsUnregisterResource(glFb));
 				gpuErrchk(cudaGraphicsGLRegisterBuffer(&glFb, pbo, cudaGraphicsRegisterFlagsNone));
 			}
-
-			// Upload data to GPU
-			gpuErrchk(cudaMemcpy(originGpu, origin, sizeof(rendering::float4), cudaMemcpyHostToDevice));
-			gpuErrchk(cudaMemcpy(mvpGpu, mvp, sizeof(rendering::mat4), cudaMemcpyHostToDevice));
-			gpuErrchk(cudaMemcpy(viewportGpu, viewport, sizeof(rendering::viewport), cudaMemcpyHostToDevice));
 
 			// Bind cuda graphics resource
 			gpuErrchk(cudaGraphicsMapResources(1, &glFb, 0));
@@ -139,7 +192,7 @@ namespace vlr
 				(height + block_size.y - 1) / block_size.y);
 
 			// Execute kernel
-			cudaRenderOctree<<<grid_size, block_size>>>(octreeGpu, (int*)ptr, originGpu, mvpGpu, viewportGpu);
+			cudaRenderOctree<<<grid_size, block_size>>>(treeGpu, (int*)ptr, rendering_attributes);
 
 			// Check for errors
 			gpuErrchk(cudaDeviceSynchronize());
@@ -147,11 +200,68 @@ namespace vlr
 
 			// Unmap pbo
 			gpuErrchk(cudaGraphicsUnmapResources(1, &glFb, 0));
-
+			
 			// Render PBO to screen
+			// Reset OpenGL matrices
+			glMatrixMode(GL_PROJECTION);
+			glPushMatrix();
+			glLoadIdentity();
+
+			glMatrixMode(GL_MODELVIEW);
+			glPushMatrix();
+			glLoadIdentity();
+
+			// Enable shader
+			//glUseProgram(shader_program);
+
+			// Draw fullscreen quad
+			glDisable(GL_LIGHTING);
+			glEnable(GL_TEXTURE_2D);
+
+			// Copy data from pbo to texture
 			glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pbo);
-			glDrawPixels(width, height, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+			glBindTexture(GL_TEXTURE_2D, texid);
+			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+			
+			// Render PBO to screen
+			glEnableClientState(GL_VERTEX_ARRAY);
+			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+			const float vert[] =
+			{
+				-1.0f, -1.0f,
+				-1.0f, 1.0f,
+				1.0f, 1.0f,
+				1.0f, -1.0f
+			};
+
+			const float tex_coord[] =
+			{
+				0.0f, 0.0f,
+				0.0f, 1.0f,
+				1.0f, 1.0f,
+				1.0f, 0.0f
+			};
+
+			glVertexPointer(2, GL_FLOAT, 2 * sizeof(float), vert);
+			glTexCoordPointer(2, GL_FLOAT, 2 * sizeof(float), tex_coord);
+
+			glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
+			glDisableClientState(GL_VERTEX_ARRAY);
+			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+			// Disable shader
+			glUseProgram(0);
 			glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+
+			// Restore OpenGL matrices
+			glMatrixMode(GL_PROJECTION);
+			glPopMatrix();
+
+			glMatrixMode(GL_MODELVIEW);
+			glPopMatrix();
 		}
 	}
 }

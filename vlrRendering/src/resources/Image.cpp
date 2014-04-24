@@ -1,32 +1,30 @@
 #include "resources/Image.h"
 
+#include "util/CUDAUtil.h"
+
 #include <FreeImage.h>
 #include <malloc.h>
 #include <stdio.h>
 
+#include <algorithm>
+
 namespace vlr
 {
 	namespace rendering
-	{
-		Image::Image()
-			: _pixels(nullptr)
-		{
-
-		}
-		
+	{		
 		Image::Image(const char* filename)
 			: _pixels(nullptr)
 		{
 			load(filename);
 		}
 		
-		Image::~Image()
-		{
-			unload();
-		}
-		
 		bool Image::load(const char* filename)
 		{
+			const unsigned int argb_r = 0xFF000000u;
+			const unsigned int argb_g = 0x00FF0000u;
+			const unsigned int argb_b = 0x0000FF00u;
+			const unsigned int argb_a = 0x000000FFu;
+
 			FREE_IMAGE_FORMAT format;
 			FIBITMAP* bitmap;
 			FIBITMAP* rgbamap;
@@ -65,7 +63,7 @@ namespace vlr
 			// Make copy
 			int size = h * scan_width;
 			_pixels = malloc(size);
-			FreeImage_ConvertToRawBits((BYTE*)_pixels, rgbamap, scan_width, 32, FI_RGBA_RED_MASK, FI_RGBA_GREEN_MASK, FI_RGBA_BLUE_MASK, true);
+			FreeImage_ConvertToRawBits((BYTE*)_pixels, bitmap, scan_width, 32, FI_RGBA_RED_MASK, FI_RGBA_GREEN_MASK, FI_RGBA_BLUE_MASK, true);
 
 			_width = w;
 			_height = h;
@@ -75,15 +73,6 @@ namespace vlr
 			FreeImage_Unload(rgbamap);
 
 			return true;
-		}
-
-		void Image::unload()
-		{
-			if (_pixels != nullptr)
-			{
-				free(_pixels);
-				_pixels = nullptr;
-			}
 		}
 
 		GLuint Image::genGlTexture()
@@ -104,7 +93,7 @@ namespace vlr
 
 			// Upload texture
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, _width, _height,
-				0, GL_RGBA, GL_UNSIGNED_BYTE, _pixels);
+				0, GL_BGRA, GL_UNSIGNED_BYTE, _pixels);
 
 			return texid;
 		}
