@@ -17,8 +17,7 @@ namespace vlr
 			unsigned int sign : 1;
 			unsigned int axis : 2;
 		};
-		
-		__host__ __device__ int clamp(int x, int a, int b);
+
 		__host__ __device__ uint32_t compressNormal(glm::vec3 normal);
 		__host__ __device__ glm::vec3 decompressNormal(uint32_t normal);
 	}

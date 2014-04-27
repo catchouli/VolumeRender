@@ -1,5 +1,6 @@
 #include "rendering/Octree.h"
 
+#include "maths/Colour.h"
 #include "maths/Normal.h"
 #include "rendering/child_desc.h"
 #include "util/CUDAUtil.h"
@@ -82,7 +83,7 @@ namespace vlr
 			for (auto it = child_desc_builder_blocks.begin(); it != child_desc_builder_blocks.end(); ++it)
 			{
 				// Skip a slot for the info block pointer if this is at an 8kB boundary
-				if (size % 0x2000 == 0)
+				if ((size * sizeof(int)) % 0x2000 == 0)
 					size += child_desc_size_ints;
 
 				pointer_desc pointer;
@@ -204,30 +205,10 @@ namespace vlr
 					}
 
 					// Write normal to descriptor
-					cur_descriptor[1] = compressNormal(it->child_desc_builder[i].norm);
+					cur_descriptor[1] = (int)compressNormal(it->child_desc_builder[i].norm);
 
 					// Write colour to descriptor
-					glm::vec4 col = it->child_desc_builder[i].col;
-					
-					struct colour
-					{
-						unsigned char r;
-						unsigned char g;
-						unsigned char b;
-						unsigned char a;
-					};
-
-					colour s_col = { col.r, col.g, col.b, col.a };
-					cur_descriptor[2] = 0xFFFFFFFFu;
-
-					//col col;
-					//col.r = 
-					//cur_descriptor[2] = it->child_desc_builder[i].col;
-					//cur_descriptor[1] = *(int*)&it->child_desc_builder[i].norm.x;
-
-					//memcpy(&cur_descriptor[1], &it->child_desc_builder[i].norm, sizeof(glm::vec3));
-
-					//cur_descriptor[2] = it->child_desc_builder[i].col;
+					cur_descriptor[2] = (int)compressColour(it->child_desc_builder[i].col);
 
 					// Write child mask and non-leaf mask to descriptor
 					desc ^= it->child_desc_builder[i].child_mask << 8;
@@ -241,13 +222,21 @@ namespace vlr
 				}
 			}
 
-			// Write info section pointers
-			//info_section is;
-			//is.raw_lookup = 0;
-			//is.compressed_lookup = 0;
+			const int colour = (int)0x00FF00FFu;
 
-			//memcpy(data + cur_ptr, &is, sizeof(info_section));
-			//cur_ptr += sizeof(info_section) / sizeof(uint32_t);
+			// Write info section pointers
+			uintptr_t child_desc_data_size = size * child_desc_size;
+			int info_sections = child_desc_data_size / 0x2000 +
+				(child_desc_data_size % 0x2000 != 0 ? 1 : 0);
+			for (int i = 0; i < info_sections; ++i)
+			{
+				// Write info section pointer every 0x2000 bytes
+				int* info_ptr_loc = (int*)((int)data + i * 0x2000);
+
+				printf("%d\n", *info_ptr_loc);
+
+				*info_ptr_loc = colour;
+			}
 
 			*ret = data;
 
