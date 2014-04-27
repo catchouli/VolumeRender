@@ -83,8 +83,8 @@ namespace vlr
 			for (auto it = child_desc_builder_blocks.begin(); it != child_desc_builder_blocks.end(); ++it)
 			{
 				// Skip a slot for the info block pointer if this is at an 8kB boundary
-				if ((size * sizeof(int)) % 0x2000 == 0)
-					size += child_desc_size_ints;
+				if ((size * child_desc_size) % 0x2000 == 0)
+					size += 1;
 
 				pointer_desc pointer;
 				pointer.far = false;
@@ -224,19 +224,20 @@ namespace vlr
 
 			const int colour = (int)0x00FF00FFu;
 
-			// Write info section pointers
-			uintptr_t child_desc_data_size = size * child_desc_size;
-			int info_sections = child_desc_data_size / 0x2000 +
-				(child_desc_data_size % 0x2000 != 0 ? 1 : 0);
-			for (int i = 0; i < info_sections; ++i)
-			{
-				// Write info section pointer every 0x2000 bytes
-				int* info_ptr_loc = (int*)((int)data + i * 0x2000);
+			//// Write info section pointers
+			//for (uintptr_t i = 0; i < data_size; i += 0x2000)
+			//{
+			//	// If this isn't in space reserved for far pointers
+			//	if (i % chunk_size < reserved_size)
+			//	{
+			//		// Write info section pointer every 0x2000 bytes
+			//		int* info_ptr_loc = (int*)((int)data + i);
 
-				printf("%d\n", *info_ptr_loc);
+			//		printf("%d\n", *info_ptr_loc);
 
-				*info_ptr_loc = colour;
-			}
+			//		*info_ptr_loc = colour;
+			//	}
+			//}
 
 			*ret = data;
 
