@@ -3,10 +3,10 @@
 
 #include <cuda_runtime_api.h>
 
-#include "maths/Matrix.h"
-#include "maths/Types.h"
-#include "rendering/Camera.h"
-#include "rendering/Octree.h"
+#include "../maths/Matrix.h"
+#include "../maths/Types.h"
+#include "Camera.h"
+#include "Octree.h"
 
 namespace vlr
 {

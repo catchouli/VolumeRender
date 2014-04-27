@@ -25,12 +25,15 @@
     <ClCompile Include="include\dep\tribox.cpp" />
     <ClCompile Include="src\rendering\Camera.cpp" />
     <ClCompile Include="src\util\CUDAUtil.cpp" />
+    <CudaCompile Include="src\maths\Functions.cu" />
+    <CudaCompile Include="src\maths\Colour.cu" />
     <CudaCompile Include="src\maths\Normal.cu" />
     <CudaCompile Include="src\rendering\Mesh_Generation.cu" />
     <ClCompile Include="src\rendering\Octree.cpp" />
     <ClCompile Include="src\rendering\Sphere_Generation.cpp" />
     <ClCompile Include="src\resources\Image.cpp" />
     <ClCompile Include="src\resources\Mesh.cpp" />
+    <CudaCompile Include="src\rendering\Raycast_CUDA.cu" />
     <CudaCompile Include="src\rendering\Rendering_CUDA.cu" />
     <CudaCompile Include="src\rendering\Shading_CUDA.cu" />
     <CudaCompile Include="src\util\CUDAUtil.cu" />
@@ -39,14 +42,13 @@
     <ClInclude Include="include\app\Application.h" />
     <ClInclude Include="include\app\Framebuffer.h" />
     <ClInclude Include="include\maths\Matrix.h" />
-    <ClInclude Include="include\maths\Normal.h" />
+    <ClInclude Include="include\maths\Colour.h" />
     <ClInclude Include="include\maths\Types.h" />
     <ClInclude Include="include\rendering\Camera.h" />
     <ClInclude Include="include\rendering\child_desc.h" />
+    <ClInclude Include="include\maths\Functions.h" />
     <ClInclude Include="include\rendering\OctNode.h" />
     <ClInclude Include="include\rendering\Octree.h" />
-    <ClInclude Include="include\rendering\Raycast.h" />
-    <ClInclude Include="include\rendering\Rendering.h" />
     <ClInclude Include="include\rendering\rendering_attributes.h" />
     <ClInclude Include="include\rendering\Shading.h" />
     <ClInclude Include="include\resources\Image.h" />
@@ -55,11 +57,8 @@
     <ClInclude Include="include\util\Util.h" />
     <ClInclude Include="include\input\InputConverter.h" />
     <ClInclude Include="include\input\MotorInput.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <CudaCompile Include="src\rendering\Raycast_CUDA.cu">
-      <FileType>Document</FileType>
-    </CudaCompile>
+    <ClInclude Include="include\rendering\Raycast.h" />
+    <ClInclude Include="include\rendering\Rendering.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{8563CE39-78FA-4500-8E85-8D53F8929BF1}</ProjectGuid>
@@ -147,6 +146,14 @@
       <CodeGeneration>compute_20,sm_21</CodeGeneration>
       <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
     </CudaCompile>
+    <CudaLink>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
+    </CudaLink>
+    <CudaLink>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
+    </CudaLink>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -165,6 +172,14 @@
       <CodeGeneration>compute_20,sm_21</CodeGeneration>
       <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
     </CudaCompile>
+    <CudaLink>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
+    </CudaLink>
+    <CudaLink>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
+    </CudaLink>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -191,6 +206,14 @@
       <GPUDebugInfo>false</GPUDebugInfo>
       <GenerateLineInfo>false</GenerateLineInfo>
     </CudaCompile>
+    <CudaLink>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
+    </CudaLink>
+    <CudaLink>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
+    </CudaLink>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -217,6 +240,14 @@
       <GPUDebugInfo>false</GPUDebugInfo>
       <GenerateLineInfo>false</GenerateLineInfo>
     </CudaCompile>
+    <CudaLink>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
+    </CudaLink>
+    <CudaLink>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
+    </CudaLink>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

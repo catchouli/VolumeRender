@@ -18,8 +18,8 @@ namespace vlr
 			unsigned char a;
 		};
 
-		__device__ int shade(const rendering_attributes_t rendering_attributes, glm::vec3 view_dir,
-			float hit_t, glm::vec3 hit_pos,
+		__device__ int shade(const rendering_attributes_t rendering_attributes,
+			float hit_t, glm::vec3 hit_pos, const int* root,
 			const int* hit_parent, int hit_idx, int hit_scale);
 	}
 }

@@ -94,7 +94,7 @@ namespace vlr
 			// If we hit a voxel in the tree
 			if (hit_scale < MAX_SCALE)
 			{
-				*pixel = shade(rendering_attributes, ray.direction, hit_t, hit_pos, hit_parent, hit_idx, hit_scale);
+				*pixel = shade(rendering_attributes, hit_t, hit_pos, root, hit_parent, hit_idx, hit_scale);
 			}
 		}
 

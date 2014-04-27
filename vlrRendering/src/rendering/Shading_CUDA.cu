@@ -1,5 +1,6 @@
 #include "rendering/Shading.h"
 
+#include "maths/Colour.h"
 #include "maths/Normal.h"
 #include "rendering/child_desc.h"
 #include "util/CUDAUtil.h"
@@ -19,8 +20,8 @@ namespace vlr
 			return norm * (2.0f * glm::dot(dir, norm)) - dir;
 		}
 
-		__device__ int shade(const rendering_attributes_t rendering_attributes, glm::vec3 viewdir,
-			float hit_t, glm::vec3 hit_pos,
+		__device__ int shade(const rendering_attributes_t rendering_attributes,
+			float hit_t, glm::vec3 hit_pos, const int* root,
 			const int* hit_parent, int hit_idx, int hit_scale)
 		{
 			// Calculate view direction
@@ -33,12 +34,7 @@ namespace vlr
 			glm::vec3 normal = glm::normalize(decompressNormal(hit_parent[1]));
 
 			// Load colour
-			col com_col = *(col*)&hit_parent[2];
-
-			// Decompress colour
-			glm::vec3 colour(com_col.r, com_col.g, com_col.b);
-			colour = (colour) / 255.0f;
-			colour = glm::vec3(1.0f, 1.0f, 1.0f);
+			glm::vec3 colour = glm::vec3(decompressColour(hit_parent[2]));
 
 			// Calculate lighting
 			glm::vec3 out(0, 0, 0);
@@ -120,7 +116,19 @@ namespace vlr
 			out_col.g = (unsigned char)(out.y * 255.0f);
 			out_col.b = (unsigned char)(out.z * 255.0f);
 
-			// Write to buffer
+			//// Read colour from info ptr
+
+			//	int hit_parent_offset = (char*)hit_parent - (char*)root;
+			//	int info_ptr_offset = hit_parent_offset & ~(0x2000 - 1);
+			//	const int* info_ptr_ptr = (int*)((uintptr_t)root + info_ptr_offset);
+			//	int info_ptr = *info_ptr_ptr;
+			//	
+			//return -1;
+
+			//return info_ptr;
+
+			//// Write to buffer
+			//return -1;
 			return *(unsigned int*)&out_col;
 		}
 	}

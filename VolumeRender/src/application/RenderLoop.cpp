@@ -43,7 +43,7 @@ namespace vlr
 		
 		dir_light->type = rendering::LightTypes::DIRECTIONAL;
 		dir_light->diffuse = glm::vec3(0.3f, 0.3f, 0.3f);
-		dir_light->specular = glm::vec3(0.5f, 0.5f, 0.5f) * 0.0f;
+		dir_light->specular = glm::vec3(0.5f, 0.5f, 0.5f);
 		dir_light->direction = lightDir;
 		
 		dir_light->constant_att = 1.0f;

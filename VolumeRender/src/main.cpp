@@ -3,8 +3,7 @@
 #include "rendering/child_desc.h"
 #include "resources/Mesh.h"
 
-int main(int argc, char** argv)
-{
+int main(int argc, char** argv){
 	vlr::rendering::Mesh mesh("miku.md2", true);
 
 	{
