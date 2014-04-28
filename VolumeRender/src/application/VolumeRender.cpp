@@ -7,7 +7,7 @@
 
 namespace vlr
 {
-	VolumeRender::VolumeRender(int argc, char** argv)
+	VolumeRender::VolumeRender(int32_t argc, char** argv)
 		: Application(512, 512), _rot(0), _mesh(true)
 	{
 		// Get tree filename
@@ -33,8 +33,8 @@ namespace vlr
 		_fb.resize(getWidth(), getHeight());
 
 		// Initialise camera
-		int width = getWidth();
-		int height = getHeight();
+		int32_t width = getWidth();
+		int32_t height = getHeight();
 		float aspect = (float)height / (float)width;
 
 		// Set camera rotation
@@ -54,7 +54,7 @@ namespace vlr
 		memset(&rendering_attributes, 0, sizeof(rendering::rendering_attributes_t));
 		
 		// Load tree
-		int tree_size = 0;
+		int32_t tree_size = 0;
 		char* tree_data = 0;
 		
 		//tree_size = rendering::read_full_file_binary(_treeFilename, &tree_data);
@@ -66,7 +66,7 @@ namespace vlr
 		//}
 
 		//tree_size =
-		//	rendering::genOctreeSphere((int**)&tree_data, 4,
+		//	rendering::genOctreeSphere((int32_t**)&tree_data, 7,
 		//	glm::vec3(5.f, 5.f, 5.f), 5.0f);
 
 		if (_mesh.load("miku.md2"))
@@ -78,7 +78,7 @@ namespace vlr
 			double start_time = glfwGetTime();
 
 			tree_size =
-				rendering::genOctreeMesh((int**)&tree_data, 7,
+				rendering::genOctreeMesh((int32_t**)&tree_data, 7,
 				&_mesh);
 
 			double end_time = glfwGetTime();

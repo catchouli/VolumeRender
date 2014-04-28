@@ -26,13 +26,13 @@ namespace vlr
 {
 	namespace rendering
 	{
-		__device__ void raycast(const int* root, const rendering::ray* ray, float* out_hit_t,
-			glm::vec3* out_hit_pos, const int** out_hit_parent, int* out_hit_idx, int* out_hit_scale)
+		__device__ void raycast(const int32_t* root, const rendering::ray* ray, float* out_hit_t,
+			glm::vec3* out_hit_pos, const int32_t** out_hit_parent, int32_t* out_hit_idx, int32_t* out_hit_scale)
 		{
 			// An entry in the stack
 			struct StackEntry
 			{
-				const int* parent;
+				const int32_t* parent;
 				float t_max;
 			};
 
@@ -68,7 +68,7 @@ namespace vlr
 			// Mirror coordinate system
 			// Makes algorithm have fewer cases since ray direction is no longer important
 			// + allows for some optimisations later on
-			int dir_mask = 7;
+			int32_t dir_mask = 7;
 
 			if (dir.x > 0.0f)
 			{
@@ -105,13 +105,13 @@ namespace vlr
 			float h = t_max;
 
 			// Get root node
-			const int* parent = root;
+			const int32_t* parent = root;
 
 			// Evaluate root at centre to get first child node
-			int idx = 0;
+			int32_t idx = 0;
 			float3 pos = { 1.0f, 1.0f, 1.0f };
 
-			int scale = MAX_SCALE - 1;
+			int32_t scale = MAX_SCALE - 1;
 			float scale_exp2 = 0.5f;
 
 			float tx_centre = 1.5f * tx_coef - tx_constant;
@@ -156,8 +156,8 @@ namespace vlr
 				float t_c_max = fminf(fminf(tx_max, ty_max), tz_max);
 
 				// Mirror idx to get child index
-				int child_idx = idx ^ dir_mask;
-				int child_mask = child_descriptor.x << child_idx;
+				int32_t child_idx = idx ^ dir_mask;
+				int32_t child_mask = child_descriptor.x << child_idx;
 
 				// Process voxel if existent and the current span of t values is valid
 				if ((child_mask & 0x8000) != 0 && t_min <= t_max)
@@ -198,7 +198,7 @@ namespace vlr
 						h = t_c_max;
 
 						// Update parent voxel
-						int ofs = (unsigned int)(child_descriptor.x) >> 17;
+						int32_t ofs = (uint32_t)(child_descriptor.x) >> 17;
 
 						// If this is a far pointer, load it
 						if ((child_descriptor.x & 0x10000) != 0)
@@ -244,7 +244,7 @@ namespace vlr
 				}
 
 				// Advance the ray
-				int step_mask = 0;
+				int32_t step_mask = 0;
 
 				if (tx_max <= t_c_max)
 				{
@@ -274,7 +274,7 @@ namespace vlr
 				{
 					// Pop
 					// Find the highest differing bit between pos and oldPos
-					unsigned int differing_bits = 0;
+					uint32_t differing_bits = 0;
 
 					// Opaque bitwise wizardry courtesy of Efficient Sparse Voxel Octrees (Laine and Karras)
 					// Get differing bits between each component of pos and oldpos (oldpos.x ^ oldpos.y etc)
@@ -295,9 +295,9 @@ namespace vlr
 					t_max = stackEntry.t_max;
 
 					// Get rid of pos values under new scale
-					int temp_x = __float_as_int(pos.x) >> scale;
-					int temp_y = __float_as_int(pos.y) >> scale;
-					int temp_z = __float_as_int(pos.z) >> scale;
+					int32_t temp_x = __float_as_int(pos.x) >> scale;
+					int32_t temp_y = __float_as_int(pos.y) >> scale;
+					int32_t temp_z = __float_as_int(pos.z) >> scale;
 
 					pos.x = __int_as_float(temp_x << scale);
 					pos.y = __int_as_float(temp_y << scale);

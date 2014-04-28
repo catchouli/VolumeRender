@@ -14,17 +14,17 @@ namespace vlr
 {
 	namespace rendering
 	{
-		__global__ void boxMeshIntersect(SubMesh* subMesh, int** textures,
+		__global__ void boxMeshIntersect(SubMesh* subMesh, int32_t** textures,
 			glm::vec3 min, glm::vec3 max, bool* hit, uchar4* outnormal, uchar4* outcolour)
 		{
-			int tri_index = blockIdx.x * blockDim.x + threadIdx.x;
+			int32_t tri_index = blockIdx.x * blockDim.x + threadIdx.x;
 
-			int initial_index = tri_index * 3;
+			int32_t initial_index = tri_index * 3;
 
 			if (initial_index+2 >= subMesh->_indexCount)
 				return;
 
-			int* indices = &subMesh->_indices[initial_index];
+			int32_t* indices = &subMesh->_indices[initial_index];
 			
 			glm::vec3 half_size = 0.5f * (max - min);
 			glm::vec3 centre = min + half_size;
@@ -52,27 +52,27 @@ namespace vlr
 
 			//glm::vec3 centre = min + 0.5f * (max - min);
 			//glm::vec3 normal = glm::normalize(centre - pos);
-			////outnormal->x = std::min((unsigned int)(normal.x * 127.5f + 127.5f), 255u);
-			////outnormal->y = std::min((unsigned int)(normal.y * 127.5f + 127.5f), 255u);
-			////outnormal->z = std::min((unsigned int)(normal.z * 127.5f + 127.5f), 255u);
+			////outnormal->x = std::min((uint32_t)(normal.x * 127.5f + 127.5f), 255u);
+			////outnormal->y = std::min((uint32_t)(normal.y * 127.5f + 127.5f), 255u);
+			////outnormal->z = std::min((uint32_t)(normal.z * 127.5f + 127.5f), 255u);
 
-			//unsigned int white = (unsigned int)-1;
+			//uint32_t white = (uint32_t)-1;
 			////*outcolour = *(uchar4*)&white;
 
 			//if (boxSphereIntersection(min, max, pos, radius))
 			//	*hit = true;
 		}
 
-		int genOctreeMesh(int** ret, int resolution, Mesh* mesh)
+		int32_t genOctreeMesh(int32_t** ret, int32_t resolution, Mesh* mesh)
 		{
 			// Allocate memory on the gpu for mesh
-			int subMeshCount = mesh->getSubMeshCount();
+			int32_t subMeshCount = mesh->getSubMeshCount();
 			SubMesh* gpuSubmeshes;
 
 			gpuErrchk(cudaMalloc((void**)&gpuSubmeshes, subMeshCount * sizeof(SubMesh)));
 
 			// Copy each submesh to gpu
-			for (int i = 0; i < subMeshCount; ++i)
+			for (int32_t i = 0; i < subMeshCount; ++i)
 			{
 				SubMesh gpuSubMesh;
 
@@ -86,11 +86,11 @@ namespace vlr
 				// Allocate memory for indices
 				gpuSubMesh._indexCount = originalSubMesh->_indexCount;
 				gpuErrchk(cudaMalloc((void**)&gpuSubMesh._indices,
-					gpuSubMesh._indexCount * sizeof(int)));
+					gpuSubMesh._indexCount * sizeof(int32_t)));
 
 				// Copy indices and vertices
 				gpuErrchk(cudaMemcpy(gpuSubMesh._indices, originalSubMesh->_indices,
-					originalSubMesh->_indexCount * sizeof(int), cudaMemcpyHostToDevice));
+					originalSubMesh->_indexCount * sizeof(int32_t), cudaMemcpyHostToDevice));
 
 				gpuErrchk(cudaMemcpy(gpuSubMesh._vertices, originalSubMesh->_vertices,
 					originalSubMesh->_vertexCount * sizeof(Vertex), cudaMemcpyHostToDevice));
@@ -107,7 +107,7 @@ namespace vlr
 			auto test_func = [&] (glm::vec3 min, glm::vec3 max, glm::vec3& outnormal, glm::vec4& outcolour)
 			{
 				//// Test hit for each submesh
-				//for (int i = 0; i < subMeshCount; ++i)
+				//for (int32_t i = 0; i < subMeshCount; ++i)
 				//{
 				//	const SubMesh* curMesh = mesh->getSubMesh(i);
 				//	SubMesh* gpuCurMesh = gpuSubmeshes + i;
@@ -119,10 +119,10 @@ namespace vlr
 				//	gpuErrchk(cudaMemcpy(gpuHit, &hit, sizeof(bool), cudaMemcpyHostToDevice));
 
 				//	// Run test kernel
-				//	int triCount = curMesh->_indexCount / 3;
+				//	int32_t triCount = curMesh->_indexCount / 3;
 
-				//	int blocks = 256;
-				//	int threads = triCount / blocks + 1;
+				//	int32_t blocks = 256;
+				//	int32_t threads = triCount / blocks + 1;
 
 				//	boxMeshIntersect<<<blocks, threads>>>(gpuCurMesh, nullptr, min, max, gpuHit, nullptr, nullptr);
 
@@ -141,11 +141,11 @@ namespace vlr
 				glm::vec3 half_size = 0.5f * size;
 				glm::vec3 centre = min + half_size;
 
-				for (int i = 0; i < mesh->getSubMeshCount(); ++i)
+				for (int32_t i = 0; i < mesh->getSubMeshCount(); ++i)
 				{
 					const SubMesh* sub_mesh = mesh->getSubMesh(i);
 
-					for (int j = 0; j < sub_mesh->_indexCount; j += 3)
+					for (int32_t j = 0; j < sub_mesh->_indexCount; j += 3)
 					{
 						//ozcollide::Vec3f tri[3];
 
@@ -210,17 +210,17 @@ namespace vlr
 							float tex_u = u * v1->_texCoord.x + v * v2->_texCoord.x + w * v3->_texCoord.x;
 							float tex_v = u * v1->_texCoord.y + v * v2->_texCoord.y + w * v3->_texCoord.y;
 							
-							int x = (int)(tex_u * image->getWidth());
-							int y = (int)(tex_v * image->getHeight());
+							int32_t x = (int32_t)(tex_u * image->getWidth());
+							int32_t y = (int32_t)(tex_v * image->getHeight());
 
 							// Get colour from texture
-							int* ptr = (int*)image->getPointer() + y * image->getWidth() + x;
+							int32_t* ptr = (int32_t*)image->getPointer() + y * image->getWidth() + x;
 							
 							uchar4 col = *(uchar4*)ptr;
 
-							//outnormal.x = std::min((unsigned int)(normal.x * 127.5f + 127.5f), 255u);
-							//outnormal.y = std::min((unsigned int)(normal.y * 127.5f + 127.5f), 255u);
-							//outnormal.z = std::min((unsigned int)(normal.z * 127.5f + 127.5f), 255u);
+							//outnormal.x = std::min((uint32_t)(normal.x * 127.5f + 127.5f), 255u);
+							//outnormal.y = std::min((uint32_t)(normal.y * 127.5f + 127.5f), 255u);
+							//outnormal.z = std::min((uint32_t)(normal.z * 127.5f + 127.5f), 255u);
 							//
 							//outcolour = *(uchar4*)&col;
 
@@ -258,7 +258,7 @@ namespace vlr
 			min = centre - extents;
 			max = centre + extents;
 
-			int size = genOctree(ret, resolution, func, min, max);
+			int32_t size = genOctree(ret, resolution, func, min, max);
 
 			return size;
 		}

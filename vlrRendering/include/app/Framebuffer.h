@@ -2,6 +2,7 @@
 #define VLR_RENDERING_FRAMEBUFFER
 
 #include <GL/glew.h>
+#include <stdint.h>
 
 namespace vlr
 {
@@ -11,22 +12,22 @@ namespace vlr
 		{
 		public:
 			Framebuffer();
-			Framebuffer(int width, int height);
+			Framebuffer(int32_t width, int32_t height);
 
 			void createGlTexture();
-			int* resize(int width, int height);
+			int32_t* resize(int32_t width, int32_t height);
 
 			void render() const;
 
-			inline int* getPointer();
+			inline int32_t* getPointer();
 
-			inline int getWidth() const;
-			inline int getHeight() const;
+			inline int32_t getWidth() const;
+			inline int32_t getHeight() const;
 
 		private:
-			int _width;
-			int _height;
-			int* _pointer;
+			int32_t _width;
+			int32_t _height;
+			int32_t* _pointer;
 
 			GLuint _texid;
 			GLuint _fboid;
@@ -34,17 +35,17 @@ namespace vlr
 			bool _init;
 		};
 
-		inline int* Framebuffer::getPointer()
+		inline int32_t* Framebuffer::getPointer()
 		{
 			return _pointer;
 		}
 
-		inline int Framebuffer::getWidth() const
+		inline int32_t Framebuffer::getWidth() const
 		{
 			return _width;
 		}
 
-		inline int Framebuffer::getHeight() const
+		inline int32_t Framebuffer::getHeight() const
 		{
 			return _height;
 		}

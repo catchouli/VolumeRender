@@ -3,6 +3,7 @@
 
 #include "Matrix.h"
 #include <glm/glm.hpp>
+#include <stdint.h>
 
 namespace vlr
 {
@@ -15,7 +16,7 @@ namespace vlr
 				unsigned char r, g, b, a;
 			};
 
-			int col;
+			int32_t col;
 		};
 
 		struct ray

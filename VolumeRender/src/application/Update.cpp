@@ -7,7 +7,7 @@ namespace vlr
 		const float MOVE_SPEED = 2.0f;
 
 		// Set window title
-		const int TITLE_LEN = 1024;
+		const int32_t TITLE_LEN = 1024;
 		char title[1024];
 		sprintf(title, "FPS: %d\n, Camera pos: %.2f %.2f %.2f, Camera rotation: %.2f %.2f %.2f\n",
 			getFPS(), _camera.getPos().x, _camera.getPos().y, _camera.getPos().z,

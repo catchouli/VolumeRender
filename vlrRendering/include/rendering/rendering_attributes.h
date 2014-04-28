@@ -11,7 +11,7 @@ namespace vlr
 	namespace rendering
 	{
 		// How many lights to use
-		const int MAX_LIGHTS = 10;
+		const int32_t MAX_LIGHTS = 10;
 
 		namespace LightTypes
 		{
@@ -58,7 +58,7 @@ namespace vlr
 			viewport viewport;
 
 			// The statically sized array of lights
-			int light_count;
+			int32_t light_count;
 			light_t lights[MAX_LIGHTS];
 
 			// The ambient light in the scene

@@ -9,7 +9,8 @@ namespace vlr
 	{
 		// This should be a power of two or who knows what'll happen
 		// (really it should be 2... why would you change this!)
-		const int child_desc_size_ints = 4;
+		const int32_t child_desc_size_ints = 4;
+		const int32_t child_desc_size = child_desc_size_ints * sizeof(int32_t);
 
 		struct info_section
 		{

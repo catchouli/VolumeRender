@@ -7,7 +7,7 @@ namespace vlr
 {
 	namespace rendering
 	{
-		__host__ __device__ int clamp(int x, int a, int b)
+		__host__ __device__ int32_t clamp(int32_t x, int32_t a, int32_t b)
 		{
 			return x < a ? a : (x > b ? b : x);
 		}

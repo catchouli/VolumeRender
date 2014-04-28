@@ -46,20 +46,20 @@ namespace vlr
 				SubMesh& currentSubMesh = _subMeshes[i];
 				SubMesh& originalSubMesh = other._subMeshes[i];
 				
-				int j = originalSubMesh._indexCount;
+				int32_t j = originalSubMesh._indexCount;
 				currentSubMesh._indexCount = j;
 				currentSubMesh._vertexCount = originalSubMesh._vertexCount;
 				currentSubMesh._materialIndex = originalSubMesh._materialIndex;
 				
 				currentSubMesh._vertices = new Vertex[currentSubMesh._vertexCount];
-				currentSubMesh._indices = new int[currentSubMesh._indexCount];
+				currentSubMesh._indices = new int32_t[currentSubMesh._indexCount];
 
 				// Copy indices
 				memcpy(currentSubMesh._indices, originalSubMesh._indices,
-					currentSubMesh._indexCount * sizeof(int));
+					currentSubMesh._indexCount * sizeof(int32_t));
 
 				// Copy vertices
-				for (int i = 0; i < currentSubMesh._vertexCount; ++i)
+				for (int32_t i = 0; i < currentSubMesh._vertexCount; ++i)
 				{
 					Vertex& currentVertex = currentSubMesh._vertices[i];
 					Vertex& originalVertex = originalSubMesh._vertices[i];
@@ -172,7 +172,7 @@ namespace vlr
 			{
 				SubMesh& subMesh = _subMeshes[i];
 
-				for (int j = 0; j < subMesh._vertexCount; ++j)
+				for (int32_t j = 0; j < subMesh._vertexCount; ++j)
 				{
 					glm::vec4 vert = glm::vec4(subMesh._vertices[j]._pos, 0);
 					glm::vec4 norm = glm::vec4(subMesh._vertices[j]._normal, 0);
@@ -193,7 +193,7 @@ namespace vlr
 			{
 				SubMesh& subMesh = _subMeshes[i];
 
-				for (int j = 0; j < subMesh._vertexCount; ++j)
+				for (int32_t j = 0; j < subMesh._vertexCount; ++j)
 				{
 					glm::vec3 vert = subMesh._vertices[j]._pos;
 					
@@ -247,7 +247,7 @@ namespace vlr
 				_textures = new GLuint[_textureCount];
 				_images = new Image[_textureCount];
 
-				for (unsigned int i = 0; i < scene->mNumMaterials; ++i)
+				for (uint32_t i = 0; i < scene->mNumMaterials; ++i)
 				{
 					// Load material
 					const aiMaterial* material = scene->mMaterials[i];
@@ -300,12 +300,12 @@ namespace vlr
 				currentMesh->_indexCount = mesh->mNumFaces * 3;
 				currentMesh->_vertexCount = mesh->mNumVertices;
 
-				currentMesh->_indices = new int[currentMesh->_indexCount];
+				currentMesh->_indices = new int32_t[currentMesh->_indexCount];
 				currentMesh->_vertices = new Vertex[currentMesh->_vertexCount];
 
 				// Load vertices
 				const aiVector3D ZERO = aiVector3D(0, 0, 0);
-				for (unsigned int j = 0; j < mesh->mNumVertices; ++j)
+				for (uint32_t j = 0; j < mesh->mNumVertices; ++j)
 				{
 					Vertex& vertex = currentMesh->_vertices[j];
 					
@@ -338,7 +338,7 @@ namespace vlr
 				}
 
 				// Load indicies
-				for (unsigned int j = 0; j < mesh->mNumFaces; ++j)
+				for (uint32_t j = 0; j < mesh->mNumFaces; ++j)
 				{
 					assert(mesh->mFaces[j].mNumIndices == 3);
 					

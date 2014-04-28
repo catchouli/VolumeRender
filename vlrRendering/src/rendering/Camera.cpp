@@ -45,7 +45,7 @@ namespace vlr
 			glLoadIdentity();
 		}
 
-		void Camera::setViewport(int x, int y, int width, int height)
+		void Camera::setViewport(int32_t x, int32_t y, int32_t width, int32_t height)
 		{
 			_viewport.x = x;
 			_viewport.y = y;
@@ -114,7 +114,7 @@ namespace vlr
 
 			if (_isnan(worldPos.x))
 			{
-				int i = 0;
+				int32_t i = 0;
 			}
 
 			return glm::vec3(worldPos);

@@ -8,7 +8,7 @@ namespace vlr
 	{
 		// Constructor
 		// Create and initialise window and renderer
-		Application::Application(int width, int height, const char* title)
+		Application::Application(int32_t width, int32_t height, const char* title)
 			: _running(true), _lastUpdate(glfwGetTime()), _lastFPSUpdate(glfwGetTime()),
 			  _fps(0), _frames(0), _window(nullptr)
 		{
@@ -129,8 +129,8 @@ namespace vlr
 		/* Private */
 
 		// Exit on esc
-		void Application::_default_key_callback(GLFWwindow* window, int key,
-				int scancode, int action, int mods)
+		void Application::_default_key_callback(GLFWwindow* window, int32_t key,
+				int32_t scancode, int32_t action, int32_t mods)
 		{
 			if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 			{

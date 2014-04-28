@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <glm/glm.hpp>
 #include <gl/glew.h>
+#include <stdint.h>
 
 #include "util/CUDAUtil.h"
 #include "resources/Image.h"
@@ -24,7 +25,7 @@ namespace vlr
 		public:
 			HOST_DEVICE_FUNC SubMesh()
 				: _indices(nullptr), _vertices(nullptr),
-				_indexCount(0), _materialIndex((unsigned int)-1)
+				_indexCount(0), _materialIndex((uint32_t)-1)
 			{
 
 			}
@@ -35,12 +36,12 @@ namespace vlr
 				delete[] _vertices;
 			}
 
-			int* _indices;
-			int _indexCount;
+			int32_t* _indices;
+			int32_t _indexCount;
 			Vertex* _vertices;
-			int _vertexCount;
+			int32_t _vertexCount;
 
-			unsigned int _materialIndex;
+			uint32_t _materialIndex;
 		};
 
 		class Mesh
@@ -66,8 +67,8 @@ namespace vlr
 			
 			inline Image* getStoredTextures() const;
 
-			inline int getSubMeshCount() const;
-			inline const SubMesh* getSubMesh(int i) const;
+			inline int32_t getSubMeshCount() const;
+			inline const SubMesh* getSubMesh(int32_t i) const;
 			
 			inline const glm::vec3* getMin() const;
 			inline const glm::vec3* getMax() const;
@@ -105,14 +106,14 @@ namespace vlr
 			return _images;
 		}
 
-		int Mesh::getSubMeshCount() const
+		int32_t Mesh::getSubMeshCount() const
 		{
-			return (int)_subMeshCount;
+			return (int32_t)_subMeshCount;
 		}
 
-		const SubMesh* Mesh::getSubMesh(int i) const
+		const SubMesh* Mesh::getSubMesh(int32_t i) const
 		{
-			if (i < 0 || i >= (int)_subMeshCount)
+			if (i < 0 || i >= (int32_t)_subMeshCount)
 			{
 				fprintf(stderr, "Attempted to access invalid submesh\n");
 
