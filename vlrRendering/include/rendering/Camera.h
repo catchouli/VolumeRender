@@ -6,6 +6,7 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/glm.hpp>
 #include <GL/glew.h>
+#include <stdint.h>
 
 namespace vlr
 {
@@ -13,9 +14,9 @@ namespace vlr
 	{
 		struct viewport
 		{
-			int x, y, w, h;
+			int32_t x, y, w, h;
 
-			bool pointInViewport(int x, int y)
+			bool pointInViewport(int32_t x, int32_t y)
 			{
 				return x >= this->x && y >= this->y &&
 					x < this->x + w && y < this->y + h;
@@ -55,7 +56,7 @@ namespace vlr
 			glm::vec3 worldSpaceToScreen(float x, float y,
 				float z) const;
 
-			void setViewport(int x, int y, int width, int height);
+			void setViewport(int32_t x, int32_t y, int32_t width, int32_t height);
 			void perspective(float fov, float aspect, float near, float far);
 			void orthographic(float scale, float aspect);
 

@@ -14,7 +14,7 @@ namespace vlr
 
 		}
 
-		Framebuffer::Framebuffer(int width, int height)
+		Framebuffer::Framebuffer(int32_t width, int32_t height)
 			: _width(width), _height(height), _pointer(nullptr), _init(true)
 		{
 			// Create opengl texture
@@ -44,7 +44,7 @@ namespace vlr
 			glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 		}
 
-		int* Framebuffer::resize(int width, int height)
+		int32_t* Framebuffer::resize(int32_t width, int32_t height)
 		{
 			if (!_init)
 			{
@@ -57,7 +57,7 @@ namespace vlr
 			_height = height;
 			
 			// Reallocate memory
-			_pointer = (int*)realloc(_pointer, width * height * sizeof(int));
+			_pointer = (int32_t*)realloc(_pointer, width * height * sizeof(int32_t));
 
 			// Return new pointer
 			return _pointer;

@@ -3,6 +3,7 @@
 
 #include <string.h>
 #include <GL/glew.h>
+#include <stdint.h>
 
 #include "util/CUDAUtil.h"
 
@@ -26,16 +27,16 @@ namespace vlr
 
 			GLuint genGlTexture();
 
-			inline HOST_DEVICE_FUNC int getWidth() const;
-			inline HOST_DEVICE_FUNC int getHeight() const;
+			inline HOST_DEVICE_FUNC int32_t getWidth() const;
+			inline HOST_DEVICE_FUNC int32_t getHeight() const;
 
 			inline HOST_DEVICE_FUNC void* getPointer();
 
-			inline void setPointer(void* pointer, int width, int height);
+			inline void setPointer(void* pointer, int32_t width, int32_t height);
 
 		private:
 			void* _pixels;
-			int _width, _height;
+			int32_t _width, _height;
 		};
 		
 		Image::Image()
@@ -52,10 +53,10 @@ namespace vlr
 				_width = other._width;
 				_height = other._height;
 
-				_pixels = new int[_width * _height];
+				_pixels = new int32_t[_width * _height];
 
 				memcpy(_pixels, other._pixels,
-					sizeof(int) * _width * _height);
+					sizeof(int32_t) * _width * _height);
 			}
 		}
 		
@@ -84,12 +85,12 @@ namespace vlr
 			return *this;
 		}
 
-		int Image::getWidth() const
+		int32_t Image::getWidth() const
 		{
 			return _width;
 		}
 
-		int Image::getHeight() const
+		int32_t Image::getHeight() const
 		{
 			return _height;
 		}
@@ -99,7 +100,7 @@ namespace vlr
 			return _pixels;
 		}
 
-		void Image::setPointer(void* pointer, int width, int height)
+		void Image::setPointer(void* pointer, int32_t width, int32_t height)
 		{
 			_pixels = pointer;
 			_width = width;

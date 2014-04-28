@@ -20,9 +20,9 @@ namespace vlr
 			return norm * (2.0f * glm::dot(dir, norm)) - dir;
 		}
 
-		__device__ int shade(const rendering_attributes_t rendering_attributes,
-			float hit_t, glm::vec3 hit_pos, const int* root,
-			const int* hit_parent, int hit_idx, int hit_scale)
+		__device__ int32_t shade(const rendering_attributes_t rendering_attributes,
+			float hit_t, glm::vec3 hit_pos, const int32_t* root,
+			const int32_t* hit_parent, int32_t hit_idx, int32_t hit_scale)
 		{
 			// Calculate view direction
 			glm::vec3 view_dir = glm::normalize(rendering_attributes.origin - hit_pos);
@@ -43,7 +43,7 @@ namespace vlr
 			out += rendering_attributes.ambient_colour * colour;
 
 			// For each light
-			for (int i = 0; i < rendering_attributes.light_count; ++i)
+			for (int32_t i = 0; i < rendering_attributes.light_count; ++i)
 			{
 				const light_t& light = rendering_attributes.lights[i];
 
@@ -118,18 +118,14 @@ namespace vlr
 
 			//// Read colour from info ptr
 
-			//	int hit_parent_offset = (char*)hit_parent - (char*)root;
-			//	int info_ptr_offset = hit_parent_offset & ~(0x2000 - 1);
-			//	const int* info_ptr_ptr = (int*)((uintptr_t)root + info_ptr_offset);
-			//	int info_ptr = *info_ptr_ptr;
-			//	
-			//return -1;
+				int32_t hit_parent_offset = (char*)hit_parent - (char*)root;
+				int32_t info_ptr_offset = hit_parent_offset & ~(0x2000 - 1);
+				const int32_t* info_ptr_ptr = (int32_t*)((uintptr_t)root + info_ptr_offset);
+				int32_t info_ptr = *info_ptr_ptr;
+			return info_ptr;
 
-			//return info_ptr;
-
-			//// Write to buffer
-			//return -1;
-			return *(unsigned int*)&out_col;
+			// Write to buffer
+			return *(uint32_t*)&out_col;
 		}
 	}
 }

@@ -2,7 +2,7 @@
 
 namespace vlr
 {
-	void VolumeRender::resize_callback(GLFWwindow* window, int width, int height)
+	void VolumeRender::resize_callback(GLFWwindow* window, int32_t width, int32_t height)
 	{
 		// Get class instance
 		VolumeRender* volumeRender = (VolumeRender*)glfwGetWindowUserPointer(window);
@@ -17,8 +17,8 @@ namespace vlr
 		cam.perspective(cam.getFov(), aspect, cam.getNear(), cam.getFar());
 	}
 
-	void VolumeRender::mouse_callback(GLFWwindow* window, int button,
-		int action, int mods)
+	void VolumeRender::mouse_callback(GLFWwindow* window, int32_t button,
+		int32_t action, int32_t mods)
 	{
 		// Get class instance
 		VolumeRender* volumeRender = (VolumeRender*)glfwGetWindowUserPointer(window);
@@ -53,8 +53,8 @@ namespace vlr
 		}
 	}
 
-	void VolumeRender::key_callback(GLFWwindow* window, int key,
-		int scancode, int action, int mods)
+	void VolumeRender::key_callback(GLFWwindow* window, int32_t key,
+		int32_t scancode, int32_t action, int32_t mods)
 	{
 		// Do default action (exit on esc)
 		_default_key_callback(window, key, scancode, action, mods);

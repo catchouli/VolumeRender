@@ -3,6 +3,7 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <stdint.h>
 
 namespace vlr
 {
@@ -11,15 +12,15 @@ namespace vlr
 		class Application
 		{
 		public:
-			Application(int width, int height, const char* title = "");
+			Application(int32_t width, int32_t height, const char* title = "");
 			~Application();
 
 			void run();
 
-			inline int getWidth() const;
-			inline int getHeight() const;
+			inline int32_t getWidth() const;
+			inline int32_t getHeight() const;
 
-			inline int getFPS() const;
+			inline int32_t getFPS() const;
 			inline bool isRunning() const;
 
 		protected:
@@ -31,8 +32,8 @@ namespace vlr
 			virtual void render() = 0;
 
 			// Default glfw callbacks
-			static void _default_key_callback(GLFWwindow* window, int key,
-				int scancode, int action, int mods);
+			static void _default_key_callback(GLFWwindow* window, int32_t key,
+				int32_t scancode, int32_t action, int32_t mods);
 
 			GLFWwindow* _window;
 
@@ -44,29 +45,29 @@ namespace vlr
 
 			double _lastUpdate;
 			double _lastFPSUpdate;
-			int _frames;
-			int _fps;
+			int32_t _frames;
+			int32_t _fps;
 		};
 
-		int Application::getWidth() const
+		int32_t Application::getWidth() const
 		{
-			int w, h;
+			int32_t w, h;
 
 			glfwGetWindowSize(_window, &w, &h);
 
 			return w;
 		}
 
-		int Application::getHeight() const
+		int32_t Application::getHeight() const
 		{
-			int w, h;
+			int32_t w, h;
 
 			glfwGetWindowSize(_window, &w, &h);
 
 			return h;
 		}
 
-		int Application::getFPS() const
+		int32_t Application::getFPS() const
 		{
 			return _fps;
 		}

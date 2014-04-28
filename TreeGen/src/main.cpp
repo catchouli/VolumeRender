@@ -7,9 +7,9 @@
 
 using namespace vlr::rendering;
 
-int main(int argc, char** argv)
+int32_t main(int32_t argc, char** argv)
 {
-	int depth = 5;
+	int32_t depth = 5;
 
 	char buffer[1024];
 
@@ -51,8 +51,8 @@ int main(int argc, char** argv)
 	// Generate tree
 	printf("Generating tree...\n");
 
-	int* tree;
-	int len = genOctreeMesh(&tree, depth, &mesh);
+	int32_t* tree;
+	int32_t len = genOctreeMesh(&tree, depth, &mesh);
 
 	// Write tree to file
 	FILE* file = fopen(outfile, "wb");

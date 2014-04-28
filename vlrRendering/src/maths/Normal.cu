@@ -15,7 +15,7 @@ namespace vlr
 			glm::vec3 absNorm(abs(normal.x), abs(normal.y), abs(normal.z));
 
 			// Work out which axis this is (the component with the greatest magnitude)
-			int axis = (absNorm.x >= max(absNorm.y, absNorm.z))
+			int32_t axis = (absNorm.x >= max(absNorm.y, absNorm.z))
 				? 0 : (absNorm.y >= absNorm.z) ? 1 : 2;
 
 			// Arrange tuv values
@@ -43,10 +43,10 @@ namespace vlr
 			int32_t fixed_v = clamp((int32_t)(v * 8191.0f), -0x2000, 0x1FFF) & 0x3FFF;
 
 			// Compress values
-			int encoded_sign_bit = (tuv.x >= 0.0f) ? 0 : 0x80000000;
-			int encoded_axis = axis << 29;
-			int encoded_u = fixed_u << 14;
-			int encoded_v = fixed_v;
+			int32_t encoded_sign_bit = (tuv.x >= 0.0f) ? 0 : 0x80000000;
+			int32_t encoded_axis = axis << 29;
+			int32_t encoded_u = fixed_u << 14;
+			int32_t encoded_v = fixed_v;
 
 			return encoded_sign_bit |
 				   encoded_axis |

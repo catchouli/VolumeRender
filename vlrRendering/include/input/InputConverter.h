@@ -11,7 +11,7 @@ namespace vlr
 	class InputConverter
 	{
 	public:
-		static unsigned char translateKeyCode(int keycode)
+		static unsigned char translateKeyCode(int32_t keycode)
 		{
 			// TODO: implement if keyboard input necessary
 			 switch (keycode)
@@ -57,7 +57,7 @@ namespace vlr
 			 }
 		}
 
-		static std::string translateCharToString(int keycode)
+		static std::string translateCharToString(int32_t keycode)
 		{
 			switch (keycode)
 			{

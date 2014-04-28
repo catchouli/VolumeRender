@@ -19,7 +19,7 @@ namespace vlr
 
 			__host__ __device__ ~OctNode()
 			{
-				for (int i = 0; i < 8; ++i)
+				for (int32_t i = 0; i < 8; ++i)
 				{
 					if (far[i])
 						delete children[i];

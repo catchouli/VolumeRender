@@ -20,15 +20,15 @@ namespace vlr
 		
 		bool Image::load(const char* filename)
 		{
-			const unsigned int argb_r = 0xFF000000u;
-			const unsigned int argb_g = 0x00FF0000u;
-			const unsigned int argb_b = 0x0000FF00u;
-			const unsigned int argb_a = 0x000000FFu;
+			const uint32_t argb_r = 0xFF000000u;
+			const uint32_t argb_g = 0x00FF0000u;
+			const uint32_t argb_b = 0x0000FF00u;
+			const uint32_t argb_a = 0x000000FFu;
 
 			FREE_IMAGE_FORMAT format;
 			FIBITMAP* bitmap;
 			FIBITMAP* rgbamap;
-			int w, h;
+			int32_t w, h;
 
 			// Unload if image already loaded to protect from memory leak
 			unload();
@@ -58,10 +58,10 @@ namespace vlr
 
 			// Convert to RGBA if not already
 			rgbamap = FreeImage_ConvertTo32Bits(bitmap);
-			int scan_width = FreeImage_GetPitch(rgbamap);
+			int32_t scan_width = FreeImage_GetPitch(rgbamap);
 
 			// Make copy
-			int size = h * scan_width;
+			int32_t size = h * scan_width;
 			_pixels = malloc(size);
 			FreeImage_ConvertToRawBits((BYTE*)_pixels, bitmap, scan_width, 32, FI_RGBA_RED_MASK, FI_RGBA_GREEN_MASK, FI_RGBA_BLUE_MASK, true);
 

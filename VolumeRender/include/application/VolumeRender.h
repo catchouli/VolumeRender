@@ -13,15 +13,15 @@
 
 namespace vlr
 {
-	const int VolumeRender_GRID_WIDTH = 8;
-	const int VolumeRender_GRID_HEIGHT = 8;
-	const int VolumeRender_GRID_DEPTH = 8;
+	const int32_t VolumeRender_GRID_WIDTH = 8;
+	const int32_t VolumeRender_GRID_HEIGHT = 8;
+	const int32_t VolumeRender_GRID_DEPTH = 8;
 	
 	class VolumeRender
 		: public rendering::Application
 	{
 	public:
-		VolumeRender(int argc, char** argv);
+		VolumeRender(int32_t argc, char** argv);
 
 		void update(double dt);
 
@@ -31,13 +31,13 @@ namespace vlr
 
 		// Callbacks
 		static void resize_callback(GLFWwindow* window,
-			int width, int height);
+			int32_t width, int32_t height);
 		static void mouse_move_callback(GLFWwindow* window,
 			double x, double y);
-		static void mouse_callback(GLFWwindow* window, int button,
-			int action, int mods);
-		static void key_callback(GLFWwindow* window, int key,
-			int scancode, int action, int mods);
+		static void mouse_callback(GLFWwindow* window, int32_t button,
+			int32_t action, int32_t mods);
+		static void key_callback(GLFWwindow* window, int32_t key,
+			int32_t scancode, int32_t action, int32_t mods);
 
 	private:
 		const char* _treeFilename;
@@ -49,12 +49,12 @@ namespace vlr
 		rendering::Mesh _mesh;
 		
 		glm::vec3 normal;
-		int lastx, lasty, lastz;
+		int32_t lastx, lasty, lastz;
 		
 		rendering::Camera _camera;
 
-		int* _gpuTree;
-		const int* itree;
+		int32_t* _gpuTree;
+		const int32_t* itree;
 
 		rendering::Framebuffer _fb;
 

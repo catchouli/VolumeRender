@@ -1,7 +1,7 @@
 /********************************************************/
 /* AABB-triangle overlap test code                      */
 /* by Tomas Akenine-Möller                              */\
-/* Function: int triBoxOverlap(float boxcenter[3],      */
+/* Function: int32_t triBoxOverlap(float boxcenter[3],      */
 /*          float boxhalfsize[3],float triverts[3][3]); */
 /* History:                                             */
 /*   2001-03-05: released the code in its first version */
@@ -21,6 +21,7 @@
 
 #include <math.h>
 #include <stdio.h>
+#include <stdint.h>
 
 #define X 0
 #define Y 1
@@ -45,9 +46,9 @@
   if(x2<min) min=x2;\
   if(x2>max) max=x2;
 
-HOST_DEVICE_FUNC int planeBoxOverlap(float normal[3], float vert[3], float maxbox[3])	// -NJMP-
+HOST_DEVICE_FUNC int32_t planeBoxOverlap(float normal[3], float vert[3], float maxbox[3])	// -NJMP-
 {
-  int q;
+  int32_t q;
   float vmin[3],vmax[3],v;
   for(q=X;q<=Z;q++)
   {
@@ -116,7 +117,7 @@ HOST_DEVICE_FUNC int planeBoxOverlap(float normal[3], float vert[3], float maxbo
 	rad = fa * boxhalfsize[X] + fb * boxhalfsize[Y];   \
 	if(min>rad || max<-rad) return 0;
 
-HOST_DEVICE_FUNC int triBoxOverlap(float boxcenter[3],float boxhalfsize[3],float triverts[3][3])
+HOST_DEVICE_FUNC int32_t triBoxOverlap(float boxcenter[3],float boxhalfsize[3],float triverts[3][3])
 {
 
   /*    use separating axis theorem to test overlap between triangle and box */

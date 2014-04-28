@@ -22,11 +22,11 @@ namespace vlr
 		inline void setMaxForce(float value);
 		inline void setSpeed(float value);
 		
-		inline int getForwardKey() const;
-		inline int getReverseKey() const;
+		inline int32_t getForwardKey() const;
+		inline int32_t getReverseKey() const;
 		
-		inline void setForwardKey(int value);
-		inline void setReverseKey(int value);
+		inline void setForwardKey(int32_t value);
+		inline void setReverseKey(int32_t value);
 
 	private:
 		friend class Serialiser;
@@ -36,7 +36,7 @@ namespace vlr
 
 		bool _enabled;
 		float _maxForce, _speed;
-		int _forwardButton, _reverseButton;
+		int32_t _forwardButton, _reverseButton;
 	};
 
 	bool MotorInput::getEnabled() const
@@ -69,22 +69,22 @@ namespace vlr
 		_speed = value;
 	}
 		
-	int MotorInput::getForwardKey() const
+	int32_t MotorInput::getForwardKey() const
 	{
 		return _forwardButton;
 	}
 
-	int MotorInput::getReverseKey() const
+	int32_t MotorInput::getReverseKey() const
 	{
 		return _reverseButton;
 	}
 		
-	void MotorInput::setForwardKey(int value)
+	void MotorInput::setForwardKey(int32_t value)
 	{
 		_forwardButton = value;
 	}
 
-	void MotorInput::setReverseKey(int value)
+	void MotorInput::setReverseKey(int32_t value)
 	{
 		_reverseButton = value;
 	}

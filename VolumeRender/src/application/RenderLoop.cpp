@@ -50,7 +50,7 @@ namespace vlr
 		dir_light->linear_att = 0.0f;
 		dir_light->quadratic_att = 0.0f;
 
-		for (int i = 1; i < 10; ++i)
+		for (int32_t i = 1; i < 10; ++i)
 		{
 			dir_light = &rendering_attributes.lights[i];
 		

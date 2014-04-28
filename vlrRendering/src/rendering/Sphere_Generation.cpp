@@ -22,7 +22,7 @@ namespace vlr
 			float r_squared = sqr(r);
 			float nearest = 0;
 
-			for (int i = 0; i < 3; i++)
+			for (int32_t i = 0; i < 3; i++)
 			{
 				if(pos[i] < min[i])
 					nearest += sqr(pos[i] - min[i]);
@@ -53,9 +53,9 @@ namespace vlr
 					for (float z = 0; z <= 1; ++z)
 					{
 						// Check if this vertex is outside of the sphere
-						int xsign = x > 0 ? 1 : -1;
-						int ysign = y > 0 ? 1 : -1;
-						int zsign = z > 0 ? 1 : -1;
+						int32_t xsign = x > 0 ? 1 : -1;
+						int32_t ysign = y > 0 ? 1 : -1;
+						int32_t zsign = z > 0 ? 1 : -1;
 
 						glm::vec3 vertex = centre + glm::vec3(xsign * half_size,
 							ysign * half_size, zsign * half_size);
@@ -75,7 +75,7 @@ namespace vlr
 			return false;
 		}
 
-		int genOctreeSphere(int** ret, int resolution, glm::vec3 pos, float radius)
+		int32_t genOctreeSphere(int32_t** ret, int32_t resolution, glm::vec3 pos, float radius)
 		{
 			auto test_func = [pos, radius] (glm::vec3 min, glm::vec3 max, glm::vec3& outnormal, glm::vec4& outcolour)
 			{
@@ -83,11 +83,11 @@ namespace vlr
 				glm::vec3 centre = min + half_size;
 				glm::vec3 normal = glm::normalize(pos - centre);
 
-				//outnormal.x = std::min((unsigned int)(normal.x * 127.5f + 127.5f), 255u);
-				//outnormal.y = std::min((unsigned int)(normal.y * 127.5f + 127.5f), 255u);
-				//outnormal.z = std::min((unsigned int)(normal.z * 127.5f + 127.5f), 255u);
+				//outnormal.x = std::min((uint32_t)(normal.x * 127.5f + 127.5f), 255u);
+				//outnormal.y = std::min((uint32_t)(normal.y * 127.5f + 127.5f), 255u);
+				//outnormal.z = std::min((uint32_t)(normal.z * 127.5f + 127.5f), 255u);
 
-				//unsigned int white = (unsigned int)-1;
+				//uint32_t white = (uint32_t)-1;
 				//outcolour = *(uchar4*)&white;
 
 				outnormal = normal;

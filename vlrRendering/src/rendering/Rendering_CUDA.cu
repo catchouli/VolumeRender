@@ -18,7 +18,7 @@ namespace vlr
 {
 	namespace rendering
 	{
-		__device__ __host__ inline ray screenPointToRay(int x, int y,
+		__device__ __host__ inline ray screenPointToRay(int32_t x, int32_t y,
 			const rendering_attributes_t rendering_attributes)
 		{
 			ray ret;
@@ -47,23 +47,23 @@ namespace vlr
 			return ret;
 		}
 
-		__global__ void cudaRenderOctree(const int* root, int* pixel_buffer,
+		__global__ void cudaRenderOctree(const int32_t* root, int32_t* pixel_buffer,
 			const rendering_attributes_t rendering_attributes)
 		{
 			const viewport& viewport = rendering_attributes.viewport;
 
-			const int width = viewport.w;		// Viewport width
-			const int height = viewport.h;		// Viewport height
+			const int32_t width = viewport.w;		// Viewport width
+			const int32_t height = viewport.h;		// Viewport height
 			
 			ray ray;							// Eye ray for this kernel
-			int x, y;							// x and y of this kernel's pixel
-			int* pixel;							// Pointer to this kernel's pixel
+			int32_t x, y;							// x and y of this kernel's pixel
+			int32_t* pixel;							// Pointer to this kernel's pixel
 
 			float hit_t;						// Resultant hit t value from raycast
 			glm::vec3 hit_pos;					// Resultant hit position from raycast
-			const int* hit_parent;				// Resultant hit parent voxel from raycast
-			int hit_idx;						// Resultant hit child index from raycast
-			int hit_scale;						// Resultant hit scale from raycast
+			const int32_t* hit_parent;				// Resultant hit parent voxel from raycast
+			int32_t hit_idx;						// Resultant hit child index from raycast
+			int32_t hit_scale;						// Resultant hit scale from raycast
 
 			// Calculate x and y
 			// (each block works on a blockDim.x * blockDim.y square of pixels, so
@@ -86,7 +86,7 @@ namespace vlr
 			*pixel = 0;
 			
 			// Skip first child desc slot (it's a pointer to the info section)
-			const int* root_child_desc = root + child_desc_size_ints * sizeof(int32_t);
+			const int32_t* root_child_desc = root + child_desc_size_ints;
 
 			// Do raycast
 			raycast(root_child_desc, &ray, &hit_t, &hit_pos, &hit_parent, &hit_idx, &hit_scale);
@@ -98,7 +98,7 @@ namespace vlr
 			}
 		}
 
-		void renderOctree(const int* treeGpu, const rendering_attributes_t rendering_attributes)
+		void renderOctree(const int32_t* treeGpu, const rendering_attributes_t rendering_attributes)
 		{
 			const char* blit_pixel_shader = "blit_buffer.ps";
 
@@ -114,11 +114,11 @@ namespace vlr
 			static GLuint pixel_shader = (GLuint)-1;
 			static GLuint shader_program = (GLuint)-1;
 
-			static int width = -1;
-			static int height = -1;
+			static int32_t width = -1;
+			static int32_t height = -1;
 
 			// Initialise
-			if (texid == (unsigned int)-1)
+			if (texid == (uint32_t)-1)
 			{
 				// Create pbo
 				glGenBuffers(1, &pbo);
@@ -192,7 +192,7 @@ namespace vlr
 				(height + block_size.y - 1) / block_size.y);
 
 			// Execute kernel
-			cudaRenderOctree<<<grid_size, block_size>>>(treeGpu, (int*)ptr, rendering_attributes);
+			cudaRenderOctree<<<grid_size, block_size>>>(treeGpu, (int32_t*)ptr, rendering_attributes);
 
 			// Check for errors
 			gpuErrchk(cudaDeviceSynchronize());
