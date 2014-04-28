@@ -9,11 +9,11 @@
 \def\logoversion{squarelogo}
 \DeclareOption{beltcrest}{\def\logoversion{beltcrest}}
 \DeclareOption{shieldcrest}{\def\logoversion{shieldcrest}}
-\DeclareOption*{\PassOptionsToClass{\CurrentOption}{report}}
+\DeclareOption*{\PassOptionsToClass{\CurrentOption}{article}}
 \ProcessOptions\relax
-\LoadClass[a4paper]{report}
+\LoadClass[a4paper]{article}
 % As an alternative to the above could use next line for twosided output
-%\LoadClass[a4paper,twoside,openright]{report}
+%\LoadClass[a4paper,twoside,openright]{article}
 
 \RequirePackage{graphicx} % needed for latest frontpage logo
 \RequirePackage{ifthen}   % needed for option parsing for logo
@@ -21,7 +21,7 @@
 \raggedbottom
 
 %define the default submitted text
-\newcommand{\submittedtext}{{A thesis submitted for the degree of}}
+\newcommand{\submittedtext}{{A project completed as part of the requirements for}}
 
 %
 % DECLARATIONS
@@ -65,7 +65,7 @@
 {
 % Latest Logo, Square version (the default!)
 % you need an oxlogo.eps or oxlogo.pdf file as appropriate
-\def\logo{{\includegraphics[width=32mm]{oxlogo}}}
+\def\logo{{\includegraphics[width=32mm]{unilogo}}}
 }{}
 
 %
@@ -87,7 +87,7 @@
 \newenvironment{alwayssingle}{%
        \@restonecolfalse
        \if@twocolumn\@restonecoltrue\onecolumn
-       \else\if@openright\cleardoublepage\else\clearpage\fi
+       \else\clearpage
        \fi}%
        {\if@restonecol\twocolumn
        \else\newpage\thispagestyle{empty}\fi}
@@ -106,7 +106,7 @@
 {\large \vspace*{1ex}
     {{\@college} \par}
 \vspace*{1ex}
-    {University of Oxford \par}
+    {University of Derby \par}
 \vspace*{25mm}
     {{\submittedtext} \par}
 \vspace*{1ex}
