@@ -1,0 +1,59 @@
+\documentclass[12pt]{ociamthesis}
+
+\graphicspath{{images//}}
+
+%load any additional packages
+\usepackage{amssymb}
+\usepackage{svg}
+\usepackage[nottoc,numbib]{tocbibind}
+\usepackage{listings}
+
+\title{Real-time Raytracing of Sparse Voxel Octrees}
+
+\author{Caitlin Wilks}
+\college{Computer Games Programming}
+
+%\renewcommand{\submittedtext}{change the default text here if needed}
+\degree{BSc (Hons) Computer Games Programming}     %the degree
+\degreedate{2014}         %the degree date
+
+%end the preamble and start the document
+\begin{document}
+
+%this baselineskip gives sufficient line spacing for an examiner to easily
+%markup the thesis with comments
+\baselineskip=18pt plus1pt
+
+%set the number of sectioning levels that get number and appear in the contents
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+
+\maketitle                  % create a title page from the preamble info
+\include{sections/abstract} % include the abstract
+
+\begin{romanpages}          % start roman page numbering
+\tableofcontents            % generate and include a table of contents
+\newpage
+\listoffigures              % generate and include a list of figures
+\end{romanpages}            % end roman page numbering
+
+% Include chapters
+\include{sections/01-introduction}
+\include{sections/02-literature-review}
+\include{sections/03-research-methodology}
+\include{sections/04-implementation}
+\include{sections/05-results-and-analysis}
+\include{sections/06-future-work}
+\include{sections/07-conclusion}
+
+% Show bibliography
+\bibliography{refs}        %use a bibtex bibliography file refs.bib
+\bibliographystyle{plain}  %use the plain bibliography style
+
+% Include appendicies
+\addcontentsline{toc}{section}{Appendices}
+\appendix
+\include{appendices/01-source-code}
+
+\end{document}
+
