@@ -78,7 +78,7 @@ namespace vlr
 			double start_time = glfwGetTime();
 
 			tree_size =
-				rendering::genOctreeMesh((int32_t**)&tree_data, 7,
+				rendering::genOctreeMesh((int32_t**)&tree_data, 5,
 				&_mesh);
 
 			double end_time = glfwGetTime();

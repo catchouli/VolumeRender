@@ -33,6 +33,11 @@ namespace vlr
 			point_test_func& test_point_func,
 			const glm::vec3& min, const glm::vec3& max)
 		{
+			const int invalid_block_id = ((2 << 23) - 1);
+			
+			const int raw_attachment_size_ints = 2;
+			const int raw_attachment_size = raw_attachment_size_ints * sizeof(int32_t);
+
 			// Check for existence of root and immediately return if not
 			glm::vec3 norm;
 			glm::vec4 col;
@@ -49,6 +54,7 @@ namespace vlr
 			// Create root child descriptor block
 			child_desc_builder_block root;
 			root.id = 0;
+			root.parent_block_id = invalid_block_id;
 			root.count = 1;
 			root.depth = 0;
 			root.child_desc_builder[0].norm = norm;
@@ -134,22 +140,52 @@ namespace vlr
 			size = chunk_size * (size / chunk_size + 1);
 
 			// Allocate memory for tree
-			int32_t data_size = size * child_desc_size;
+			uint32_t child_descs_size = size * child_desc_size;
+			uint32_t attachment_lookup_size = size * sizeof(uint32_t);
+			uint32_t raw_attachments_size = size * 2 * sizeof(uint32_t);
+
+			uint32_t data_size = child_descs_size +
+								 attachment_lookup_size +
+								 raw_attachments_size;
+
 			int32_t* data = (int32_t*)malloc(data_size);
 
 			int32_t max_far = 0;
 
 			// Iterate through blocks a second time and write data
+			uint32_t uncomp_attr_id_next = 0;
+
 			for (auto it = child_desc_builder_blocks.begin(); it != child_desc_builder_blocks.end(); ++it)
 			{
 				int32_t cur_ptr_org = child_desc_builder_map[it->id].ptr;
 				int32_t cur_ptr = child_desc_builder_map[it->id].ptr;
+
+				int cur_attachment_ptr = uncomp_attr_id_next;
+
+				if (it->parent_block_id != invalid_block_id)
+				{
+					int par_ptr = child_desc_builder_map[it->parent_block_id].ptr;
+
+					int32_t* uncompressed_attributes_lookup =
+						(int32_t*)((int)data + child_descs_size) + par_ptr;
+
+					// The uncompressed attributes pointer is the number of ints
+					// From this lookup entry to the raw attributes
+					int32_t lookup_table_remaining_ints = attachment_lookup_size - par_ptr;
+
+					// Write the (relative) pointer, the data is written in the loop below
+					*uncompressed_attributes_lookup = lookup_table_remaining_ints +
+											cur_attachment_ptr * raw_attachment_size_ints;
+				}
 
 				// For each child descriptor in block
 				// Write it in reverse to match raycast
 				for (int32_t i = it->count-1; i >= 0; --i)
 				{
 					int32_t* cur_descriptor = data + cur_ptr * child_desc_size_ints;
+					int32_t* uncompressed_attributes = (int32_t*)((int)data +
+														child_descs_size + attachment_lookup_size
+														+ ((it->count - (uncomp_attr_id_next - cur_attachment_ptr)) * raw_attachment_size));
 
 					// Initialise new child descriptor
 					int32_t desc = 0;
@@ -205,11 +241,11 @@ namespace vlr
 						desc ^= 1 << 16;
 					}
 
-					// Write normal to descriptor
-					cur_descriptor[1] = (int32_t)compressNormal(it->child_desc_builder[i].norm);
+					// Compress normal
+					int32_t normal = (int32_t)compressNormal(it->child_desc_builder[i].norm);
 
-					// Write colour to descriptor
-					cur_descriptor[2] = (int32_t)compressColour(it->child_desc_builder[i].col);
+					// Compress colour
+					int32_t colour = (int32_t)compressColour(it->child_desc_builder[i].col);
 
 					// Write child mask and non-leaf mask to descriptor
 					desc ^= it->child_desc_builder[i].child_mask << 8;
@@ -217,14 +253,19 @@ namespace vlr
 
 					// Write data
 					cur_descriptor[0] = desc;
+					cur_descriptor[1] = normal;
+					cur_descriptor[2] = colour;
+					uncompressed_attributes[0] = normal;
+					uncompressed_attributes[1] = colour;
 
 					// Increment pointer
 					cur_ptr += 1;
+					uncomp_attr_id_next += 1;
 				}
 			}
 
-			// Write info section pointers
-			for (uintptr_t i = 0; i < data_size; i += 0x2000)
+			// Write info section pointers throughout child descriptors
+			for (uintptr_t i = 0; i < child_descs_size; i += 0x2000)
 			{
 				// If this isn't in space reserved for far pointers
 				if (i % (chunk_size * child_desc_size) < (reserved_size * child_desc_size))
@@ -232,7 +273,7 @@ namespace vlr
 					// Write info section pointer every 0x2000 bytes
 					int32_t* info_ptr_loc = (int32_t*)((char*)data + i);
 
-					*info_ptr_loc = rand();
+					*info_ptr_loc = child_descs_size;
 				}
 			}
 
