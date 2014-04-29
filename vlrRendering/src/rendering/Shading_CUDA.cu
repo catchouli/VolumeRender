@@ -118,11 +118,22 @@ namespace vlr
 
 			//// Read colour from info ptr
 
-				int32_t hit_parent_offset = (char*)hit_parent - (char*)root;
-				int32_t info_ptr_offset = hit_parent_offset & ~(0x2000 - 1);
-				const int32_t* info_ptr_ptr = (int32_t*)((uintptr_t)root + info_ptr_offset);
-				int32_t info_ptr = *info_ptr_ptr;
-			return info_ptr;
+			int32_t hit_parent_offset = (char*)hit_parent - (char*)root;
+			int32_t info_ptr_offset = hit_parent_offset & ~(0x2000 - 1);
+			const int32_t* info_ptr_ptr = (int32_t*)((uintptr_t)root + info_ptr_offset);
+			int32_t info_ptr = *info_ptr_ptr;
+
+			const int32_t* attribute_lookup = root + (info_ptr / sizeof(int32_t));
+			const int32_t* attribute_ptr_ptr = &attribute_lookup[hit_parent_offset];
+			//const int32_t attribute_ptr = *attribute_ptr_ptr;
+
+			//const int32_t* attribute = attribute_ptr_ptr + attribute_ptr;
+
+			printf("%d\n", *attribute_ptr_ptr);
+
+			printf("%d + %d + %d = %d\n", root, (info_ptr / sizeof(int32_t)), attribute_ptr_ptr, *attribute_ptr_ptr);
+
+			return *attribute_ptr_ptr;
 
 			// Write to buffer
 			return *(uint32_t*)&out_col;
