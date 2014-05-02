@@ -9,9 +9,9 @@
 \def\logoversion{squarelogo}
 \DeclareOption{beltcrest}{\def\logoversion{beltcrest}}
 \DeclareOption{shieldcrest}{\def\logoversion{shieldcrest}}
-\DeclareOption*{\PassOptionsToClass{\CurrentOption}{article}}
+\DeclareOption*{\PassOptionsToClass{\CurrentOption}{report}}
 \ProcessOptions\relax
-\LoadClass[a4paper]{article}
+\LoadClass[a4paper]{report}
 % As an alternative to the above could use next line for twosided output
 %\LoadClass[a4paper,twoside,openright]{article}
 
@@ -100,17 +100,19 @@
     \thispagestyle{empty}
   \null\vfill
   \begin{center}
+    \vspace*{1ex}
+        {University of Derby\\\@college \par}
+    \vspace*{15mm}
+        {{\submittedtext} \par}
+    \vspace*{1ex}
+        {\it {\@degree} \par}
+    \vspace*{15mm}
+        {{entitled} \par}
+    \vspace*{10mm}
     { \Huge {\bfseries {\@title}} \par}
 {\large \vspace*{40mm} {\logo \par} \vspace*{25mm}}
     {{\Large \@author} \par}
 {\large \vspace*{1ex}
-    {{\@college} \par}
-\vspace*{1ex}
-    {University of Derby \par}
-\vspace*{25mm}
-    {{\submittedtext} \par}
-\vspace*{1ex}
-    {\it {\@degree} \par}
 \vspace*{2ex}
     {\@degreedate}}
   \end{center}
