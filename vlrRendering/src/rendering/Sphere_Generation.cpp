@@ -81,7 +81,8 @@ namespace vlr
 			{
 				glm::vec3 half_size = 0.5f * (max - min);
 				glm::vec3 centre = min + half_size;
-				glm::vec3 normal = glm::normalize(pos - centre);
+				glm::vec3 normal = glm::normalize(0.5f*pos - centre);
+				glm::vec3 normal2 = glm::normalize(pos+0.5f*pos - centre);
 
 				//outnormal.x = std::min((uint32_t)(normal.x * 127.5f + 127.5f), 255u);
 				//outnormal.y = std::min((uint32_t)(normal.y * 127.5f + 127.5f), 255u);
@@ -93,14 +94,28 @@ namespace vlr
 				outnormal = normal;
 				outcolour = glm::vec4(1.0f);
 
+				bool test1 = cubeSphereSurfaceIntersection(centre, half_size.x, pos/2.0f, radius);
+				bool test2 = cubeSphereSurfaceIntersection(centre, half_size.x, pos + pos/2.0f, radius);
+				
+				if (test1)
+				{
+					outnormal = normal;
+					outcolour = glm::vec4(1.0f, 0, 0, 0);
+				}
+				if (test2)
+				{
+					outnormal = normal2;
+					outcolour = glm::vec4(1.0f, 1.0f, 1.0f, 0.0f);
+				}
+
 				//return boxSphereIntersection(min, max, pos, radius);
-				return cubeSphereSurfaceIntersection(centre, half_size.x, pos, radius);
+				return test1 || test2;
 			};
 			
 			point_test_func func(test_func);
 
 			glm::vec3 min;
-			glm::vec3 max(10, 10, 10);
+			glm::vec3 max(1, 1, 1);
 
 			return genOctree(ret, resolution, func, min, max);
 		}

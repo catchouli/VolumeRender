@@ -43,6 +43,7 @@
     <ClInclude Include="include\app\Framebuffer.h" />
     <ClInclude Include="include\maths\Matrix.h" />
     <ClInclude Include="include\maths\Colour.h" />
+    <ClInclude Include="include\maths\Normal.h" />
     <ClInclude Include="include\maths\Types.h" />
     <ClInclude Include="include\rendering\Camera.h" />
     <ClInclude Include="include\rendering\child_desc.h" />

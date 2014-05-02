@@ -21,8 +21,8 @@ namespace vlr
 			uint32_t child_mask : 8;
 			uint32_t non_leaf_mask : 8;
 			
-			glm::vec3 norm;
-			glm::vec4 col;
+			glm::vec3 normals[8];
+			glm::vec4 colours[8];
 		};
 
 		struct child_desc_builder_block

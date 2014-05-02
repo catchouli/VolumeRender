@@ -31,6 +31,8 @@ namespace vlr
 		}
 		
 		__device__ int32_t get_child_index(uint32_t mask);
+
+		__host__ __device__ int numberOfSetBits(int i);
 	}
 }
 

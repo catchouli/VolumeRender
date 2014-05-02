@@ -203,34 +203,41 @@ namespace vlr
 							glm::vec3 normal = u * v1_normal + v * v2_normal + w * v3_normal;
 
 							// Get texture
-							Image* images = mesh->getStoredTextures();
-							Image* image = &images[sub_mesh->_materialIndex];
+							if (!mesh->hasTextures())
+							{
+								outcolour = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+							}
+							else
+							{
+								Image* images = mesh->getStoredTextures();
+								Image* image = &images[sub_mesh->_materialIndex];
 							
-							// Interpolate uvs on surface
-							float tex_u = u * v1->_texCoord.x + v * v2->_texCoord.x + w * v3->_texCoord.x;
-							float tex_v = u * v1->_texCoord.y + v * v2->_texCoord.y + w * v3->_texCoord.y;
+								// Interpolate uvs on surface
+								float tex_u = u * v1->_texCoord.x + v * v2->_texCoord.x + w * v3->_texCoord.x;
+								float tex_v = u * v1->_texCoord.y + v * v2->_texCoord.y + w * v3->_texCoord.y;
 							
-							int32_t x = (int32_t)(tex_u * image->getWidth());
-							int32_t y = (int32_t)(tex_v * image->getHeight());
+								int32_t x = (int32_t)(tex_u * image->getWidth());
+								int32_t y = (int32_t)(tex_v * image->getHeight());
 
-							// Get colour from texture
-							int32_t* ptr = (int32_t*)image->getPointer() + y * image->getWidth() + x;
+								// Get colour from texture
+								int32_t* ptr = (int32_t*)image->getPointer() + y * image->getWidth() + x;
 							
-							uchar4 col = *(uchar4*)ptr;
+								uchar4 col = *(uchar4*)ptr;
 
-							//outnormal.x = std::min((uint32_t)(normal.x * 127.5f + 127.5f), 255u);
-							//outnormal.y = std::min((uint32_t)(normal.y * 127.5f + 127.5f), 255u);
-							//outnormal.z = std::min((uint32_t)(normal.z * 127.5f + 127.5f), 255u);
-							//
-							//outcolour = *(uchar4*)&col;
+								//outnormal.x = std::min((uint32_t)(normal.x * 127.5f + 127.5f), 255u);
+								//outnormal.y = std::min((uint32_t)(normal.y * 127.5f + 127.5f), 255u);
+								//outnormal.z = std::min((uint32_t)(normal.z * 127.5f + 127.5f), 255u);
+								//
+								//outcolour = *(uchar4*)&col;
 
-							outnormal = normal;
-							outcolour = glm::vec4(col.x, col.y, col.z, 0.0f) / 255.0f;
+								outnormal = normal;
+								outcolour = glm::vec4(col.x, col.y, col.z, 0.0f) / 255.0f;
 
-							// Convert from BGR to RGB
-							float temp = outcolour.x;
-							outcolour.x = outcolour.z;
-							outcolour.z = temp;
+								// Convert from BGR to RGB
+								float temp = outcolour.x;
+								outcolour.x = outcolour.z;
+								outcolour.z = temp;
+							}
 
 							return true;
 						}

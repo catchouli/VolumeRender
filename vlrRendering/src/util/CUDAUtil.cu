@@ -39,9 +39,19 @@ namespace vlr
 			4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8,
 		};
 
-		__device__ int32_t get_child_index(uint32_t mask)
+		__host__ __device__ int32_t get_child_index(uint32_t mask)
 		{
 			return child_index_table[mask & 0xFFu];
+		}
+
+		// Get number of set bits
+		// From http://stackoverflow.com/a/109025
+		// (you are not meant to understand this)
+		__host__ __device__ int numberOfSetBits(int i)
+		{
+			 i = i - ((i >> 1) & 0x55555555);
+			 i = (i & 0x33333333) + ((i >> 2) & 0x33333333);
+			 return (((i + (i >> 4)) & 0x0F0F0F0F) * 0x01010101) >> 24;
 		}
 	}
 }

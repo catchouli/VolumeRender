@@ -22,8 +22,8 @@ namespace vlr
 			const rendering_attributes_t rendering_attributes);
 		
 		// Inline definitions
-		__device__ __host__ inline ray screenPointToRay(int32_t x, int32_t y,
-			const rendering_attributes_t rendering_attributes);
+		__device__ __host__ ray screenPointToRay(int32_t x, int32_t y,
+			const rendering_attributes_t& rendering_attributes);
 	}
 }
 

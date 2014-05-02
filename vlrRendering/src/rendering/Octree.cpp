@@ -57,8 +57,8 @@ namespace vlr
 			root.parent_block_id = invalid_block_id;
 			root.count = 1;
 			root.depth = 0;
-			root.child_desc_builder[0].norm = norm;
-			root.child_desc_builder[0].col = col;
+			root.child_desc_builder[0].normals[0] = norm;
+			root.child_desc_builder[0].colours[0] = col;
 
 			// Add to collection
 			child_desc_builder_blocks.push_back(root);
@@ -83,22 +83,29 @@ namespace vlr
 			const int32_t remaining_size = chunk_size - reserved_size;
 
 			// Initial pointer += 1 to leave space for info block pointer
-			size_t size = 1;
+			uintptr_t size = 0;
+
+			std::vector<uintptr_t> skipped_descs;
 
 			for (auto it = child_desc_builder_blocks.begin(); it != child_desc_builder_blocks.end(); ++it)
 			{
-				// Skip a slot for the info block pointer if this is at an 8kB boundary
-				int boundary_pos = (size * child_desc_size) / 0x2000;
-				int boundary_pos_next = ((size + it->count) * child_desc_size) / 0x2000;
-				if ((size * child_desc_size) % 0x2000 == 0 || boundary_pos < boundary_pos_next)
-					size = ((boundary_pos_next * 0x2000) / child_desc_size) + 1;
-
 				pointer_desc pointer;
 				pointer.far = false;
 
+				// If this is in the space reserved for far pointers, skip to next chunk
 				if ((size + it->count) % chunk_size > remaining_size)
 				{
 					size = chunk_size * (size / chunk_size + 1);
+				}
+
+				// Skip a slot for the info block pointer if this is at an 8kB boundary
+				int boundary_pos = (size * child_desc_size) / 0x2000;
+				int boundary_pos_next = ((size + it->count) * child_desc_size) / 0x2000;
+
+				if ((size * child_desc_size) % 0x2000 == 0 || boundary_pos < boundary_pos_next)
+				{
+					skipped_descs.push_back(boundary_pos_next * 0x2000);
+					size = ((boundary_pos_next * 0x2000) / child_desc_size) + 1;
 				}
 
 				int32_t ptr = size;
@@ -140,52 +147,34 @@ namespace vlr
 			size = chunk_size * (size / chunk_size + 1);
 
 			// Allocate memory for tree
-			uint32_t child_descs_size = size * child_desc_size;
-			uint32_t attachment_lookup_size = size * sizeof(uint32_t);
-			uint32_t raw_attachments_size = size * 2 * sizeof(uint32_t);
+			uintptr_t child_descs_size = size * child_desc_size;
+			uintptr_t info_section_size = sizeof(info_section);
+			uintptr_t raw_attachment_lookup_size = size * sizeof(uint32_t);
 
-			uint32_t data_size = child_descs_size +
-								 attachment_lookup_size +
-								 raw_attachments_size;
+			uintptr_t info_section_loc = child_descs_size;
+			uintptr_t raw_attachment_lookup_loc = info_section_loc + info_section_size;
+			uintptr_t raw_attachments_loc = raw_attachment_lookup_loc + raw_attachment_lookup_size;
+
+			uintptr_t data_size = child_descs_size +
+								  info_section_size +
+								  raw_attachment_lookup_size;
+
+			std::vector<raw_attachment> raw_attachments;
 
 			int32_t* data = (int32_t*)malloc(data_size);
-
-			int32_t max_far = 0;
-
+			
 			// Iterate through blocks a second time and write data
-			uint32_t uncomp_attr_id_next = 0;
-
 			for (auto it = child_desc_builder_blocks.begin(); it != child_desc_builder_blocks.end(); ++it)
 			{
-				int32_t cur_ptr_org = child_desc_builder_map[it->id].ptr;
 				int32_t cur_ptr = child_desc_builder_map[it->id].ptr;
-
-				int cur_attachment_ptr = uncomp_attr_id_next;
-
-				if (it->parent_block_id != invalid_block_id)
-				{
-					int par_ptr = child_desc_builder_map[it->parent_block_id].ptr;
-
-					int32_t* uncompressed_attributes_lookup =
-						(int32_t*)((int)data + child_descs_size) + par_ptr;
-
-					// The uncompressed attributes pointer is the number of ints
-					// From this lookup entry to the raw attributes
-					int32_t lookup_table_remaining_ints = attachment_lookup_size - par_ptr;
-
-					// Write the (relative) pointer, the data is written in the loop below
-					*uncompressed_attributes_lookup = lookup_table_remaining_ints +
-											cur_attachment_ptr * raw_attachment_size_ints;
-				}
 
 				// For each child descriptor in block
 				// Write it in reverse to match raycast
 				for (int32_t i = it->count-1; i >= 0; --i)
 				{
+					int child_count = numberOfSetBits(it->child_desc_builder[i].child_mask);
+
 					int32_t* cur_descriptor = data + cur_ptr * child_desc_size_ints;
-					int32_t* uncompressed_attributes = (int32_t*)((int)data +
-														child_descs_size + attachment_lookup_size
-														+ ((it->count - (uncomp_attr_id_next - cur_attachment_ptr)) * raw_attachment_size));
 
 					// Initialise new child descriptor
 					int32_t desc = 0;
@@ -241,45 +230,78 @@ namespace vlr
 						desc ^= 1 << 16;
 					}
 
-					// Compress normal
-					int32_t normal = (int32_t)compressNormal(it->child_desc_builder[i].norm);
-
-					// Compress colour
-					int32_t colour = (int32_t)compressColour(it->child_desc_builder[i].col);
-
 					// Write child mask and non-leaf mask to descriptor
 					desc ^= it->child_desc_builder[i].child_mask << 8;
 					desc ^= it->child_desc_builder[i].non_leaf_mask;
 
+					// Compress normal
+					int32_t normal = (int32_t)compressNormal(it->child_desc_builder[i].normals[i]);
+
+					// Compress colour
+					int32_t colour = (int32_t)compressColour(it->child_desc_builder[i].colours[i]);
+
 					// Write data
 					cur_descriptor[0] = desc;
-					cur_descriptor[1] = normal;
-					cur_descriptor[2] = colour;
-					uncompressed_attributes[0] = normal;
-					uncompressed_attributes[1] = colour;
+
+					// Write shading data for children
+					int raw_attachment_offset = raw_attachments.size();
+
+					raw_attachment_lookup* raw_attribute_lookup =
+						(raw_attachment_lookup*)((int)data + raw_attachment_lookup_loc) + cur_ptr;
+
+					raw_attribute_lookup->ptr = raw_attachments_loc + raw_attachment_offset * sizeof(raw_attachment);
+
+					for (int j = 0; j < 8; ++j)
+					{
+						if (it->child_desc_builder[i].child_mask & (1 << j) == 0)
+							continue;
+
+						// Compress normal
+						int32_t normal = (int32_t)compressNormal(it->child_desc_builder[i].normals[j]);
+
+						// Compress colour
+						int32_t colour = (int32_t)compressColour(it->child_desc_builder[i].colours[j]);
+
+						// Create raw attachment
+						raw_attachment raw_attachment;
+						raw_attachment.normal = normal;
+						raw_attachment.colour = colour;
+
+						// Push back raw attachments
+						raw_attachments.push_back(raw_attachment);
+					}
 
 					// Increment pointer
 					cur_ptr += 1;
-					uncomp_attr_id_next += 1;
 				}
 			}
 
 			// Write info section pointers throughout child descriptors
-			for (uintptr_t i = 0; i < child_descs_size; i += 0x2000)
+			for (auto it = skipped_descs.begin(); it != skipped_descs.end(); ++it)
 			{
-				// If this isn't in space reserved for far pointers
-				if (i % (chunk_size * child_desc_size) < (reserved_size * child_desc_size))
-				{
-					// Write info section pointer every 0x2000 bytes
-					int32_t* info_ptr_loc = (int32_t*)((char*)data + i);
+				int offset = *it;
 
-					*info_ptr_loc = child_descs_size;
-				}
+				int32_t* info_ptr_loc = (int32_t*)((uintptr_t)data + offset);
+
+				*info_ptr_loc = info_section_loc;
 			}
 
+			// Write info section
+			info_section* info_sec = (info_section*)((uintptr_t)data + info_section_loc);
+			info_sec->raw_lookup = raw_attachment_lookup_loc;
+
+			// Combine raw attachments and data
+			int raw_attachments_size = raw_attachments.size() * sizeof(raw_attachment);
+			int total_size = data_size + raw_attachments_size;
+			data = (int32_t*)realloc(data, total_size);
+
+			memcpy((void*)((uintptr_t)data + raw_attachments_loc), raw_attachments.data(), raw_attachments_size);
+
+			// Return pointer to head of tree
 			*ret = data;
 
-			return data_size;
+			// Return data size in bytes
+			return total_size;
 		}
 
 		void genNode(std::vector<child_desc_builder_block>& child_desc_builder_blocks,
@@ -294,6 +316,7 @@ namespace vlr
 
 			int32_t nonleaf_count = 0;
 
+			int child_id = 0;
 			for (int32_t i = 0; i < 8; ++i)
 			{
 				bool leaf = (depth + 1) >= max_depth;
@@ -313,8 +336,8 @@ namespace vlr
 					continue;
 
 				// Set colour
-				child_desc_builder_blocks[block_id].child_desc_builder[idx].norm = norm;
-				child_desc_builder_blocks[block_id].child_desc_builder[idx].col = col;
+				child_desc_builder_blocks[block_id].child_desc_builder[idx].normals[i] = norm;
+				child_desc_builder_blocks[block_id].child_desc_builder[idx].colours[i] = col;
 
 				// Set child bit
 				child_desc_builder_blocks[block_id].child_desc_builder[idx].child_mask ^= 1 << (7 - i);
@@ -327,6 +350,9 @@ namespace vlr
 
 				// Set non-leaf bit
 				child_desc_builder_blocks[block_id].child_desc_builder[idx].non_leaf_mask ^= 1 << (7 - i);
+
+				// Increment child id
+				child_id++;
 			}
 
 			// If there are non-leaves, set child ptr

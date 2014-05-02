@@ -31,8 +31,9 @@ namespace vlr
 			~Camera();
 
 			void updateGL();
-
+			
 			inline glm::vec3 getPos() const;
+			inline glm::quat getRot() const;
 
 			inline glm::mat4 getProjectionMatrix() const;
 			inline glm::mat4 getRotationMatrix() const;
@@ -91,6 +92,11 @@ namespace vlr
 		glm::vec3 Camera::getPos() const
 		{
 			return _position;
+		}
+		
+		glm::quat Camera::getRot() const
+		{
+			return _rotation;
 		}
 
 		glm::mat4 Camera::getProjectionMatrix() const
