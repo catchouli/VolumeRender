@@ -57,7 +57,7 @@ namespace vlr
 		int32_t tree_size = 0;
 		char* tree_data = 0;
 		
-		//tree_size = rendering::read_full_file_binary(_treeFilename, &tree_data);
+		tree_size = rendering::read_full_file_binary(_treeFilename, &tree_data);
 
 		//if (tree_size == 0)
 		//{
@@ -67,26 +67,26 @@ namespace vlr
 
 		//tree_size =
 		//	rendering::genOctreeSphere((int32_t**)&tree_data, 7,
-		//	glm::vec3(5.f, 5.f, 5.f), 5.0f);
+		//	glm::vec3(0.5f, 0.5f, 0.5f), 0.25f);
 
-		if (_mesh.load("miku.md2"))
-		{
-			glm::mat4 rotation = glm::rotate(180.0f, glm::vec3(0, 0, 1.0f));
-			rotation = glm::rotate(rotation, 90.0f, glm::vec3(0, 1.0f, 0));
-			_mesh.transform(rotation);
+		//if (_mesh.load("miku.md2"))
+		//{
+		//	glm::mat4 rotation = glm::rotate(180.0f, glm::vec3(0, 0, 1.0f));
+		//	rotation = glm::rotate(rotation, 90.0f, glm::vec3(0, 1.0f, 0));
+		//	_mesh.transform(rotation);
 
-			double start_time = glfwGetTime();
+		//	double start_time = glfwGetTime();
 
-			tree_size =
-				rendering::genOctreeMesh((int32_t**)&tree_data, 5,
-				&_mesh);
+		//	tree_size =
+		//		rendering::genOctreeMesh((int32_t**)&tree_data, 8,
+		//		&_mesh);
 
-			double end_time = glfwGetTime();
+		//	double end_time = glfwGetTime();
 
-			double dt = end_time - start_time;
+		//	double dt = end_time - start_time;
 
-			printf("Time to generate tree: %f\n", dt);
-		}
+		//	printf("Time to generate tree: %f\n", dt);
+		//}
 
 		printf("%.2fMB\n", tree_size / (1024.0f * 1024.0f));
 

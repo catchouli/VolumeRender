@@ -267,6 +267,14 @@ namespace vlr
 								_textures[i] = _images[i].genGlTexture();
 							}
 						}
+						else
+						{
+							fprintf(stderr, "No texture available for material\n");
+						}
+					}
+					else
+					{
+						fprintf(stderr, "No diffuse texture for material\n");
 					}
 				}
 
@@ -333,7 +341,7 @@ namespace vlr
 
 					// Convert to vlr format
 					vertex._pos = glm::vec3(pos->x, pos->y, pos->z);
-					vertex._normal = glm::vec3(normal->x, normal->y, normal->z);
+					vertex._normal = -1.0f * glm::vec3(normal->x, normal->y, normal->z);
 					vertex._texCoord = glm::vec2(uv->x, uv->y);
 				}
 

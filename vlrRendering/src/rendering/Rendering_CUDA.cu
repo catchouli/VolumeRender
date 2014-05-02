@@ -1,5 +1,6 @@
 #include "rendering/Rendering.h"
 
+#include "maths/Colour.h"
 #include "rendering/Shading.h"
 #include "rendering/rendering_attributes.h"
 #include "resources/Image.h"
@@ -18,8 +19,8 @@ namespace vlr
 {
 	namespace rendering
 	{
-		__device__ __host__ inline ray screenPointToRay(int32_t x, int32_t y,
-			const rendering_attributes_t rendering_attributes)
+		__device__ __host__ ray screenPointToRay(int32_t x, int32_t y,
+			const rendering_attributes_t& rendering_attributes)
 		{
 			ray ret;
 
@@ -55,12 +56,12 @@ namespace vlr
 			const int32_t width = viewport.w;		// Viewport width
 			const int32_t height = viewport.h;		// Viewport height
 			
-			ray ray;							// Eye ray for this kernel
+			ray ray;								// Eye ray for this kernel
 			int32_t x, y;							// x and y of this kernel's pixel
 			int32_t* pixel;							// Pointer to this kernel's pixel
 
-			float hit_t;						// Resultant hit t value from raycast
-			glm::vec3 hit_pos;					// Resultant hit position from raycast
+			float hit_t;							// Resultant hit t value from raycast
+			glm::vec3 hit_pos;						// Resultant hit position from raycast
 			const int32_t* hit_parent;				// Resultant hit parent voxel from raycast
 			int32_t hit_idx;						// Resultant hit child index from raycast
 			int32_t hit_scale;						// Resultant hit scale from raycast
@@ -84,17 +85,20 @@ namespace vlr
 
 			// Clear to black
 			*pixel = 0;
-			
-			// Skip first child desc slot (it's a pointer to the info section)
-			const int32_t* root_child_desc = root + child_desc_size_ints;
 
 			// Do raycast
-			raycast(root_child_desc, &ray, &hit_t, &hit_pos, &hit_parent, &hit_idx, &hit_scale);
+			raycast(root, &ray, &hit_t, &hit_pos, &hit_parent, &hit_idx, &hit_scale, true);
 
 			// If we hit a voxel in the tree
 			if (hit_scale < MAX_SCALE)
 			{
-				*pixel = shade(rendering_attributes, hit_t, hit_pos, root, hit_parent, hit_idx, hit_scale);
+				//*pixel = -1;
+
+				// Shade fragment
+				glm::vec4 out_colour = shade(rendering_attributes, hit_t, hit_pos, root, hit_parent, hit_idx, hit_scale);
+
+				// Convert to integer
+				*pixel = compressColour(out_colour);
 			}
 		}
 

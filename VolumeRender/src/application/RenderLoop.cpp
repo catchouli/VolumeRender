@@ -1,5 +1,7 @@
 #include "application/VolumeRender.h"
 
+#define _USE_MATH_DEFINES
+#include <math.h>
 #include <glm/glm.hpp>
 
 #include "rendering/Rendering.h"
@@ -24,14 +26,25 @@ namespace vlr
 		// Set up viewport
 		glViewport(0, 0, getWidth(), getHeight());
 
-		// Rotate directional
-		glm::vec3 lightDir = glm::vec3(0.0f, 0.0f, -1.0f) * glm::rotate(glm::quat(), (float)glfwGetTime() * 10.0f, glm::vec3(0.0f, 1.0f, 0.0f));
-		lightDir = glm::vec3(0, 0, -1);
+		//// Rotate directional
+		//float light_distance = 2.0f;
+		//glm::vec3 light_dir = glm::normalize(glm::vec3(-1.0f, -1.0f, 0)) * glm::rotate(glm::quat(), (float)glfwGetTime() * 100.0f, glm::vec3(0.0f, 1.0f, 0.0f));
+		//glm::vec3 light_pos = light_dir * light_distance;
 
 		// Set up origin, mvp, viewport
 		rendering_attributes.origin = _camera.getPos();
 		rendering_attributes.mvp = _camera.getMVP();
 		rendering_attributes.viewport = _camera.getViewport();
+
+		// Light position and direction
+		static glm::vec3 light_pos = rendering_attributes.origin;
+		static glm::vec3 light_dir = glm::vec3(0, 0, -1.0f) * _camera.getRot();
+
+		if (glfwGetKey(_window, GLFW_KEY_1))
+		{
+			light_pos = rendering_attributes.origin;
+			light_dir = glm::vec3(0, 0, -1.0f) * _camera.getRot();
+		}
 
 		// Set up rendering attributes for scene
 		// Lights
@@ -41,23 +54,27 @@ namespace vlr
 
 		light_t* dir_light = &rendering_attributes.lights[0];
 		
-		dir_light->type = rendering::LightTypes::DIRECTIONAL;
+		dir_light->type = rendering::LightTypes::POINT;
 		dir_light->diffuse = glm::vec3(0.3f, 0.3f, 0.3f);
 		dir_light->specular = glm::vec3(0.5f, 0.5f, 0.5f);
-		dir_light->direction = lightDir;
+		dir_light->direction = light_dir;
+		dir_light->position = light_pos;
 		
 		dir_light->constant_att = 1.0f;
 		dir_light->linear_att = 0.0f;
 		dir_light->quadratic_att = 0.0f;
 
+		dir_light->exponent = 2.0f;
+		dir_light->cutoff = M_PI / 4.0f;
+
 		for (int32_t i = 1; i < 10; ++i)
 		{
 			dir_light = &rendering_attributes.lights[i];
 		
-			dir_light->type = rendering::LightTypes::DIRECTIONAL;
+			dir_light->type = rendering::LightTypes::POINT;
 			dir_light->diffuse = glm::vec3(0, 0, 0.3f);
 			dir_light->specular = glm::vec3(0.5f, 0.5f, 0.5f) * 0.0f;
-			dir_light->direction = lightDir;
+			dir_light->direction = light_dir;
 		
 			dir_light->constant_att = 1.0f;
 			dir_light->linear_att = 0.0f;

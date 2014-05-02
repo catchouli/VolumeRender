@@ -29,10 +29,6 @@ namespace vlr
 			uint32_t child_mask : 8;
 			uint32_t far : 1;
 			uint32_t child_ptr : 15;
-
-			// Contour data
-			uint32_t contour_ptr : 24;
-			uint32_t contour_mask : 8;
 		};
 
 		union child_desc
@@ -44,6 +40,18 @@ namespace vlr
 				uint32_t word_2 : 32;
 			};
 			int64_t data : 64;
+		};
+
+		struct raw_attachment_lookup
+		{
+			uint32_t ptr : 32;
+			//uint32_t mask : 8;
+		};
+
+		struct raw_attachment
+		{
+			uint32_t normal;
+			uint32_t colour;
 		};
 	}
 }

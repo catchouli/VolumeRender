@@ -16,9 +16,12 @@
 #include <math_functions.h>
 
 #include "maths/Matrix.h"
+#include "maths/Normal.h"
 #include "maths/Types.h"
 #include "rendering/Octree.h"
 #include "rendering/Rendering.h"
+#include "rendering/Raycast.h"
+#include "rendering/Shading.h"
 #include "util/Util.h"
 #include "util/CUDAUtil.h"
 
@@ -27,7 +30,7 @@ namespace vlr
 	namespace rendering
 	{
 		__device__ void raycast(const int32_t* root, const rendering::ray* ray, float* out_hit_t,
-			glm::vec3* out_hit_pos, const int32_t** out_hit_parent, int32_t* out_hit_idx, int32_t* out_hit_scale)
+			glm::vec3* out_hit_pos, const int32_t** out_hit_parent, int32_t* out_hit_idx, int32_t* out_hit_scale, bool check_normals)
 		{
 			// An entry in the stack
 			struct StackEntry
@@ -35,6 +38,9 @@ namespace vlr
 				const int32_t* parent;
 				float t_max;
 			};
+
+			// Skip first info section pointer
+			root += child_desc_size_ints;
 
 			// The smallest possible positive nonzero floating point number
 			const float min_float = exp2f(-MAX_SCALE);
@@ -159,8 +165,15 @@ namespace vlr
 				int32_t child_idx = idx ^ dir_mask;
 				int32_t child_mask = child_descriptor.x << child_idx;
 
+				//const raw_attachment* attachment = nullptr; 
+
+				//attachment = lookupRawAttachment(root, parent, 0);
+
 				// Process voxel if existent and the current span of t values is valid
 				if ((child_mask & 0x8000) != 0 && t_min <= t_max)
+				// Check the dot product of the normal and the ray direction (basically front face culling)
+				//if (glm::dot(ray->direction, decompressNormal(->normal)) < 0.0f)
+				//if (attachment != nullptr)
 				{
 					// TODO:
 					// Check if voxel is small enough to terminate traversal
@@ -202,10 +215,10 @@ namespace vlr
 
 						// If this is a far pointer, load it
 						if ((child_descriptor.x & 0x10000) != 0)
-							ofs = parent[ofs * 4];
+							ofs = parent[ofs * child_desc_size_ints];
 
 						ofs += get_child_index(child_mask & 0x7F);
-						parent += 4 * ofs;
+						parent += child_desc_size_ints * ofs;
 
 						// Update scale
 						scale--;
