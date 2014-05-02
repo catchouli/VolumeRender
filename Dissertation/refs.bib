@@ -1,17 +1,87 @@
-@book{rensselaer1980octree,
-  title={Octree Encoding: a New Technique for the Representation, Manipulation and Display of Arbitrary 3-D Objects by Computer},
-  author={Rensselaer Polytechnic Institute. Image Processing Laboratory and Meagher, D.J.R.},
-  url={http://books.google.co.uk/books?id=CgRPOAAACAAJ},
-  year={1980},
-  publisher={Electrical and Systems Engineering Department Rensseiaer Polytechnic Institute Image Processing Laboratory}
+@inproceedings{appel68raytracing,
+	author = {Appel, Arthur},
+	title = {Some Techniques for Shading Machine Renderings of Solids},
+	booktitle = {Proceedings of the April 30--May 2, 1968, Spring Joint Computer Conference},
+	series = {AFIPS '68 (Spring)},
+	year = {1968},
+	location = {Atlantic City, New Jersey},
+	pages = {37--45},
+	numpages = {9},
+	url = {http://doi.acm.org/10.1145/1468075.1468082},
+	doi = {10.1145/1468075.1468082},
+	acmid = {1468082},
+	publisher = {ACM},
+	address = {New York, NY, USA},
 }
 
-@article{meagher82octree,
+@inproceedings{bouknight70raytracing,
+	author = {Bouknight, J. and Kelley, K.},
+	title = {An Algorithm for Producing Half-tone Computer Graphics Presentations with Shadows and Movable Light Sources},
+	booktitle = {Proceedings of the May 5-7, 1970, Spring Joint Computer Conference},
+	series = {AFIPS '70 (Spring)},
+	year = {1970},
+	location = {Atlantic City, New Jersey},
+	pages = {1--10},
+	numpages = {10},
+	url = {http://doi.acm.org/10.1145/1476936.1476938},
+	doi = {10.1145/1476936.1476938},
+	acmid = {1476938},
+	publisher = {ACM},
+	address = {New York, NY, USA},
+}
+
+@article{kay79transparency,
+	author = {Kay, Douglas Scott and Greenberg, Donald},
+	title = {Transparency for Computer Synthesized Images},
+	journal = {SIGGRAPH Comput. Graph.},
+	issue_date = {August 1979},
+	volume = {13},
+	number = {2},
+	month = aug,
+	year = {1979},
+	issn = {0097-8930},
+	pages = {158--164},
+	numpages = {7},
+	url = {http://doi.acm.org/10.1145/965103.807438},
+	doi = {10.1145/965103.807438},
+	acmid = {807438},
+	publisher = {ACM},
+	address = {New York, NY, USA},
+	keywords = {Computer graphics, Image synthesis, Refraction, Shading, Transparency},
+}
+
+
+@book{meagher80octree,
+	title={Octree Encoding: a New Technique for the Representation, Manipulation and Display of Arbitrary 3-D Objects by Computer},
+	author={Rensselaer Polytechnic Institute. Image Processing Laboratory and Meagher, D.J.R.},
+	url={http://books.google.co.uk/books?id=CgRPOAAACAAJ},
+	year={1980},
+	publisher={Electrical and Systems Engineering Department Rensseiaer Polytechnic Institute Image Processing Laboratory}
+}
+
+@article{whitted80shading,
+	author = {Whitted, Turner},
+	title = {An Improved Illumination Model for Shaded Display},
+	journal = {Commun. ACM},
+	issue_date = {June 1980},
+	volume = {23},
+	number = {6},
+	month = jun,
+	year = {1980},
+	issn = {0001-0782},
+	pages = {343--349},
+	numpages = {7},
+	url = {http://doi.acm.org.ezproxy.derby.ac.uk/10.1145/358876.358882},
+	doi = {10.1145/358876.358882},
+	acmid = {358882},
+	publisher = {ACM},
+	address = {New York, NY, USA},
+	keywords = {computer animation, computer graphics, raster displays, shading, visible surface algorithms},
+}
+
+@article{meagher81octree,
     abstract = {{A geometric modeling technique called Octree Encoding is presented. Arbitrary 3-D objects can be represented to any specified resolution in a hierarchical 8-ary tree structure or "octree" Objects may be concave or convex, have holes (including interior holes), consist of disjoint parts, and possess sculptured (i.e., "free-form") surfaces. The memory required for representation and manipulation is on the order of the surface area of the object. A complexity metric is proposed based on the number of nodes in an object's tree representation. Efficient (linear time) algorithms have been developed for the Boolean operations (union, intersection and difference), geometric operations (translation, scaling and rotation), N-dimensional interference detection, and display from any point in space with hidden surfaces removed. The algorithms require neither floating-point operations, integer multiplications, nor integer divisions. In addition, many independent sets of very simple calculations are typically generated, allowing implementation over many inexpensive high-bandwidth processors operating in parallel. Real time analysis and manipulation of highly complex situations thus becomes possible.}},
     author = {Meagher, Donald},
-    citeulike-article-id = {2985493},
-    citeulike-linkout-0 = {http://dx.doi.org/10.1016/0146-664x(82)90104-6},
-    citeulike-linkout-1 = {http://www.sciencedirect.com/science/article/B7GXF-4D7BWB4-9/1/fbcb2fa97ccdc7636c08140c7fa36817},
     doi = {10.1016/0146-664x(82)90104-6},
     issn = {0146664X},
     journal = {Computer Graphics and Image Processing},
@@ -27,6 +97,20 @@
     year = {1982}
 }
 
+@article{roth82roughimprove,
+title = "Ray casting for modeling solids ",
+journal = "Computer Graphics and Image Processing ",
+volume = "18",
+number = "2",
+pages = "109 - 144",
+year = "1982",
+note = "",
+issn = "0146-664X",
+doi = "http://dx.doi.org/10.1016/0146-664X(82)90169-1",
+url = "http://www.sciencedirect.com/science/article/pii/0146664X82901691",
+author = "Scott D Roth"
+}
+
 @INPROCEEDINGS{glassner84space,
     author = {Andrew S Glassner},
     title = {Space Subdivision for Fast Ray Tracing},
@@ -35,7 +119,18 @@
     pages = {15-22}
 }
 
-@inproceedings{Amanatides:1984:RTC:800031.808589,
+@inproceedings{cook84distributed,
+	title={Distributed ray tracing},
+	author={Cook, Robert L and Porter, Thomas and Carpenter, Loren},
+	booktitle={ACM SIGGRAPH Computer Graphics},
+	volume={18},
+	number={3},
+	pages={137--145},
+	year={1984},
+	organization={ACM}
+}
+
+@inproceedings{amanatides84conetracing,
 	author = {Amanatides, John},
 	title = {Ray Tracing with Cones},
 	booktitle = {Proceedings of the 11th Annual Conference on Computer Graphics and Interactive Techniques},
@@ -52,7 +147,22 @@
 	keywords = {Anti-aliasing, Ray-tracing},
 }
 
-@incollection{Kessener86data,
+@inproceedings{jansen86datastructures,
+	author = {Jansen, Frederik W},
+	title = {Data Structures for Ray Tracing},
+	booktitle = {Proceedings of a Workshop (Eurographics Seminars on Data Structures for Raster Graphics},
+	year = {1986},
+	isbn = {0-387-16310-7},
+	location = {Steensel, The Netherlands},
+	pages = {57--73},
+	numpages = {17},
+	url = {http://dl.acm.org/citation.cfm?id=18928.24316},
+	acmid = {24316},
+	publisher = {Springer-Verlag New York, Inc.},
+	address = {New York, NY, USA},
+}
+
+@incollection{kessener86data,
 	year={1986},
 	isbn={978-3-642-71073-5},
 	booktitle={Data Structures for Raster Graphics},
@@ -67,7 +177,7 @@
 	language={English}
 }
 
-@INPROCEEDINGS{Amanatides87afast,
+@INPROCEEDINGS{amanatides87afast,
     author = {John Amanatides and Andrew Woo},
     title = {A Fast Voxel Traversal Algorithm for Ray Tracing},
     booktitle = {In Eurographics ’87},
@@ -75,7 +185,32 @@
     pages = {3--10}
 }
 
-@book{Glassner:1989:IRT:94788,
+@misc{arvo88octreewalking,
+	author = {Jim Arvo},
+	title = {Linear-Time Voxel Walking for Octrees},
+	year = {1988},
+	howpublished = {\url{ftp://ftp.sgi.com/other/bspfaq/faq/ltvw.html}},
+	note = {Accessed: 2014-05-01}
+}
+
+@incollection{samet88datastructures,
+	year={1988},
+	isbn={978-3-642-83541-4},
+	booktitle={Theoretical Foundations of Computer Graphics and CAD},
+	volume={40},
+	series={NATO ASI Series},
+	editor={Earnshaw, RaeA.},
+	doi={10.1007/978-3-642-83539-1_2},
+	title={An Overview of Quadtrees, Octrees, and Related Hierarchical Data Structures},
+	url={http://dx.doi.org/10.1007/978-3-642-83539-1_2},
+	publisher={Springer Berlin Heidelberg},
+	keywords={quadtrees; octrees; hierarchical data structures; computer graphics},
+	author={Samet, Hanan},
+	pages={51-68},
+	language={English}
+}
+
+@book{glassner89raytracing,
 	editor = {Glassner, Andrew S.},
 	title = {An Introduction to Ray Tracing},
 	year = {1989},
@@ -83,6 +218,15 @@
 	publisher = {Academic Press Ltd.},
 	address = {London, UK, UK},
 } 
+
+@ARTICLE{samet89topdown,
+    author = {Hanan Samet},
+    title = {Implementing ray tracing with octrees and neighbor finding},
+    journal = {Computers And Graphics},
+    year = {1989},
+    volume = {13},
+    pages = {445--460}
+}
 
 @INPROCEEDINGS{subramanian90applying, 
 	author={Subramanian, K.R. and Fussell, D.S.}, 
@@ -95,7 +239,7 @@
 	doi={10.1109/VISUAL.1990.146377}
 }
 
-@ARTICLE{Levoy90efficientray,
+@ARTICLE{levoy90efficientray,
     author = {Marc Levoy},
     title = {Efficient ray tracing of volume data},
     journal = {ACM Transactions on Graphics},
@@ -116,7 +260,7 @@
 	ISSN={1}
 }
 
-@ARTICLE{Wilhelms00octreesfor,
+@ARTICLE{wilhelms00octreesfor,
     author = {Jane Wilhelms and Allen Van Gelder},
     title = {Octrees for faster isosurface generation },
     journal = {IEEE TRANSACTIONS ON MEDICAL IMAGING},
@@ -125,7 +269,7 @@
     pages = {739--758}
 }
 
-@INPROCEEDINGS{Revelles00anefficient,
+@INPROCEEDINGS{revelles00anefficient,
     author = {J. Revelles and C. Ureña and M. Lastra},
     title = {An Efficient Parametric Algorithm for Octree Traversal},
     booktitle = {Journal of WSCG},
@@ -133,7 +277,7 @@
     pages = {212--219}
 }
 
-@INPROCEEDINGS{Wald01interactiverendering,
+@INPROCEEDINGS{wald01interactiverendering,
     author = {Ingo Wald and Philipp Slusallek and Carsten Benthin and Markus Wagner},
     title = {Interactive Rendering with Coherent Ray Tracing},
     booktitle = {Computer Graphics Forum},
@@ -143,11 +287,11 @@
 
 @INPROCEEDINGS{chang01survey,
     author = {Allen Y. Chang},
-    title = {A Survey of Geometric Data Structures for Ray Tracing}
+    title = {A Survey of Geometric Data Structures for Ray Tracing},
     year = {2001}
 }
 
-@article{Purcell:2002:RTP:566654.566640,
+@article{purcell02gpuraytracing,
 	author = {Purcell, Timothy J. and Buck, Ian and Mark, William R. and Hanrahan, Pat},
 	title = {Ray Tracing on Programmable Graphics Hardware},
 	journal = {ACM Trans. Graph.},
@@ -167,7 +311,7 @@
 	keywords = {programmable graphics hardware, ray tracing},
 }
 
-@inproceedings{Reshetov:2005:MRT:1186822.1073329,
+@inproceedings{reshetov05mrta,
 	author = {Reshetov, Alexander and Soupikov, Alexei and Hurley, Jim},
 	title = {Multi-level Ray Tracing Algorithm},
 	booktitle = {ACM SIGGRAPH 2005 Papers},
@@ -184,7 +328,7 @@
 	keywords = {anti-aliasing, frustum occlusion culling, ray-tracing},
 }
 
-@inproceedings{Wachter:2006:IRT:2383894.2383912,
+@inproceedings{wachter06bvh,
 	author = {W\"{a}chter, Carsten and Keller, Alexander},
 	title = {Instant Ray Tracing: The Bounding Interval Hierarchy},
 	booktitle = {Proceedings of the 17th Eurographics Conference on Rendering Techniques},
@@ -201,7 +345,7 @@
 	address = {Aire-la-Ville, Switzerland, Switzerland},
 }
 
-@inproceedings{Gunther:2007:RRT:1524874.1524963,
+@inproceedings{gunther07bvhpacket,
 	author = {Gunther, Johannes and Popov, Stefan and Seidel, Hans-Peter and Slusallek, Philipp},
 	title = {Realtime Ray Tracing on GPU with BVH-based Packet Traversal},
 	booktitle = {Proceedings of the 2007 IEEE Symposium on Interactive Ray Tracing},
@@ -217,7 +361,7 @@
 	address = {Washington, DC, USA},
 }
 
-@article{Wald:2007:RTD:1189762.1206075,
+@article{wald07deformablebvh,
 	author = {Wald, Ingo and Boulos, Solomon and Shirley, Peter},
 	title = {Ray Tracing Deformable Scenes Using Dynamic Bounding Volume Hierarchies},
 	journal = {ACM Trans. Graph.},
@@ -235,7 +379,7 @@
 	address = {New York, NY, USA},
 } 
 
-@inproceedings{Zhou:2008:RKC:1457515.1409079,
+@inproceedings{zhou08kdtreeconstruction,
 	author = {Zhou, Kun and Hou, Qiming and Wang, Rui and Guo, Baining},
 	title = {Real-time KD-tree Construction on Graphics Hardware},
 	booktitle = {ACM SIGGRAPH Asia 2008 Papers},
@@ -268,7 +412,7 @@
 	ISSN={0272-1732}
 }
 
-@InProceedings{Aila2009hpg,
+@InProceedings{aila2009hpg,
 	author =    {Timo Aila and Samuli Laine},
 	title =     {Understanding the Efficiency of Ray Traversal on GPUs},
 	booktitle = {Proc. High-Performance Graphics 2009},
@@ -276,7 +420,7 @@
 	year =      {2009},
 }
 
-@book{Pharr:2010:PBR:1854996,
+@book{pharr10pbr,
 	author = {Pharr, Matt and Humphreys, Greg},
 	title = {Physically Based Rendering, Second Edition: From Theory To Implementation},
 	year = {2010},
@@ -286,7 +430,18 @@
 	address = {San Francisco, CA, USA},
 }
 
-@inproceedings{Laine:2010:ESV:1730804.1730814,
+@book{botsch2010polygonmeshes,
+	title={Polygon Mesh Processing},
+	author={Botsch, M. and Kobbelt, L. and Pauly, M. and Alliez, P. and Levy, B.},
+	isbn={9781568814261},
+	lccn={2009024954},
+	series={Ak Peters Series},
+	url={http://books.google.co.uk/books?id=8zX-2VRqBAkC},
+	year={2010},
+	publisher={Taylor \& Francis}
+}
+
+@inproceedings{laine10efficientsvos,
  author = {Laine, Samuli and Karras, Tero},
  title = {Efficient Sparse Voxel Octrees},
  booktitle = {Proceedings of the 2010 ACM SIGGRAPH Symposium on Interactive 3D Graphics and Games},
@@ -303,3 +458,14 @@
  address = {New York, NY, USA},
 } 
 
+@INPROCEEDINGS{ruff13dynamiccaching, 
+	author={Ruff, C.F. and Clua, E.W.G. and Fernandes, L.A.F.}, 
+	booktitle={Graphics, Patterns and Images (SIBGRAPI), 2013 26th SIBGRAPI - Conference on}, 
+	title={Dynamic Per Object Ray Caching Textures for Real-Time Ray Tracing}, 
+	year={2013}, 
+	month={Aug}, 
+	pages={258-265}, 
+	keywords={cache storage;image texture;ray tracing;rendering (computer graphics);caching-like strategy;coherent memory access;cubemap;data reuse;dynamic per object ray caching textures;efficient memory sampling mechanism;frame rate;graphics hardware;parallelized architectures;rays synchronous computation;real-time ray tracing;reflection;refraction;scenes rendering;shadows;static scenes;Cameras;Computer architecture;Graphics processing units;Image color analysis;Ray tracing;Rendering (computer graphics);Standards;chache memory;cunemap;ray tracing;real time}, 
+	doi={10.1109/SIBGRAPI.2013.43}, 
+	ISSN={1530-1834}
+}
