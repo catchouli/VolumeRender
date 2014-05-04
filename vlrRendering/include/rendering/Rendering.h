@@ -5,11 +5,11 @@
 #include <glm/glm.hpp>
 
 #include "Camera.h"
+#include "child_desc.h"
 #include "Raycast.h"
 #include "rendering_attributes.h"
-#include "Octree.h"
 #include "../maths/Types.h"
-#include "child_desc.h"
+#include "../resources/Octree.h"
 
 namespace vlr
 {

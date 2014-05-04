@@ -99,19 +99,17 @@ namespace vlr
 				// Check if light hits this position
 				if (glm::dot(light_dir, normal) < 0)
 				{
-					const float outset_size = 0.02f;
-
 					ray light_ray;
 					light_ray.direction = -light_dir;
 
 					// The origin is outset a little so we don't just hit the same voxel
-					light_ray.origin = hit_pos + light_ray.direction * outset_size;
+					light_ray.origin = hit_pos + light_ray.direction * sqrtf(10) * exp2f(-hit_scale);
 
 					float hit_t;						// Resultant hit t value from raycast
 					glm::vec3 hit_pos;					// Resultant hit position from raycast
-					const int32_t* hit_parent;				// Resultant hit parent voxel from raycast
-					int32_t hit_idx;						// Resultant hit child index from raycast
-					int32_t hit_scale;						// Resultant hit scale from raycast
+					const int32_t* hit_parent;			// Resultant hit parent voxel from raycast
+					int32_t hit_idx;					// Resultant hit child index from raycast
+					int32_t hit_scale;					// Resultant hit scale from raycast
 
 					// Do raycast
 					raycast(root, &light_ray, &hit_t, &hit_pos, &hit_parent, &hit_idx, &hit_scale, true);
@@ -216,6 +214,8 @@ namespace vlr
 		__device__ const raw_attachment* lookupRawAttachment(const int32_t* root,
 													const int32_t* parent, int child_idx)
 		{
+			const child_desc_word_1* parent_desc = (child_desc_word_1*)parent;
+
 			int32_t hit_parent_offset_bytes = (char*)parent - (char*)root;
 			int32_t info_ptr_offset = hit_parent_offset_bytes & ~(0x2000 - 1);
 			const int32_t* info_ptr_ptr = (int32_t*)((uintptr_t)root + info_ptr_offset);
@@ -229,10 +229,14 @@ namespace vlr
 
 			// Skip to block of lookup pointers
 			int raw_lookup_offset = (hit_parent_offset_bytes / child_desc_size);
-
 			raw_lookup += raw_lookup_offset;
 
+			// Get parent's child block
 			const raw_attachment* attachment = (raw_attachment*)((uintptr_t)root + *raw_lookup);
+			
+			// Skip to child's attachment
+			int child_offset = get_child_index(parent_desc->child_mask << child_idx);
+			//attachment += child_offset;
 
 			return attachment;
 		}

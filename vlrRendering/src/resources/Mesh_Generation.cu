@@ -1,4 +1,4 @@
-#include "rendering/Octree.h"
+#include "resources/Octree.h"
 
 #include "util/Util.h"
 #include "util/CUDAUtil.h"
