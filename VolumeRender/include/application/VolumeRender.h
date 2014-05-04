@@ -6,7 +6,7 @@
 #include "maths/Types.h"
 #include "rendering/rendering_attributes.h"
 #include "rendering/Camera.h"
-#include "rendering/Octree.h"
+#include "resources/Octree.h"
 #include "resources/Mesh.h"
 
 #include <stdio.h>

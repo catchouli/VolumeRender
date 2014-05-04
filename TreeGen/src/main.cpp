@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <rendering/Octree.h>
+#include <resources/Octree.h>
 #include <resources/Mesh.h>
 
 #include <glm/glm.hpp>
@@ -7,9 +7,9 @@
 
 using namespace vlr::rendering;
 
-int32_t main(int32_t argc, char** argv)
+int main(int argc, char** argv)
 {
-	int32_t depth = 5;
+	int depth = 5;
 
 	char buffer[1024];
 

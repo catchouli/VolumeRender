@@ -57,7 +57,7 @@ namespace vlr
 		int32_t tree_size = 0;
 		char* tree_data = 0;
 		
-		tree_size = rendering::read_full_file_binary(_treeFilename, &tree_data);
+		//tree_size = rendering::read_full_file_binary(_treeFilename, &tree_data);
 
 		//if (tree_size == 0)
 		//{
@@ -65,9 +65,9 @@ namespace vlr
 		//	exit(1);
 		//}
 
-		//tree_size =
-		//	rendering::genOctreeSphere((int32_t**)&tree_data, 7,
-		//	glm::vec3(0.5f, 0.5f, 0.5f), 0.25f);
+		tree_size =
+			rendering::genOctreeSphere((int32_t**)&tree_data, 6,
+			glm::vec3(0.5f, 0.5f, 0.5f), 0.25f);
 
 		//if (_mesh.load("miku.md2"))
 		//{

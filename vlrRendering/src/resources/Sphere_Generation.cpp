@@ -1,10 +1,12 @@
-#include "rendering/Octree.h"
+#include "resources/Octree.h"
 
 #include "util/Util.h"
 #include "util/CUDAUtil.h"
 
 #include <cuda.h>
 #include <cuda_runtime_api.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 namespace vlr
 {
@@ -94,22 +96,33 @@ namespace vlr
 				outnormal = normal;
 				outcolour = glm::vec4(1.0f);
 
-				bool test1 = cubeSphereSurfaceIntersection(centre, half_size.x, pos/2.0f, radius);
-				bool test2 = cubeSphereSurfaceIntersection(centre, half_size.x, pos + pos/2.0f, radius);
-				
-				if (test1)
-				{
-					outnormal = normal;
-					outcolour = glm::vec4(1.0f, 0, 0, 0);
-				}
-				if (test2)
-				{
-					outnormal = normal2;
-					outcolour = glm::vec4(1.0f, 1.0f, 1.0f, 0.0f);
-				}
+				// Calculate contours
+				glm::vec3 posOnSphere = pos + outnormal * radius;
 
-				//return boxSphereIntersection(min, max, pos, radius);
-				return test1 || test2;
+				glm::vec3 plane1pos = posOnSphere;
+
+				//glm::mat4 lookatmatrix = glm::gtc::matrix_transform::lookAt(pos, plane1pos, glm::vec3(0, 1, 0));
+
+				//glm::vec3 intersection(sqrt(sqr(radius) - 
+
+				return cubeSphereSurfaceIntersection(centre, half_size.x, pos, radius);
+
+				//bool test1 = cubeSphereSurfaceIntersection(centre, half_size.x, pos/2.0f, radius);
+				//bool test2 = cubeSphereSurfaceIntersection(centre, half_size.x, pos + pos/2.0f, radius);
+				//
+				//if (test1)
+				//{
+				//	outnormal = normal;
+				//	outcolour = glm::vec4(1.0f, 0, 0, 0);
+				//}
+				//if (test2)
+				//{
+				//	outnormal = normal2;
+				//	outcolour = glm::vec4(1.0f, 1.0f, 1.0f, 0.0f);
+				//}
+
+				////return boxSphereIntersection(min, max, pos, radius);
+				//return test1 || test2;
 			};
 			
 			point_test_func func(test_func);

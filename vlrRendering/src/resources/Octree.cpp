@@ -1,4 +1,4 @@
-#include "rendering/Octree.h"
+#include "resources/Octree.h"
 
 #include "maths/Colour.h"
 #include "maths/Normal.h"

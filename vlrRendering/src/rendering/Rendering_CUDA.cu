@@ -48,7 +48,7 @@ namespace vlr
 			return ret;
 		}
 
-		__global__ void cudaRenderOctree(const int32_t* root, int32_t* pixel_buffer,
+		__global__ void cudaRenderOctree(const int32_t* tree, int32_t* pixel_buffer,
 			const rendering_attributes_t rendering_attributes)
 		{
 			const viewport& viewport = rendering_attributes.viewport;
@@ -87,15 +87,13 @@ namespace vlr
 			*pixel = 0;
 
 			// Do raycast
-			raycast(root, &ray, &hit_t, &hit_pos, &hit_parent, &hit_idx, &hit_scale, true);
+			raycast(tree, &ray, &hit_t, &hit_pos, &hit_parent, &hit_idx, &hit_scale, true);
 
 			// If we hit a voxel in the tree
 			if (hit_scale < MAX_SCALE)
 			{
-				//*pixel = -1;
-
 				// Shade fragment
-				glm::vec4 out_colour = shade(rendering_attributes, hit_t, hit_pos, root, hit_parent, hit_idx, hit_scale);
+				glm::vec4 out_colour = shade(rendering_attributes, hit_t, hit_pos, tree, hit_parent, hit_idx, hit_scale);
 
 				// Convert to integer
 				*pixel = compressColour(out_colour);

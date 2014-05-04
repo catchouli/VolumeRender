@@ -3,13 +3,8 @@
 #include "rendering/child_desc.h"
 #include "resources/Mesh.h"
 
-int32_t main(int32_t argc, char** argv){
-	vlr::rendering::Mesh mesh("miku.md2", true);
-
-	{
-		vlr::rendering::Mesh other(mesh);
-	}
-
+int32_t main(int32_t argc, char** argv)
+{
 	vlr::VolumeRender app(argc, argv);
 
 	while (app.isRunning())
