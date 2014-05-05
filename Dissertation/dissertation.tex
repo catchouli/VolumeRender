@@ -9,15 +9,17 @@
 \usepackage{listings}
 \usepackage{graphicx}
 \usepackage{nameref}
-\usepackage[hidelinks]{hyperref}
 \usepackage{titlesec}
-\usepackage[sorting=nyt,style=apa,backend=bibtex]{biblatex}
+\usepackage[sorting=nyt,style=apa,backend=biber]{biblatex}
+
+\DeclareLanguageMapping{american}{american-apa}
+
+\bibliography{refs}        %use a bibtex bibliography file refs.bib
 
 \graphicspath{{images//}}
 
 \titleformat{\chapter}
 	{\normalfont\LARGE\bfseries\color{black}}{\thechapter.}{.1em}{}
-
 
 \titleformat{\paragraph}
 {\normalfont\normalsize\bfseries}{\theparagraph}{1em}{}
@@ -66,8 +68,7 @@
 
 % Show bibliography
 \nocite{*}
-\bibliography{refs}        %use a bibtex bibliography file refs.bib
-\bibliographystyle{plain}  %use the plain bibliography style
+\printbibliography
 
 % Use letters for appendices
 \renewcommand\thesection{\Alph{section}}
