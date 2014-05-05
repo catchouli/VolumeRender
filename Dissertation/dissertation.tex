@@ -69,16 +69,28 @@
 \include{sections/06-future-work}
 \include{sections/07-conclusion}
 
+% Bibliography TOC entry
+\cleardoublepage
+\phantomsection
+\addcontentsline{toc}{chapter}{Bibliography}
+
 % Show bibliography
 \nocite{*}
 \printbibliography
 
-% Use letters for appendices
-\renewcommand\thesection{Appendix \Alph{section}}
+% Appendices TOC entry
+\cleardoublepage
+\phantomsection
+\addcontentsline{toc}{chapter}{Appendices}
+
+% Use letters for appendix sections and numbers for subsections
+\renewcommand\thesection{\Alph{section}}
 \renewcommand\thesubsection{\arabic{subsection}}
 
+% Remove individual appendices from TOC
+\addtocontents{toc}{\setcounter{tocdepth}{-1}}
+
 % Include appendicies
-\addcontentsline{toc}{chapter}{Appendices}
 \appendix
 \include{appendices/01-source-code}
 
