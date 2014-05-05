@@ -15,22 +15,23 @@
 \usepackage[T1]{fontenc}
 \usepackage[sorting=nyt,style=apa,backend=biber]{biblatex}
 \DeclareLanguageMapping{english}{english-apa}
+\usepackage[hidelinks]{hyperref}
 
 \bibliography{refs}        %use a bibtex bibliography file refs.bib
 
 \graphicspath{{images//}}
 
-%\titleformat{\chapter}
-%	{\normalfont\LARGE\bfseries\color{black}}{\thechapter.}{.1em}{}
+\titleformat{\chapter}
+	{\normalfont\LARGE\bfseries\color{black}}{\thechapter.}{.1em}{}
 
-%\titleformat{\paragraph}
-%{\normalfont\normalsize\bfseries}{\theparagraph}{1em}{}
-%\titlespacing*{\paragraph}
-%{0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
+\titleformat{\paragraph}
+{\normalfont\normalsize\bfseries}{\theparagraph}{1em}{}
+\titlespacing*{\paragraph}
+{0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
 
 \renewcommand{\theparagraph}{\roman{paragraph}}
 
-\title{Real-time Raytracing of Volume Data}
+\title{Real-time Visual Effects with GPU Ray-tracing of Volume Data}
 
 \author{Caitlin Wilks\\cat@wilks.so}
 
@@ -47,7 +48,7 @@
 %markup the thesis with comments
 \baselineskip=18pt plus1pt
 
-\setcounter{secnumdepth}{2}
+\setcounter{secnumdepth}{4}
 \setcounter{tocdepth}{2}
 
 \maketitle                  % create a title page from the preamble info
@@ -73,11 +74,11 @@
 \printbibliography
 
 % Use letters for appendices
-\renewcommand\thesection{\Alph{section}}
+\renewcommand\thesection{Appendix \Alph{section}}
 \renewcommand\thesubsection{\arabic{subsection}}
 
 % Include appendicies
-%\addcontentsline{toc}{chapter}{Appendices}
+\addcontentsline{toc}{chapter}{Appendices}
 \appendix
 \include{appendices/01-source-code}
 
