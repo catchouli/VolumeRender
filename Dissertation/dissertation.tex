@@ -10,21 +10,23 @@
 \usepackage{graphicx}
 \usepackage{nameref}
 \usepackage{titlesec}
+\usepackage{csquotes}
+\usepackage[english]{babel}
+\usepackage[T1]{fontenc}
 \usepackage[sorting=nyt,style=apa,backend=biber]{biblatex}
-
-\DeclareLanguageMapping{american}{american-apa}
+\DeclareLanguageMapping{english}{english-apa}
 
 \bibliography{refs}        %use a bibtex bibliography file refs.bib
 
 \graphicspath{{images//}}
 
-\titleformat{\chapter}
-	{\normalfont\LARGE\bfseries\color{black}}{\thechapter.}{.1em}{}
+%\titleformat{\chapter}
+%	{\normalfont\LARGE\bfseries\color{black}}{\thechapter.}{.1em}{}
 
-\titleformat{\paragraph}
-{\normalfont\normalsize\bfseries}{\theparagraph}{1em}{}
-\titlespacing*{\paragraph}
-{0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
+%\titleformat{\paragraph}
+%{\normalfont\normalsize\bfseries}{\theparagraph}{1em}{}
+%\titlespacing*{\paragraph}
+%{0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
 
 \renewcommand{\theparagraph}{\roman{paragraph}}
 
@@ -45,8 +47,8 @@
 %markup the thesis with comments
 \baselineskip=18pt plus1pt
 
-\setcounter{secnumdepth}{4}
-\setcounter{tocdepth}{4}
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{2}
 
 \maketitle                  % create a title page from the preamble info
 \include{sections/00-abstract} % include the abstract
@@ -75,7 +77,7 @@
 \renewcommand\thesubsection{\arabic{subsection}}
 
 % Include appendicies
-\addcontentsline{toc}{chapter}{Appendices}
+%\addcontentsline{toc}{chapter}{Appendices}
 \appendix
 \include{appendices/01-source-code}
 
