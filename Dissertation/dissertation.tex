@@ -1,7 +1,5 @@
 \documentclass[12pt]{ociamthesis}
 
-\listfiles
-
 %load any additional packages
 \usepackage{amssymb}
 \usepackage{svg}
@@ -17,10 +15,13 @@
 \DeclareLanguageMapping{english}{english-apa}
 \usepackage[hidelinks]{hyperref}
 
-\bibliography{refs}        %use a bibtex bibliography file refs.bib
+% Use refs.bib
+\bibliography{refs}
 
+% Load graphics from images/
 \graphicspath{{images//}}
 
+% Title formats
 \titleformat{\chapter}
 	{\normalfont\LARGE\bfseries\color{black}}{\thechapter.}{.1em}{}
 
@@ -31,43 +32,46 @@
 
 \renewcommand{\theparagraph}{\roman{paragraph}}
 
+% Title page information
 \title{Real-time Visual Effects with GPU Ray-tracing of Volume Data}
-
 \author{Caitlin Wilks\\cat@wilks.so}
-
 \college{School of Computing \& Mathematics}
+\degree{BSc (Hons) Computer Games Programming}
+\degreedate{in the years 2013-2014}
 
-%\renewcommand{\submittedtext}{change the default text here if needed}
-\degree{BSc (Hons) Computer Games Programming}    	%the degree
-\degreedate{in the years 2013-2014}         							%the degree date
-
-%end the preamble and start the document
+% End preamble and start the document
 \begin{document}
 
-%this baselineskip gives sufficient line spacing for an examiner to easily
-%markup the thesis with comments
-\baselineskip=18pt plus1pt
-
+% Number sections down to 4 levels, and include 2 levels on the table of contents
 \setcounter{secnumdepth}{4}
 \setcounter{tocdepth}{2}
 
-\maketitle                  % create a title page from the preamble info
-\include{sections/00-abstract} % include the abstract
+% Write title
+\maketitle
+\include{sections/00-abstract}
 
+% Write table of contents & table of figures
 \begin{romanpages}          % start roman page numbering
 \tableofcontents            % generate and include a table of contents
 \newpage
 \listoffigures              % generate and include a list of figures
 \end{romanpages}            % end roman page numbering
 
+% Set up formatting (12pt times new roman & 1.5 line spread)
+%todo
+
 % Include chapters
-\include{sections/01-introduction}
-\include{sections/02-literature-review}
-\include{sections/03-research-methodology}
-\include{sections/04-implementation}
-\include{sections/05-results-and-analysis}
-\include{sections/06-future-work}
-\include{sections/07-conclusion}
+\include{sections/01-introduction}				% 10%
+\include{sections/02-literature-review}			% 20%
+\include{sections/03-research-methodology}		% 15%
+\include{sections/04-implementation}			% }
+\include{sections/05-combining-approaches}		% } 15%
+\include{sections/06-realtime-effects}			% }
+\include{sections/07-multiple-objects}			% }
+\include{sections/08-results-and-analysis}		% 20%
+\include{sections/09-evaluation}				%
+\include{sections/10-future-work}				%
+\include{sections/11-conclusion}				% 15%
 
 % Bibliography TOC entry
 \cleardoublepage
