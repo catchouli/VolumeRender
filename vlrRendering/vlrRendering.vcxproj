@@ -24,7 +24,6 @@
     <ClCompile Include="src\app\Framebuffer.cpp" />
     <ClCompile Include="include\dep\tribox.cpp" />
     <ClCompile Include="src\rendering\Camera.cpp" />
-    <ClCompile Include="src\util\CUDAUtil.cpp" />
     <CudaCompile Include="src\maths\Functions.cu" />
     <CudaCompile Include="src\maths\Colour.cu" />
     <CudaCompile Include="src\maths\Normal.cu" />
@@ -35,7 +34,9 @@
     <ClCompile Include="src\resources\Mesh.cpp" />
     <CudaCompile Include="src\rendering\Raycast_CUDA.cu" />
     <CudaCompile Include="src\rendering\Rendering_CUDA.cu" />
-    <CudaCompile Include="src\rendering\Shading_CUDA.cu" />
+    <None Include="include\rendering\Shading.inl">
+      <FileType>Document</FileType>
+    </None>
     <CudaCompile Include="src\util\CUDAUtil.cu" />
   </ItemGroup>
   <ItemGroup>
@@ -53,6 +54,7 @@
     <ClInclude Include="include\rendering\Shading.h" />
     <ClInclude Include="include\resources\Image.h" />
     <ClInclude Include="include\resources\Mesh.h" />
+    <ClInclude Include="include\resources\ResourceManager.h" />
     <ClInclude Include="include\util\CUDAUtil.h" />
     <ClInclude Include="include\util\Util.h" />
     <ClInclude Include="include\input\InputConverter.h" />
@@ -63,7 +65,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{8563CE39-78FA-4500-8E85-8D53F8929BF1}</ProjectGuid>
     <RootNamespace>Common</RootNamespace>
-    <ProjectName>03. vlrRendering</ProjectName>
+    <ProjectName>02. vlrRendering</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -143,7 +145,7 @@
       <AdditionalLibraryDirectories>$(SolutionDir)\dep\lib</AdditionalLibraryDirectories>
     </Link>
     <CudaCompile>
-      <CodeGeneration>compute_20,sm_21</CodeGeneration>
+      <CodeGeneration>compute_30,sm_30</CodeGeneration>
       <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
     </CudaCompile>
     <CudaLink>
@@ -169,7 +171,7 @@
       <AdditionalLibraryDirectories>$(SolutionDir)\dep\lib</AdditionalLibraryDirectories>
     </Link>
     <CudaCompile>
-      <CodeGeneration>compute_20,sm_21</CodeGeneration>
+      <CodeGeneration>compute_30,sm_30</CodeGeneration>
       <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
     </CudaCompile>
     <CudaLink>
@@ -201,7 +203,7 @@
       <AdditionalLibraryDirectories>$(SolutionDir)\dep\lib</AdditionalLibraryDirectories>
     </Link>
     <CudaCompile>
-      <CodeGeneration>compute_20,sm_21</CodeGeneration>
+      <CodeGeneration>compute_30,sm_30</CodeGeneration>
       <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
       <GPUDebugInfo>false</GPUDebugInfo>
       <GenerateLineInfo>false</GenerateLineInfo>
@@ -235,7 +237,7 @@
       <AdditionalLibraryDirectories>$(SolutionDir)\dep\lib</AdditionalLibraryDirectories>
     </Link>
     <CudaCompile>
-      <CodeGeneration>compute_20,sm_21</CodeGeneration>
+      <CodeGeneration>compute_30,sm_30</CodeGeneration>
       <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
       <GPUDebugInfo>false</GPUDebugInfo>
       <GenerateLineInfo>false</GenerateLineInfo>

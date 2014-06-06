@@ -3,11 +3,14 @@
 
 #include <vector>
 #include <string>
+#include <sstream>
 
 #include <cuda_runtime_api.h>
 
 #undef min
 #undef max
+
+#define CONCAT(f) ((std::stringstream&)(std::stringstream() << f)).str();
 
 namespace vlr
 {

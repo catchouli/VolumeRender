@@ -1,5 +1,6 @@
 #include "resources/Octree.h"
 
+#include "maths/Functions.h"
 #include "util/Util.h"
 #include "util/CUDAUtil.h"
 
@@ -7,16 +8,12 @@
 #include <cuda_runtime_api.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/vector_angle.hpp>
 
 namespace vlr
 {
 	namespace rendering
 	{
-		__device__ __host__ float sqr(float a)
-		{
-			return a * a;
-		}
-
 		// Check whether a box intersects a sphere by calculating the nearest point on
 		// any face of the cube to the sphere's centre and then comparing it to r^2
 		__device__ __host__ bool boxSphereIntersection(glm::vec3 min, glm::vec3 max, glm::vec3 pos, float r)
@@ -79,50 +76,57 @@ namespace vlr
 
 		int32_t genOctreeSphere(int32_t** ret, int32_t resolution, glm::vec3 pos, float radius)
 		{
-			auto test_func = [pos, radius] (glm::vec3 min, glm::vec3 max, glm::vec3& outnormal, glm::vec4& outcolour)
+			auto test_func = [pos, radius] (glm::vec3 min, glm::vec3 max, raw_attachment_uncompressed& shading_attributes)
 			{
 				glm::vec3 half_size = 0.5f * (max - min);
 				glm::vec3 centre = min + half_size;
-				glm::vec3 normal = glm::normalize(0.5f*pos - centre);
-				glm::vec3 normal2 = glm::normalize(pos+0.5f*pos - centre);
 
-				//outnormal.x = std::min((uint32_t)(normal.x * 127.5f + 127.5f), 255u);
-				//outnormal.y = std::min((uint32_t)(normal.y * 127.5f + 127.5f), 255u);
-				//outnormal.z = std::min((uint32_t)(normal.z * 127.5f + 127.5f), 255u);
+				shading_attributes.normal = glm::normalize(pos - centre);
+				shading_attributes.colour = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
 
-				//uint32_t white = (uint32_t)-1;
-				//outcolour = *(uchar4*)&white;
+				return boxSphereIntersection(min, max, pos, radius);
+			};
+			
+			point_test_func func(test_func);
 
-				outnormal = normal;
-				outcolour = glm::vec4(1.0f);
+			glm::vec3 min;
+			glm::vec3 max(1, 1, 1);
 
-				// Calculate contours
-				glm::vec3 posOnSphere = pos + outnormal * radius;
+			return genOctree(ret, resolution, func, min, max);
+		}
 
-				glm::vec3 plane1pos = posOnSphere;
+		int32_t genOctreeSphereHollow(int32_t** ret, int32_t resolution, glm::vec3 pos, float radius)
+		{
+			auto test_func = [pos, radius] (glm::vec3 min, glm::vec3 max, raw_attachment_uncompressed& shading_attributes)
+			{
+				glm::vec3 half_size = 0.5f * (max - min);
+				glm::vec3 centre = min + half_size;
 
-				//glm::mat4 lookatmatrix = glm::gtc::matrix_transform::lookAt(pos, plane1pos, glm::vec3(0, 1, 0));
-
-				//glm::vec3 intersection(sqrt(sqr(radius) - 
+				shading_attributes.normal = glm::normalize(pos - centre);
+				shading_attributes.colour = glm::vec4(1.0f);
 
 				return cubeSphereSurfaceIntersection(centre, half_size.x, pos, radius);
+			};
+			
+			point_test_func func(test_func);
 
-				//bool test1 = cubeSphereSurfaceIntersection(centre, half_size.x, pos/2.0f, radius);
-				//bool test2 = cubeSphereSurfaceIntersection(centre, half_size.x, pos + pos/2.0f, radius);
-				//
-				//if (test1)
-				//{
-				//	outnormal = normal;
-				//	outcolour = glm::vec4(1.0f, 0, 0, 0);
-				//}
-				//if (test2)
-				//{
-				//	outnormal = normal2;
-				//	outcolour = glm::vec4(1.0f, 1.0f, 1.0f, 0.0f);
-				//}
+			glm::vec3 min;
+			glm::vec3 max(1, 1, 1);
 
-				////return boxSphereIntersection(min, max, pos, radius);
-				//return test1 || test2;
+			return genOctree(ret, resolution, func, min, max);
+		}
+
+		int32_t genOctreeSphereBG(int32_t** ret, int32_t resolution, glm::vec3 pos, float radius)
+		{
+			auto test_func = [pos, radius] (glm::vec3 min, glm::vec3 max, raw_attachment_uncompressed& shading_attributes)
+			{
+				glm::vec3 half_size = 0.5f * (max - min);
+				glm::vec3 centre = min + half_size;
+
+				shading_attributes.normal =  glm::normalize(pos - centre);
+				shading_attributes.colour = glm::vec4(1.0f, 1.0f, 1.0f, 0.5f);
+
+				return cubeSphereSurfaceIntersection(centre, half_size.x, pos, radius);
 			};
 			
 			point_test_func func(test_func);

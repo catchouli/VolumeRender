@@ -12,18 +12,20 @@ namespace vlr
 {
 	namespace rendering
 	{
-		Mesh::Mesh(bool storeTextures)
+		Mesh::Mesh(bool storeTextures, aiPostProcessSteps normalMode)
 			: _loaded(false), _subMeshCount(0),
 			_subMeshes(nullptr), _textures(nullptr),
-			_storeTextures(storeTextures), _images(nullptr)
+			_storeTextures(storeTextures), _images(nullptr),
+			_normalMode(normalMode)
 		{
 
 		}
 
-		Mesh::Mesh(const char* filename, bool storeTextures)
+		Mesh::Mesh(const char* filename, bool storeTextures, aiPostProcessSteps normalMode)
 			: _loaded(false), _subMeshCount(0),
 			_subMeshes(nullptr), _textures(nullptr),
-			_storeTextures(storeTextures), _images(nullptr)
+			_storeTextures(storeTextures), _images(nullptr),
+			_normalMode(normalMode)
 		{
 			load(filename);
 		}
@@ -32,7 +34,8 @@ namespace vlr
 			: _loaded(other._loaded), _subMeshCount(other._subMeshCount),
 			_subMeshes(nullptr), _textures(nullptr),
 			_storeTextures(other._storeTextures), _images(nullptr),
-			_min(other._min), _max(other._max), _textureCount(other._textureCount)
+			_min(other._min), _max(other._max), _textureCount(other._textureCount),
+			_normalMode(other._normalMode)
 		{
 			if (!_loaded)
 				return;
@@ -174,7 +177,7 @@ namespace vlr
 
 				for (int32_t j = 0; j < subMesh._vertexCount; ++j)
 				{
-					glm::vec4 vert = glm::vec4(subMesh._vertices[j]._pos, 0);
+					glm::vec4 vert = glm::vec4(subMesh._vertices[j]._pos, 1.0f);
 					glm::vec4 norm = glm::vec4(subMesh._vertices[j]._normal, 0);
 					
 					vert = matrix * vert;
@@ -186,6 +189,12 @@ namespace vlr
 			}
 
 			// Recalculate min/max
+			calcMinMax();
+		}
+
+		void Mesh::calcMinMax()
+		{
+			// Calculate min/max
 			_min = _subMeshes[0]._vertices[0]._pos;
 			_max = _subMeshes[0]._vertices[0]._pos;
 
@@ -232,7 +241,7 @@ namespace vlr
 
 			// Attempt to load mesh
 			scene = importer.ReadFile(filename,
-				aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs);
+				aiProcess_Triangulate | _normalMode | aiProcess_FlipUVs);
 
 			if (!scene)
 			{
@@ -301,8 +310,7 @@ namespace vlr
 				SubMesh* currentMesh = &_subMeshes[i];
 
 				// Set mesh texture
-				if (mesh->HasTextureCoords(i))
-					currentMesh->_materialIndex = mesh->mMaterialIndex;
+				currentMesh->_materialIndex = mesh->mMaterialIndex;
 
 				// Allocate memory
 				currentMesh->_indexCount = mesh->mNumFaces * 3;
@@ -322,7 +330,7 @@ namespace vlr
 					const aiVector3D* normal = &mesh->mNormals[j];
 					const aiVector3D* uv = &ZERO;
 
-					if (mesh->HasTextureCoords(i))
+					if (mesh->HasTextureCoords((unsigned int)i))
 						uv = &mesh->mTextureCoords[0][j];
 					
 					if (pos->x < _min.x)
@@ -357,6 +365,8 @@ namespace vlr
 			}
 
 			_loaded = true;
+
+			calcMinMax();
 
 			return true;
 		}

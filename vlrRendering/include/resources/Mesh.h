@@ -5,9 +5,10 @@
 #include <glm/glm.hpp>
 #include <gl/glew.h>
 #include <stdint.h>
+#include <assimp/postprocess.h>
 
-#include "util/CUDAUtil.h"
-#include "resources/Image.h"
+#include "../util/CUDAUtil.h"
+#include "../resources/Image.h"
 
 namespace vlr
 {
@@ -47,8 +48,8 @@ namespace vlr
 		class Mesh
 		{
 		public:
-			Mesh(bool storeTextures = false);
-			Mesh(const char* filename, bool storeTextures = false);
+			Mesh(bool storeTextures = false, aiPostProcessSteps normalMode = aiProcess_GenSmoothNormals);
+			Mesh(const char* filename, bool storeTextures = false, aiPostProcessSteps normalMode = aiProcess_GenSmoothNormals);
 			Mesh(const Mesh&);
 			~Mesh();
 
@@ -60,6 +61,7 @@ namespace vlr
 			void unload();
 
 			void transform(const glm::mat4& matrix);
+			void calcMinMax();
 
 			inline bool isLoaded() const;
 
@@ -81,6 +83,8 @@ namespace vlr
 
 			SubMesh* _subMeshes;
 			size_t _subMeshCount;
+
+			aiPostProcessSteps _normalMode;
 
 			size_t _textureCount;
 

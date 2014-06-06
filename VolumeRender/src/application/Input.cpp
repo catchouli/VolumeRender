@@ -14,7 +14,7 @@ namespace vlr
 		cam.setViewport(0, 0, width, height);
 
 		float aspect = (float)height / (float)width;
-		cam.perspective(cam.getFov(), aspect, cam.getNear(), cam.getFar());
+		cam.perspective(cam.getFov(), 1.0f / aspect, cam.getNear(), cam.getFar());
 	}
 
 	void VolumeRender::mouse_callback(GLFWwindow* window, int32_t button,
@@ -30,6 +30,15 @@ namespace vlr
 		// Get class instance
 		VolumeRender* volumeRender = (VolumeRender*)glfwGetWindowUserPointer(window);
 		rendering::Camera& cam = volumeRender->_camera;
+
+		static bool first_time = true;
+		if (first_time)
+		{
+			first_time = false;
+
+			// Initialise mouse pos
+			glfwGetCursorPos(window, &volumeRender->_mouseX, &volumeRender->_mouseY);
+		}
 
 		// Calculate difference
 		double diffX = x - volumeRender->_mouseX;
@@ -74,9 +83,20 @@ namespace vlr
 			}
 			else
 			{
+				glfwGetCursorPos(window, &volumeRender->_mouseX, &volumeRender->_mouseY);
+
 				glfwSetInputMode(volumeRender->_window,
 					GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 			}
 		}
+
+		if (key == GLFW_KEY_2 && action == GLFW_PRESS)
+			volumeRender->rendering_attributes.settings.enable_shadows = !volumeRender->rendering_attributes.settings.enable_shadows;
+
+		if (key == GLFW_KEY_3 && action == GLFW_PRESS)
+			volumeRender->rendering_attributes.settings.enable_reflection = !volumeRender->rendering_attributes.settings.enable_reflection;
+
+		if (key == GLFW_KEY_4 && action == GLFW_PRESS)
+			volumeRender->rendering_attributes.settings.enable_refraction = !volumeRender->rendering_attributes.settings.enable_refraction;
 	}
 }

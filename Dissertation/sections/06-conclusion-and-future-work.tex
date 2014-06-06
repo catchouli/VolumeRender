@@ -1,0 +1,29 @@
+\chapter{Conclusions and Future Work}
+\label{conclusion}
+In this work we have produced a volume renderer which, in line with our objectives, is capable of rendering heterogeneous structures in real-time by utilising the highly parallelised architecture of the GPU.
+
+Our renderer is capable of obtaining comparable quality to rasterisation-based rendering while also producing volumetric effects such as refraction through a heterogeneous volume. The data structure we have chosen is capable of encoding highly heterogeneous as well as homogeneous volumes, allowing for a dynamic sampling of the original volume which enables the renderer to perform at varying data resolutions.
+
+We believe that this is a promising approach which is capable of producing real-time volumetric effects for consumer applications such as video games at real-time frame rates, without having to rely on non real-time techniques such as the impostors technique used in \cite{harris02real} which allow data to be reused between frames. Because of this, our renderer is capable of producing highly dynamic effects that don't rely on coherent results.
+
+Despite our success in achieving our objectives, there are some limitations to our work.
+
+\section{Memory usage}
+The memory usage of our data structure is sufficient for simple scenes, but as we store sub-surface volumes, unlike approaches such as that used in \cite{laine10efficientsvos} which only encode the surfaces as volumes, our memory usage very quickly becomes unsatisfactorily high as the resolution of the data is increased. Despite this, the encoding of sub-surfaces is necessary in order to consider volumetric effects, otherwise the advantages over polygon-based approaches are diminished.
+
+This excessive memory usage may become an issue for complex scenes, where a higher resolution is required in order to encode larger structures down to similar precisions. Promising approaches for reducing the memory usage of the sparse voxel octree have been researched. One such approach is the contours utilised in \cite{laine10efficientsvos}, while another is the sparse voxel DAG presented in \cite{kampe2013dags}.
+
+\section{The disadvantages of cubical voxels}
+Another key limitation of our work is that, due to the cubical nature of voxels, secondary rays cast from smooth surfaces may be able to intersect with themselves where they otherwise would not be able to. This produces many undesired visual effects, including the voxels of a sphere casting shadows on the sphere's surface.
+
+We believe that this is a limitation that can be overcome by considering surface voxels to not be cubical. The contours approach by \cite{laine10efficientsvos} would also solve this problem, as it is an efficient method of accomplishing non-cubical voxels while adding little work to the inner loop of each ray cast.
+
+\section{The scaling of performance as screen resolution is increased}
+At resolutions higher than 1024x1024, our performance begins to scale linearly with screen resolution. Although this may be acceptable with higher performance, it highlights a weakness of our parallelisation scheme. It would seem that alternate paralellisation schemes, such as the persistent threads approach from \cite{aila2009hpg} may benefit our work immensely.
+
+\section{Future work}
+Our work demonstrates that real-time volumetric effects within the GPU are possible, but falls short of producing real-time frame rates at full-screen resolutions. For this reason, future work would be best targeted at improving the parallelisation of our approach such that it scales better at these resolutions.
+
+Additionally, as we only consider volumetric refraction, adapting our work to consider more complex volumetric effects such as the sub-surface scattering effects encountered when considering the lighting of clouds would allow a far wider range of real-life objects to be rendered volumetrically.
+
+Once these limitations have been overcome, our work points to the possibility of such effects appearing in consumer software, such as games, in the near future.

@@ -8,7 +8,7 @@ namespace vlr
 	{
 		// Constructor
 		// Create and initialise window and renderer
-		Application::Application(int32_t width, int32_t height, const char* title)
+		Application::Application(int32_t width, int32_t height, const char* title, bool hidden)
 			: _running(true), _lastUpdate(glfwGetTime()), _lastFPSUpdate(glfwGetTime()),
 			  _fps(0), _frames(0), _window(nullptr)
 		{
@@ -23,6 +23,12 @@ namespace vlr
 
 				// Return from constructor
 				return;
+			}
+
+			// Hide window if enabled
+			if (hidden)
+			{
+				glfwWindowHint(GLFW_VISIBLE, 0);
 			}
 
 			// Create window
@@ -41,7 +47,6 @@ namespace vlr
 			
 			// Set user pointer to this
 			glfwSetWindowUserPointer(_window, this);
-
 
 			// Make opengl context current
 			glfwMakeContextCurrent(_window);

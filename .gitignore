@@ -17,3 +17,5 @@
 *.unsuccessfulbuild
 *.cache
 *.deps
+/Dissertation/bin
+/Dissertation/int

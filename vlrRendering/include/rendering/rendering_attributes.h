@@ -25,6 +25,17 @@ namespace vlr
 
 		typedef LightTypes::LightType LightType;
 
+		namespace RefractionModes
+		{
+			enum RefractionMode
+			{
+				DISCRETE,
+				CONTINUOUS
+			};
+		}
+
+		typedef RefractionModes::RefractionMode RefractionMode;
+
 		struct light_t
 		{
 			// Valid for all lights
@@ -50,6 +61,18 @@ namespace vlr
 			float exponent;
 		};
 
+		struct rendering_settings_t
+		{
+			bool enable_depth_copy;
+			bool enable_shadows;
+			bool enable_reflection;
+			bool enable_refraction;
+
+			RefractionMode refraction_mode;
+			float refraction_discrete_step;
+			float refraction_discrete_steps_max;
+		};
+
 		struct rendering_attributes_t
 		{
 			// Position, mvp matrix and viewport
@@ -57,12 +80,18 @@ namespace vlr
 			glm::mat4 mvp;
 			viewport viewport;
 
+			// Clear colour
+			glm::vec4 clear_colour;
+
 			// The statically sized array of lights
 			int32_t light_count;
 			light_t lights[MAX_LIGHTS];
 
 			// The ambient light in the scene
 			glm::vec3 ambient_colour;
+
+			// The rendering settings
+			rendering_settings_t settings;
 		};
 	}
 }

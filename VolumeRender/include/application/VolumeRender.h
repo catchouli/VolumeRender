@@ -10,6 +10,7 @@
 #include "resources/Mesh.h"
 
 #include <stdio.h>
+#include <assimp/Importer.hpp>
 
 namespace vlr
 {
@@ -22,6 +23,8 @@ namespace vlr
 	{
 	public:
 		VolumeRender(int32_t argc, char** argv);
+
+		void generate();
 
 		void update(double dt);
 
@@ -40,9 +43,20 @@ namespace vlr
 			int32_t scancode, int32_t action, int32_t mods);
 
 	private:
+		int _scene;
+		int _depth;
+
 		const char* _treeFilename;
+		char* tree_data;
+
+		bool _saveTrees;
 
 		rendering::rendering_attributes_t rendering_attributes;
+
+		Assimp::Importer _aiImporter;
+		const aiScene* _aiScene;
+
+		float _nearDepth, _farDepth;
 
 		double _mouseX, _mouseY;
 

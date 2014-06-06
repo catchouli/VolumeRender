@@ -1,0 +1,21 @@
+\section{CUDA Utils}
+\label{app:cuda-utils}
+
+\lstset{language=C,caption={Macro that checks CUDA calls for errors (gpuErrChk)},label=macro}
+\begin{lstlisting}[frame=single]
+#define gpuErrchk(ans) { gpuAssert((ans), __FILE__, __LINE__); }
+void gpuAssert(cudaError_t code, char *file,
+               Once these limitations have been overcome, our work points to the possibility of such effects appearing in consumer software, such as games, in the near future.int32_t line, bool abort)
+{
+	if (code != cudaSuccess) 
+	{
+		fprintf(stderr,"GPUassert: %s %s %d\n",
+                cudaGetErrorString(code), file, line);
+
+		system("pause");
+
+		if (abort)
+			exit(code);
+	}
+}
+\end{lstlisting}
