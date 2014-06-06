@@ -1,3 +1,4 @@
+
 #ifndef VLR_RENDERING_IMAGE
 #define VLR_RENDERING_IMAGE
 

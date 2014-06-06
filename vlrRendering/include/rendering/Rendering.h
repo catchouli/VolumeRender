@@ -11,12 +11,14 @@
 #include "../maths/Types.h"
 #include "../resources/Octree.h"
 
+#define HALF_SQRT_2 5.70710678118
+
 namespace vlr
 {
 	namespace rendering
 	{
 		// Function declarations
-		void renderOctree(const int32_t* tree, const rendering_attributes_t rendering_attributes);
+		void renderOctree(const int32_t* tree, rendering_attributes_t rendering_attributes);
 
 		__global__ void cudaRenderOctree(const int32_t* tree, int32_t* pixel_buffer,
 			const rendering_attributes_t rendering_attributes);

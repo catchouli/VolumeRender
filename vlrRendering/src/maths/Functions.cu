@@ -11,5 +11,10 @@ namespace vlr
 		{
 			return x < a ? a : (x > b ? b : x);
 		}
+
+		__host__ __device__ float sqr(float a)
+		{
+			return a * a;
+		}
 	}
 }

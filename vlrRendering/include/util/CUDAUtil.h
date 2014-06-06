@@ -5,6 +5,7 @@
 #include <cuda.h>
 #include <cuda_runtime_api.h>
 #include <stdint.h>
+#include <assimp/scene.h>
 
 #ifdef __CUDACC__
 	#define HOST_DEVICE_FUNC __host__ __device__
@@ -19,6 +20,7 @@ namespace vlr
 {
 	namespace rendering
 	{
+
 		namespace test
 		{
 			template <typename T>
@@ -30,9 +32,13 @@ namespace vlr
 			}
 		}
 		
-		__device__ int32_t get_child_index(uint32_t mask);
+		__host__ __device__ int32_t get_child_index(uint32_t mask);
 
 		__host__ __device__ int numberOfSetBits(int i);
+
+		void checkGlError();
+
+		void renderAiScene(const aiScene* scene);
 	}
 }
 

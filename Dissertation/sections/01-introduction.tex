@@ -1,100 +1,256 @@
 \chapter{Introduction}
 \label{intro}
-This dissertation investigates the application of real time ray tracing to volume data. We describe the implementation of a ray tracer that can ray trace volumetric data at real time, producing a variety of visual effects. We also describe the problems encountered due to the adaptation of 3D volume data and the possible solutions we came up with.
+
+\section{Volumetric effects}
+
+\begin{figure}
+	\centering
+	\subfloat[Clouds]{\includegraphics[width= 2in]{clouds.jpg}}
+	~
+	\subfloat[A water droplet]{\includegraphics[width= 2in]{water_droplets.jpg}}
+
+	\caption{The lighting of clouds and water droplets is volumetric in nature}
+	\label{fig:volumetric-effects}
+\end{figure}
+
+Many effects in the real world are volumetric in nature, such as fluids, clouds, fire, fog, and dust. A volumetric effect is one for which the inner volume has an influence on the lighting of an object, rather than just its surface. These effects are highly sought after in video games, but existing solutions often do not model them volumetrically, instead utilising crude approximations. Despite being fast to render using existing hardware, it is difficult to produce realistic results with these approaches.
+
+\begin{figure}
+\centering
+	\subfloat[A naked flame]{\includegraphics[width= 2in]{fire.jpg}}
+	~
+	\subfloat[Dust]{\includegraphics[width= 2in]{dust.jpg}}
+
+	\caption{Other effects which must be considered volumetrically to be rendered physically are fire and dust}
+	\label{fig:fire_dust-effects}
+\end{figure}
+
+To produce truly realistic volumetric effects, it would be ideal to model the volumes that cause them, and then be able to render them directly. Unfortunately, this is not a trivial problem to solve, especially in modern 3D hardware which is focused on rendering geometry rather than volumes.
+
+Take for example clouds. In the real world, the lighting of clouds is not caused by the way that light hits a surface. Perhaps the most important factor that results in the appearance of clouds is the scattering of light as sunlight hits the atmospheric particles that make up the cloud. As light is scattered in many directions, including inside the cloud, it becomes important to consider the inner volume of the cloud rather than the geometry that describes its shape.
+
+In order to understand the problems involved in rendering volumetric effects on 3D rendering hardware, it is important to understand the mechanism by which 3D rendering is accomplished on this hardware: rasterisation.
 
 \section{Rasterisation}
-Rasterisation is currently the most popular technique for producing real-time 3D computer graphics. It involves the tessellation of surfaces into triangles, which are then rendered to the screen by means of rasterisation. Each pixel is then shaded using an approximation of how light would be reflected off of each surface.
+Rasterisation is currently the most popular rendering algorithm for generating three-dimensional images in video games. It is also the purpose for which modern graphics processing hardware is heavily specialised.
 
-\section{Ray casting}
-Ray casting, a technique pioneered by \cite{appel68raytracing}, on the other hand aims to simulate the path of light by casting a ray, known as an eye ray, from the eye to the surface in order to determine visibility. This simulates the path of light in reverse, as in nature light follows the path from a light source to the surface before being reflected to the eye of an observer. By following the reverse of this ray, a physically accurate representation of this scene can be produced with a finite number of rays \parencite{appel68raytracing}.
+The basic mechanism by which rasterisation functions is converting polygons to a raster image, a rectangular grid of pixels with each pixel having a defined colour. Typically, triangles are utilised, as any geometric shape, whether convex or concave, can be easily triangulated. Graphics hardware then has the simple job of processing these triangles to produce a raster image.
 
-\subsection{Method}
-Although numerous works have expanded on and optimised the technique, the main steps are as follows.
+\subsection{Polygon scan conversion}
+\label{pct}
+A common method of accomplishing rasterisation is polygon scan conversion. By considering a single scan-line of a polygon at a time, identifying the edges, and filling in the scan-line in between them, a raster image of the polygon can be created. As in figure \ref{fig:tri-edges}, this is trivial for a convex polygon such as a triangle, as there will only ever be two edges intersecting a scan-line.
 
-% Hide number from itemize list item
-\let\oldlabelitemi\labelitemi
-\renewcommand{\labelitemi}{}
+\begin{figure}
+\centering
+	\includegraphics[width=8cm]{tri-edges.png}
+	\caption{A triangle being rasterised. Green pixels have already been filled, while red pixels are the edges that have been identified for the current scanline}
+	\label{fig:tri-edges}
+\end{figure}
 
-\begin{itemize}
-	\item For each pixel of the screen:
+Repeating this technique for every scan-line covered by the triangle produces a raster image of the polygon, as shown in figure \ref{fig:rasterised_polygon}.
 
-	\begin{enumerate}
-		\item Calculate a ray from the viewer through the near-view plane
-		\item Find the nearest intersection of this ray with the scene
-		\item Pass details of this intersection to a shader to be shaded
-	\end{enumerate}
-\end{itemize}
+\begin{figure}
+\centering
+	\includegraphics[width=8cm]{rasterised_polygon.png}
+	\caption{A polygon that has been rasterised by polygon scan conversion}
+	\label{fig:rasterised_polygon}
+\end{figure}
 
-% Restore old itemize list item style
-\let\labelitemi\oldlabelitemi
+\subsection{Extension to 3D graphics}
+This technique is then extended to 3D graphics using a projection calculation which maps 3D geometry to a position on the screen. During rasterisation, the pixels can also be shaded using attributes such as the position of the point relative to any lights, and the normal of the plane the point lies on to produce a convincing result as shown in figure \ref{fig:cube_render}.
 
-The shading can then be accomplished using the same techniques used in rasterisation. (See Section \ref{implementation} for our implementation.)
+\begin{figure}
+\centering
+	\includegraphics[width=16cm]{frustum.png}
+	\caption{An illustration of how 3D objects are mapped to the screen using a perspective projection calculation. A 3D sphere is being rendered to the 2D viewport}
+	\label{fig:perspective_calculation}
+\end{figure}
 
-\subsection{Ray tracing}
-Additionally, ray casting can be extended into a technique called ray tracing, in which secondary rays are spawned from points of intersection, including light rays for determining whether an area is in shadow, reflection rays for simulating the reflection of light from other surfaces, and refraction rays, for determining the distance through an object which light is refracted.
+\subsection{Triangulation}
+Triangulation is the process of dividing a surface into triangles so it can be easily rasterised. Triangles are convex in nature, and so are trivial to rasterise, (see section \ref{pct} on polygon scan conversion.) In addition, any flat geometric surface can be tessellated into triangles, and any curved surface can be reasonably approximated for the purposes of 3D rendering.
 
-A common approach for implementing this is to call the ray cast function from the shader, recursively calling the shader function. This allows the existing ray casting and shading functions to be used to implement these techniques, making them extremely simple to implement on top of an existing ray caster.
+Take, for example, a cube mesh. A cuboid is made up of 6 rectangular faces. Each face can then be divided into two triangles.
 
-\subsection{Path tracing}
+\begin{figure}
+\centering
+	\includegraphics[width=12cm]{cube_triangulation.png}
+	\caption{A demonstration of how a cube is triangulated}
+	\label{fig:cube_triangulation}
+\end{figure}
 
-\subsection{Comparison of techniques}
+The vertices of the cube are then transformed using a perspective projection, and the triangles are rasterised using polygon scan conversion.
 
-\subsubsection{Per-pixel shading}
-Ray casting is, by definition, per-pixel, as each pixel in the rendered image is represented by its own ray \parencite{appel68raytracing}. This lends itself well to per-pixel shading models, and allows it to produce smoothly shaded surfaces with techniques that necessitate smooth normals such as specular highlights. Additionally, there is no need for techniques such as deferred shading, as each pixel on the screen needs only to be shaded once.
+\begin{figure}
+\centering
+	\includegraphics[width=8cm]{cube_rendered.png}
+	\caption{The result image once a cube has been rasterised}
+	\label{fig:cube_render}
+\end{figure}
 
-\subsubsection{Point sampling}
-Despite the per-pixel nature of ray casting/tracing providing several advantages, it produces one major disadvantage. It is a point-sampling method \parencite{amanatides84conetracing}. This means that each ray only samples data from the single point that it hits, without taking into account the area around the hit point as one would expect due to the nature of perspective. Although the shading is still smooth due to the per-pixel nature of ray casting, the edges of objects often appear rough and aliased \parencite{amanatides84conetracing}.
+\subsection{Limitations}
+Despite rasterisation producing convincing and, in some applications, even realistic results, it has a number of limitations when it comes to the rendering of volumetric effects.
 
-Researchers have found numerous methods for dealing with this, including adapting anti-aliasing approaches \parencite{laine10efficientsvos}, modelling rays as cones \parencite{amanatides84conetracing}, distributing rays around the focal point \parencite{cook84distributed}, and calculating the lighting using an integral equation (a technique called path tracing) \parencite{kajiya86therendering}.
+For the purposes of rendering 3D volumes, the major limitation of rasterisation-based rendering is that it can only consider geometry. Therefore, it only considers the surfaces of objects that are being rendered, and not the volumes bounded within those surfaces. Without considering the inner volume, it becomes very difficult to render these effects realistically, and impossible to render them physically.
 
-As pointed out by \cite{cook84distributed}, the precisely determined nature of ray tracing has also limited the capabilities of ray tracing in other ways. For example, simple ray tracing produces shadows with unrealistic, hard edges. A technique presented by \cite{kajiya86therendering} called path tracing solves this problem by considering the shading for each pixel as an integral over an area. This has the effect of extending the range of optical phenomena that can be realistically simulated. Kajiya's algorithm uses a Monte Carlo solution in order to do this however, and as such, it requires a large number of rays to be traced in order to produce this realistic result, making it unsuitable for real time effects.
+Another key limitation of rasterisation is that it only considers reflection, and even then, only an approximation of the light reflected from the current polygon. Only the current polygon is ever considered during rasterisation, making global effects such as reflection and refraction within the scene impossible.
 
-Approaches to solving these problems will be explored in greater detail in Chapter~\ref{litreview}.
+Despite these key limitations, there has been some success in the mapping of volumetric effects to rasterisation hardware.
 
-\section{3D object representation schemes}
-Despite rasterisation only being applicable to simple polygon representations such as triangles, ray casting/tracing has the potential to work with other types of data structures including truly volumetric data. The following is a summary of these structures.
+\subsection{Existing rasterisation-based approaches}
 
-\subsection{Polygons}
-Polygons, triangles specifically, are the traditional structure in which 3D model data is stored. By tessellating a surface into a sufficient number of triangles, an adequate approximation can be obtained for any surface in a homogeneous manner, unlike older approaches such as boolean trees of mathematical 3D shapes \parencite{meagher81octree} which were anything but homogeneous.
+\subsubsection{Skyboxes}
+Many games render clouds by mapping a cloud texture onto a sky box or sphere, and then rendering this in the background as shown in figure \ref{fig:skybox}. This structure then surrounds the player, and is typically locked in place relative to the player, such that the player can never get closer to or farther away from it. The sky texture is then projected onto this structure, providing the background imagery for a scene.
 
-\subsubsection{Real time effects}
-The problem with calculating real time effects for rasterisation is that each polygon is considered separately, and as such, extra computation must be applied in order to obtain any sort of approximation of effects which require knowledge of any other part of the scene.
+\begin{figure}
+\centering
+	\centering
+	\subfloat[]{\includegraphics[width= 2in]{skybox.png}}
+	~
+	\subfloat[]{\includegraphics[width= 2in]{skybox_ingame.png}}
 
-In comparison, ray casting considers the whole scene and works its way to a surface to sample. Because of this, it is simply extensible to visual effects which must consider the scene around the sampled point.
+	\caption{Mapping of clouds onto a skybox, and the result in-game}
+	\label{fig:skybox}
+\end{figure}
 
-\subsubsection{Scaling}
-Simple rasterisation and ray casting with polygons scales linearly with the number of polygons, as each polygon must be processed individually for rasterisation, and each polygon must be checked for intersection with the ray in ray casting.
+While this may be sufficient for some applications, for example when clouds are in the distant background, clouds rendered in this manner can never be anything more than 2D images. Take for example a flight simulator. Using this type of software, it would be expected that the user would be able to fly close to, or even inside clouds, but as sky boxes can only ever be background imagery, such techniques are inappropriate for this type of application. Even for games in which the player is not expected to be able to reach the clouds, if the player is sufficiently close enough, the clouds should appear to move relative to each other, due to perspective or due to the effects of weather. Using a texture to represent the sky can not simulate this effect unless multiple layers are used, and even then this approach is extremely limited.
 
-Even with techniques such as occlusion culling, which reduce the amount of the scene that rasterisation must process by determining surfaces which can not be visible, the rendering time for rasterisation increases linearly with the detail as smaller and more polygons must be added to produce more detail. Despite this, polygons do have an advantage for large surfaces with little detail, as a polygon of any size can be rasterised.
+\begin{figure}
+\centering
+	\includegraphics[width=12cm]{flightsim.jpg}
+	\caption{Clouds in Microsoft Flight Simulator X}
+	\label{fig:flight_sim_clouds}
+\end{figure}
 
-Space subdivision techniques however have been applied to ray casting such as \cite{glassner84space}, which uses an octree, (a structure which was presented by \cite{meagher80octree} as a structure for representing 3D space hierarchically, and that will be examined later in the section,) in order to subdivide space, reducing the number of polygons a particular ray must be checked for intersection with. Although this is an effective technique for speeding up the ray casting of large numbers of polygons, some researchers have questioned whether it would not be better to encode the volumes directly using these structures and have investigated means to efficiently do so \parencite{laine10efficientsvos}.
+\subsubsection{Billboards}
+In 3D rendering, billboards are flat, texture-mapped planes that always face the camera. This allows them to appear at different scales and move relatively to each other based on the perspective of the camera. Billboards can be used to efficiently simulate a variety of volumetric structures, by overlapping a number of different images and blending them as appropriate to obtain desired appearance.
 
-\subsection{Volumetric structures}
-Some of the earliest structures for encoding 3D data for computer graphics were volumetric in nature. \cite{meagher81octree} gives a good overview of structures of the time, as well as presenting his own, octrees, which we have chosen to implement for the purposes of this project.
+\begin{figure}
+\centering
+	\centering
+	\subfloat[]{\includegraphics[width=3in]{tree.png}}
+	~
+	\subfloat[]{\includegraphics[width=3in]{tree_billboards.png}}
 
-Ignoring those approaches which lack homogeneity, and as such are difficult to render efficiently, for example approaches which attempt to combine a variety of mathematical objects to produce a single object as described in \cite{meagher81octree}, there are a number of structures for consideration. Two major categories of volumetric structures are non-hierarchical structures, structures which store data at a particular fixed resolution, and non-hierarchical structures, structures which encode data at a higher resolution as one traverses deeper into the structure.
+	\caption{Use of texture-mapped quads to simplify a tree mesh. Each quad represents many leaves, greatly reducing the complexity when compared with other representations}
+	\label{fig:billboard_tree_quality}
+\end{figure}
 
-\subsubsection{Non-hierarchical structures}
-The primary non-hierarchical structure which is used to encode volume data is the 3D array. The 3D array has some advantages as a simple data structure. It is simple to cast rays through intuitively, as the data within is laid out in a simple grid. Additionally, this structure may be suitable for where the data does not need to be a particularly high resolution, or for data of a fixed resolution where adaptively changing the resolution of the data does not provide any benefit.
+Billboards have been used effectively to simulate 3D volumetric clouds. \cite{harris02real} simulates the scattering of light within clouds, rendering the result to billboards which are then subtly used to represent the cloud volumes. As the billboards can be reused between multiple frames, this approach allows the realistic, physically based rendering of clouds.
 
-Despite its advantages as a simple data structure, the array has some major limitations. Firstly, empty space is encoded using the same amount of storage as non-empty space. Generally, no attributes need to be stored to describe empty space, so it makes sense to not encode it if possible. Additionally, as previously suggested, the resolution is fixed so data of a high resolution must be stored entirely at that resolution. This causes this approach to have a much higher memory footprint than necessary.
+This is a promising approach, and demonstrates the rendering of realistic looking clouds up close and far away as far away clouds can be reused. \citeauthor{harris02real}'s approach, however does not simulate global effects, so still falls short of the objective of simulating true volumetric clouds.
 
-\subsubsection{Hierarchical structures}
+\subsubsection{Marching cubes}
+Marching cubes, a technique published in \cite{lorensen87marchingcubes}, is a method of generating polygonal meshes from volumes in order to render them with standard polygon rasterisation hardware. Marching cubes extracts a polygonal approximation of an isosurface, a closed surface that separates the outside of a volume from the inside, defined by an isovalue for which all voxels with greater isovalues are inside the volume and all voxels with lower isovalues are outside.
 
-\paragraph{The octree}
-The octree is a structure proposed by \cite{meagher81octree} which stores data hierarchically by dividing space into eight octants at each level in the hierarchy. In other words, space is divided once along each axis to produce $2^3 = 8$ octants.
+\begin{figure}
+\centering
+	\includegraphics[width=8cm]{gridsampled.png}
+	\caption{A volume sampled on a 3D scalar grid. The volume is sampled at the vertices of the grid, and the grid cells are then marched to produce a polygonal approximation of the volume}
+	\label{fig:scalar_field_approximation}
+\end{figure}
 
-This provides the advantage that the resolution of the data is dynamic, as the tree can be deeper for parts of the scene which need to be at a higher resolution \parencite{laine10efficientsvos}. Additional advantages include automatic LOD, as the traversal of the structure can stop as soon as a voxel is found that is smaller than the pixel \parencite{laine10efficientsvos}.
+The volume is sampled at each vertex of a regular grid, with each cell defined by its vertices and the isovalue of each vertex, as shown in figure \ref{fig:scalar_field_approximation}. By comparing the isovalue of each vertex against the isovalue of the surface, and therefore determining which vertices lie inside, and which outside the volume, it is possible to create a polygonal approximation of the intersection of the isosurface with the current grid cell. Each grid cell is then considered individually, by "marching" from one cell to the next, in order to create a polygonal approximation of the volume. The detail level of the final mesh depends on the resolution selected for the scalar grid which is used to sample the volume.
 
-\paragraph{Sparse structures}
-The major advantage of using a hierarchical structure is that empty space need not be encoded. By not encoding empty space, it can be skipped at the highest resolution possible, making the ray cast more efficient as well as greatly reducing the memory footprint of the structure.
+The major advantage of this approach is that the resulting polygon mesh maps directly to existing rasterisation hardware, and is therefore as efficient to render as any polygon mesh. However, the major disadvantage for the purposes of volumetric effects is that marching cubes only considers an isosurface, ignoring the inside of the volume and instead focusing on the rendering of the surface, making it inappropriate for considering volumetric effects.
 
-\paragraph{Subsurfaces}
-In addition to not needing to store empty space, for the purposes of games, volume under the surface need not be stored, as it will never be seen. Despite this, all techniques in this paper will also work for data which does contain subsurfaces.
+\subsubsection{Texture-based methods}
+Texture mapping has also been successfully used to map volume rendering onto rasterisation hardware. \cite{engel02interactivehigh-quality} utilises 3D textures representing slices, each of which represents a view-aligned slice through the volume. Overlapping samples are then composited using hardware alpha blending, in order to create a 3D image of the volume, considering the volume rather than just its surface.
 
-\subsection{Comparison of structures}
+The advantages of this method are that it maps onto traditional graphics hardware very well, resulting in extremely high performance on very common consumer hardware. Unlike approaches which only consider isosurfaces, such as marching cubes, this approach allows us to consider the internals of the volume by means of blending, meaning that it should be possible to model volumetric effects using this approach.
 
-\paragraph{Deformation}
-One major advantage of polygon-based structures is the ease at which deformation is possible. As vertices can be moved without producing gaps in the surface, due to the fact that vertices are generally shared between polygons in polygon-based representations, polygon meshes can be easily deformed to produce animation.
+Unfortunately, this approach does not allow us to consider the effects of light that involve reflection, refraction, or scattering, as that would require changes in the direction of light, and this approach can only consider overlapping parts of the volume.
 
-On the other hand, deforming volumes leaves problematic gaps between voxels, making the use of volume structures for animations problematic. Additionally, storing separate volumes as frames of animation is prohibitively expensive in terms of memory footprint. Despite this, a method has been presented by \cite{bautembach2011animated}, in which parent voxels are automatically scaled to contain their child voxels as the volume is deformed. Bautembach demonstrates some convincing evidence that, using this technique, complex animation techniques as used in character animation may be possible with hierarchical volume structures.
+\section{Ray tracing}
+Another approach to volume rendering, that does not attempt to map volume rendering problems to rasterisation, is ray tracing. Ray tracing functions by following rays of light backwards from the eye and out into the scene, as shown in figure \ref{fig:ray_casting}. By casting a ray outwards into the scene for each pixel on the screen, and shading that pixel in accordance with the properties of the hit surface, it is possible to produce a 3D image of the scene similar to that produced by means of rasterisation.
+
+\begin{figure}
+\centering
+	\includegraphics[width=14cm]{primaryray.png}
+	\caption{Primary rays being cast into the scene to determine intersection with the sphere. A primary ray is spawned for every pixel in the viewport}
+	\label{fig:ray_casting}
+\end{figure}
+
+Once the primary ray has intersected the scene, secondary rays can be spawned to determine the contribution of light from reflection, refraction, and also to check whether the path to each light in the scene is occluded in order to determine the contribution of that light. By spawning these rays, ray tracing can easily produce realistic global reflection and refraction within the scene.
+
+\begin{figure}
+\centering
+	\includegraphics[width=14cm]{secondaryrays.png}
+	\caption{Once primary intersection is determined, secondary rays can be spawned in order to determine reflection, refraction, and shadow coverage}
+	\label{fig:ray_tracing}
+\end{figure}
+
+Another advantage of ray tracing over rasterisation is that it can be adapted to any data for which an intersection test with a ray can be devised. For example, the intersection of a ray with a volume stored within an array can be determined by stepping along the ray from the eye and stopping only when an intersection is detected or the volume is exited.
+
+Once the ray-tracing algorithm has been adapted to consider the volumes, it is also possible to let it peer into volumes in order to consider the interior of the volume when calculating the colour of the final pixel on the screen. In this way, it is similar to the approach used in \cite{engel02interactivehigh-quality}, in that overlapping parts of the volume can be considered.
+
+For example, as in figure \ref{fig:homogeneous_refraction}, a volume with a homogeneous index of refraction would be possible to consider by just considering the difference in index of refraction at the surfaces, and therefore would be possible to model using geometry alone.
+
+\begin{figure}
+\centering
+	\includegraphics[width=12cm]{homogeneousrefraction.png}
+	\caption{Ray traced refraction through a homogeneous volume}
+	\label{fig:homogeneous_refraction}
+\end{figure}
+
+On the other hand, modelling refraction through a volume with a varying index of refraction, as in figure \ref{fig:heterogeneous_refraction}, this approach would quickly become infeasible for volumes of high heterogeneity. By allowing the ray tracing algorithm to consider the volume involved, rather than just the geometry, volumes high in heterogeneity can also be modelled, allowing complex visual effects to be simulated.
+
+\begin{figure}
+\centering
+	\includegraphics[width=12cm]{heterogeneousrefraction.png}
+	\caption{Ray traced refraction through a heterogeneous volume}
+	\label{fig:heterogeneous_refraction}
+\end{figure}
+
+In order to do this in real-time, however, it is necessary to parallelise this process in order to render at a reasonable resolution to allow image quality as high as that of rasterisation.
+
+\section{General-purpose processing on the GPU}
+Around the turn of the century, the traditional graphics pipeline became more flexible with the introduction of the programmable graphics pipeline. This has turned the GPU into a massively parallel SIMD (single instruction, multiple data) processor, capable of performing highly parallelised computation by running the same instructions on many pieces of data at once.
+
+With the emergence of general purpose programming languages such as OpenCL and CUDA, the GPU has become a general purpose processing tool capable of processing any parallelisable algorithm extremely quickly, redefining the problem of volume rendering on the GPU from mapping volume rendering problems to fixed rasterisation operations, to the utilisation of the GPU's massively parallelisable SIMD computation model.
+
+It turns out that ray tracing maps very favourably to this model, as each ray must do roughly the same computation, but with different input data. By processing these rays on the GPU, for example, every pixel of the screen could be considered in parallel, allowing high screen resolutions to be considered without greatly increasing the time of computation.
+
+\section{Storage}
+Another challenging problem in volume rendering is representing true heterogeneous volumes. Naive volume storage approaches using arrays typically store data at a fixed resolution. The problem with this approach is that, in order to store any of the volume at a high enough resolution to represent it accurately, the whole volume must be stored at that resolution. For complex scenes, this can very quickly become prohibitively expensive.
+
+In addition, it is also unnecessary. Large regions of the scene may be empty, homogeneous, or identical to other regions. With such an approach, these regions have exactly the same memory footprint as any other identically-sized region of the volume.
+
+Ideally, we should be able to store any volume at a high enough resolution such that it can be represented accurately, without any unwanted visual artifacts. Numerous researchers have suggested approaches that avoid this problem by using hierarchical data structures.
+
+\subsection{Hierarchical data structures}
+Hierarchical, or tree, data structures, are structures for representing 3D volumes that start by encoding data at a low resolution, covering large areas of the volume, and becoming higher resolution the deeper one traverses into the hierarchy. Once the encoded region is a sufficiently good approximation of the original volume, the hierarchy does not need to go any lower.
+
+\begin{figure}
+\centering
+	\centering
+	\subfloat[]{\includegraphics[width=3in]{tree_root.png}}
+	~
+	\subfloat[]{\includegraphics[width=3in]{tree_level1.png}}
+	\\
+	\subfloat[]{\includegraphics[width=3in]{tree_level2.png}}
+	~
+	\subfloat[]{\includegraphics[width=3in]{tree_level3.png}}
+
+	\caption{The construction of a hierarchical volume representation. As demonstrated by (d), empty nodes are not divided further}
+	\label{fig:space_subdivision}
+\end{figure}
+
+An additional advantage of this type of structure is that one does not need to encode areas of empty space, and during traversal, large areas of empty space can be skipped at the more coarse levels of the hierarchy. The construction of such a structure has been demonstrated in figure \ref{fig:space_subdivision}.
+
+\begin{figure}
+\centering
+	\subfloat[]{\includegraphics[width=3in]{3level_leaves.png}}
+	~
+	\subfloat[]{\includegraphics[width=3in]{4level_leaves.png}}
+
+	\caption{Rendering the leaves of the tree results in an approximation of the volume. As the number of subdivisions is increased, the approximation improves}
+	\label{fig:tree_leaves}
+\end{figure}
+
+\section{Objectives}
+
+Our primary objective is to develop a renderer that can simulate true volumetric effects by means of ray tracing. This renderer should be able to handle heterogeneous volumes as well as homogeneous volumes, taking into account global effects, where the rest of the scene can affect the rendering of any one part.
+
+In addition, this renderer should be able to function with real-time performance on ubiquitous consumer-level graphics hardware. To accomplish this, we intend to utilise general purpose GPU programming and develop a highly parallelisable method of rendering that utilises the SIMD nature of graphics hardware.
+
+Our renderer also needs to support a compact volume format which is capable of representing highly heterogeneous regions as well as homogeneous regions, with a small enough memory footprint to fit in GPU memory. In order to accomplish this we intend to take advantage of hierarchical data structures which allow us to store volumes of varying resolution and avoid storing empty space.

@@ -19,11 +19,32 @@ namespace vlr
 		// Maximum scale (depth of octree) (the number of bits in a single precision float)
 		const int32_t MAX_SCALE = 23;
 
-		__device__ void raycast(const int32_t* tree, const rendering::ray* ray, float* out_hit_t,
-			glm::vec3* out_hit_pos, const int32_t** out_hit_parent, int32_t* out_hit_idx, int32_t* out_hit_scale, bool check_normals);
+		// An entry in the stack
+		struct StackEntry
+		{
+			const int32_t* parent;
+			float t_max;
+		};
 
-		__device__ void raycast_empty(const int32_t* tree, const rendering::ray* ray, float* out_hit_t,
-			glm::vec3* out_hit_pos, const int32_t** out_hit_parent, int32_t* out_hit_idx, int32_t* out_hit_scale, bool check_normals);
+		// The result of a raycast
+		struct RaycastHit
+		{
+			float hit_t;
+			glm::vec3 hit_pos;
+			const int32_t* hit_parent;
+			int32_t hit_idx;
+			glm::vec3 hit_pos_internal;
+			int32_t hit_scale;
+		};
+
+		// Traverses an octree until it finds an existent voxel
+		__device__ void raycast(const int32_t* tree, const rendering::ray* ray, StackEntry* stack,
+								RaycastHit* raycastHit);
+
+		// Traverses an octree through a solid, until it finds an empty voxel,
+		// at which time it returns the most recent existent voxel hit
+		__device__ void raycast_empty(const int32_t* tree, const rendering::ray* ray, StackEntry* stack,
+								RaycastHit* raycastHit, const RaycastHit* old_hit);
 	}
 }
 

@@ -1,0 +1,197 @@
+\section{Algorithms}
+\label{app:algorithms}
+\begin{algorithm}
+\caption{Ray cast algorithm pseudocode \parencite{laine10efficientsvos}}
+\label{alg:raycast}
+\begin{algorithmic}[1]
+\Procedure{Raycast}{$root, ray$}
+	\State $(tmin,~tmax) \gets (0,~1)$ \Comment{Initialisation steps}
+	\State $t' \gets project~cube(root,~ray)$
+	\State $t \gets intersect(t,~t')$
+	\State $h \gets t'_{max}$
+	\State $idx \gets select~child(root,~ray,~t_{min})$
+	\While{$not~terminated$} \Comment{Traverse}
+		\State $tc \gets project~cube(pos,~scale,~ray)$
+		\If{$voxel~exists~\textbf{and}~t_{min}~\le~t_{max}$}
+			\If{$voxel~smaller~than~pixel$} \Comment{Intersection}
+				\State $\textbf{return}~t_{min}$
+			\EndIf
+			\State $tv \gets intersect(tc, ~t)$
+			\If{$tv_{min}~\le~tv_{max}$} \Comment{Push}
+				\If{$voxel~is~a~leaf$}
+					\State $\textbf{return}~tv_{min}$
+				\EndIf
+				\If{$tc_{max} < h$}
+					\State $stack[scale] \gets (parent,~t_{max})$
+				\EndIf
+				\State $h \gets tc_{max}$
+				\State $parent \gets find~child~descriptor(parent,~idx)$
+				\State $idx \gets select~child(pos,~scale,~ray,~tv_{min})$
+				\State $t \gets tv$
+				\State $(pos,~scale) \gets child~cube(pos,~scale,~idx)$
+			\EndIf
+		\EndIf
+		\State $oldpos \gets pos$ \Comment{Advance}
+		\State $(pos,~idx) \gets step~along~ray(pos,~scale,~ray)$
+		\State $t_{min} \gets tc_{max}$
+		\If{$idx~update~disagrees~with~ray$} \Comment{Pop}
+			\State $scale \gets highest~differing~bit(pos,~oldpos)$
+			\If{$scale \ge s_{max}$}
+				\State $\textbf{return}~miss$
+			\EndIf
+			\State $(parent,~t_{max}) \gets stack[scale]$
+			\State $pos \gets round~position(pos,~scale)$
+			\State $idx \gets extract~child~slot~index(pos,~scale)$
+			\State $h \gets 0$
+		\EndIf
+	\EndWhile
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+\caption{Modified ray cast algorithm for continuous traversal through solids}
+\label{alg:raycast_empty}
+\begin{algorithmic}[1]
+\Procedure{Raycast\_empty}{$root, ray$}
+	\State $(tmin,~tmax) \gets (0,~1)$ \Comment{Initialisation steps}
+	\State $t' \gets project~cube(root,~ray)$
+	\State $t \gets intersect(t,~t')$
+	\State $h \gets t'_{max}$
+	\State $parent \gets root$
+	\State $idx \gets select~child(root,~ray,~t_{min})$
+	\State $(pos,~scale) \gets child~cube(pos,~scale,~ray)$
+	\While{$not~terminated$} \Comment{Traverse}
+		\State $tc \gets project~cube(pos,~scale,~ray)$
+		\If{$voxel~exists~\textbf{and}~t_{min}~\le~t_{max}$}
+			\State $tv \gets intersect(tc, ~t)$ \Comment{Intersection}
+			\If{$tv_{min}~\le~tv_{max}$} \Comment{Push}
+				\If{$tc_{max} < h$}
+					\State $stack[scale] \gets (parent,~t_{max})$
+				\EndIf
+				\State $h \gets tc_{max}$
+				\State $parent \gets find~child~descriptor(parent,~idx)$
+				\State $idx \gets select~child(pos,~scale,~ray,~tv_{min})$
+				\State $t \gets tv$
+				\State $(pos,~scale) \gets child~cube(pos,~scale,~idx)$
+			\EndIf
+		\EndIf
+		\State $oldpos \gets pos$ \Comment{Advance}
+		\State $(pos,~idx) \gets step~along~ray(pos,~scale,~ray)$
+		\State $t_{min} \gets tc_{max}$
+		\If{$idx~update~disagrees~with~ray$} \Comment{Pop}
+			\State $scale \gets highest~differing~bit(pos,~oldpos)$
+			\If{$scale \ge s_{max}$}
+				\State $\textbf{return}~miss$
+			\EndIf
+			\State $(parent,~t_{max}) \gets stack[scale]$
+			\State $pos \gets round~position(pos,~scale)$
+			\State $idx \gets extract~child~slot~index(pos,~scale)$
+			\State $h \gets 0$
+		\EndIf
+		\If{$voxel~does~not~exist$}	\Comment{Return when empty voxel found}
+			\State $\textbf{return}~t_{min}$
+		\EndIf
+	\EndWhile
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+\caption{Discrete translucency cast}
+\label{alg:discrete_solid_cast}
+\begin{algorithmic}[1]
+\Procedure{Discrete\_raycast\_empty}{$root, ray, discrete\_step, max\_steps$}
+	\State $ray.direction \gets -ray.direction$
+	\State $hit\_t \gets 0$
+	\State $hit\_surface \gets none$
+	\\
+	\For{$i = 0;~i < max\_steps;~++i$}
+		\State \Call{Raycast}{$root, ray$}
+		\\
+		\If{$hit\_t~!=~0$}
+			\State $\textbf{return}~hit\_surface$
+		\EndIf
+		\\
+		\State $ray.position~+= -ray.direction * discrete\_step$
+	\EndFor
+	\\
+	\State $\textbf{return}~hit\_surface$
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+\caption{Discrete translucency cast through heterogeneous material}
+\label{alg:discrete_heterogeneous_cast}
+\begin{algorithmic}[1]
+\Procedure{Discrete\_raycast\_empty}{$root, ray, discrete\_step, max\_steps, index$}
+	\State $ray.direction \gets -ray.direction$
+	\State $hit\_t \gets 0$
+	\State $hit\_surface \gets none$
+	\\
+	\For{$i = 0;~i < max\_steps;~++i$}
+		\State \Call{Raycast}{$root, ray$}
+		\\
+		\If{$hit\_t~!=~0$}
+			\State $\textbf{return}~hit\_surface$
+		\EndIf
+		\\
+		\State $hit\_index \gets hit\_surface.refractive\_index$
+		\If{$hit\_index~!= index$}
+			\If{$hit\_surface.normal \cdot ray.direction > 0$}
+				\State $hit\_surface.normal = -hit\_surface.normal$
+			\EndIf
+			\State $ray.direction \gets \Call{Refract}{ray.direction,~hit\_surface.normal,~index~/~hit\_index$}
+			\State $index \gets hit\_index$
+		\EndIf
+		\\
+		\State $ray.position~+= -ray.direction * discrete\_step$
+	\EndFor
+	\\
+	\State $\textbf{return}~hit\_surface$
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+\caption{Per-pixel rendering}
+\label{alg:render}
+\begin{algorithmic}[1]
+\Procedure{render\_pixel}{$x, y, tree, projection$}
+	\State $out\_colour \gets (0, 0, 0, 0)$
+	\State $ray \gets calculate\_ray(x,~y,~projection)$
+	\State $intersection \gets \Call{raycast}{tree, ray}$
+	\If{$intersection.hit$}
+		\State $out\_colour \gets \Call{shade}{tree,~ ray,~ intersection}$
+	\EndIf
+	\State $\textbf{return} out_colour$
+\EndProcedure
+\\
+\Procedure{shade}{$tree,~ ray,~ intersection$}
+	\State $out\_colour \gets (0, 0, 0, 0)$
+	\For{$each~light$} \Comment{Shade for each light}
+		\State $light\_dir \gets light\_pos - intersection.position$ \Comment{Check shadow}
+		\State $shadow\_ray \gets (intersection.position, light_dir)$
+		\State $shadow\_intersection \gets \Call{raycast}{tree, shadow\_ray}$
+		\If{$shadow\_intersection.hit$}
+			\State $\textbf{continue}$
+		\EndIf
+		\State $out\_colour ~+=~ \Call{diffuse\_reflection}{intersection,~light}$
+		\State $out\_colour ~+=~ \Call{specular\_reflection}{intersection,~light}$
+	\EndFor
+	\\
+	\State $reflection\_ray \gets \Call{reflect}{ray,~intersection}$ \Comment{Reflection}
+	\State $reflection\_intersection \gets \Call{raycast}{tree, reflection\_ray}$
+	\If{$reflection\_intersection.hit$}
+		\State $out\_colour ~+=~ \Call{shade}{tree,~ reflection\_ray,~ reflection\_intersection}$
+	\EndIf
+	\\
+	\State $refraction\_ray \gets \Call{refract}{ray,~intersection}$ \Comment{Refraction}
+	\State $refraction\_intersection \gets \Call{raycast\_empty}{tree, refraction\_ray}$
+	\If{$refraction\_intersection.hit$}
+		\State $out\_colour ~+=~ \Call{shade}{tree,~ refraction\_ray,~ refraction\_intersection}$
+	\EndIf
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}

@@ -12,7 +12,7 @@ namespace vlr
 		class Application
 		{
 		public:
-			Application(int32_t width, int32_t height, const char* title = "");
+			Application(int32_t width, int32_t height, const char* title = "", bool hidden = false);
 			~Application();
 
 			void run();

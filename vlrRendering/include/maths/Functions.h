@@ -10,6 +10,7 @@ namespace vlr
 	namespace rendering
 	{
 		__host__ __device__ int32_t clamp(int32_t x, int32_t a, int32_t b);
+		__host__ __device__ float sqr(float a);
 	}
 }
 

@@ -31,7 +31,7 @@ namespace vlr
 			_view = glm::translate(_rotationMatrix, -(_position));
 
 			// Calculate mvp
-			glm::mat4 mvp = getMVP();
+			glm::mat4 mvp = _projection * _model * _view;
 
 			// Set viewport
 			glViewport(_viewport.x, _viewport.y, _viewport.w, _viewport.h);
@@ -62,6 +62,7 @@ namespace vlr
 			_far = far;
 
 			_projection = glm::perspective(fov, aspect, near, far);
+			//_projection = glm::frustum(-1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 100.0f);
 		}
 
 		void Camera::orthographic(float scale, float aspect)
@@ -111,12 +112,7 @@ namespace vlr
 			// Convert viewport cursor pos to world
 			glm::vec4 viewportPos(viewportX, viewportY, 1, 1);
 			glm::vec4 worldPos = viewportPos * invmat + glm::vec4(_position, 0);
-
-			if (_isnan(worldPos.x))
-			{
-				int32_t i = 0;
-			}
-
+			
 			return glm::vec3(worldPos);
 		}
 

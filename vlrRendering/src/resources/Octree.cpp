@@ -27,21 +27,21 @@ namespace vlr
 		void genNode(std::vector<child_desc_builder_block>&,
 			point_test_func&,
 			glm::vec3 min, glm::vec3 max, int32_t depth,
-			int32_t max_depth, int32_t block_id, int32_t idx);
+			int32_t max_depth, int32_t block_id, int32_t idx,
+			int& child_count);
 
 		int32_t genOctree(int32_t** ret, int32_t max_depth,
 			point_test_func& test_point_func,
 			const glm::vec3& min, const glm::vec3& max)
 		{
-			const int invalid_block_id = ((2 << 23) - 1);
+			const int invalid_block_id = ((1 << 24) - 1);
 			
-			const int raw_attachment_size_ints = 2;
+			const int raw_attachment_size_ints = 3;
 			const int raw_attachment_size = raw_attachment_size_ints * sizeof(int32_t);
 
 			// Check for existence of root and immediately return if not
-			glm::vec3 norm;
-			glm::vec4 col;
-			if (!test_point_func(min, max, norm, col))
+			raw_attachment_uncompressed shading_attributes;
+			if (!test_point_func(min, max, shading_attributes))
 			{
 				*ret = nullptr;
 				return 0;
@@ -57,15 +57,16 @@ namespace vlr
 			root.parent_block_id = invalid_block_id;
 			root.count = 1;
 			root.depth = 0;
-			root.child_desc_builder[0].normals[0] = norm;
-			root.child_desc_builder[0].colours[0] = col;
+			root.child_desc_builder[0].shading_attributes[0] = shading_attributes;
 
 			// Add to collection
 			child_desc_builder_blocks.push_back(root);
 
+			int child_count = 0;
+
 			// Start generation at root
 			genNode(child_desc_builder_blocks, test_point_func, min, max,
-				0, max_depth, 0, 0);
+				0, max_depth, 0, 0, child_count);
 			
 			// Sort tree by depth
 			std::sort(child_desc_builder_blocks.begin(), child_desc_builder_blocks.end(), sortByDepth);
@@ -78,8 +79,8 @@ namespace vlr
 
 			// Iterate through and calculate pointers
 			// Amount of space to reserve for far pointers (in child descriptors, not bytes)
-			const int32_t chunk_size = 0x8000;
-			const int32_t reserved_size = 0x4000;
+			const int32_t chunk_size = 0x4000;
+			const int32_t reserved_size = 0x2000;
 			const int32_t remaining_size = chunk_size - reserved_size;
 
 			// Initial pointer += 1 to leave space for info block pointer
@@ -93,14 +94,14 @@ namespace vlr
 				pointer.far = false;
 
 				// If this is in the space reserved for far pointers, skip to next chunk
-				if ((size + it->count) % chunk_size > remaining_size)
+				if ((size + it->count) % chunk_size >= remaining_size)
 				{
 					size = chunk_size * (size / chunk_size + 1);
 				}
 
 				// Skip a slot for the info block pointer if this is at an 8kB boundary
-				int boundary_pos = (size * child_desc_size) / 0x2000;
-				int boundary_pos_next = ((size + it->count) * child_desc_size) / 0x2000;
+				uintptr_t boundary_pos = (size * child_desc_size) / 0x2000;
+				uintptr_t boundary_pos_next = ((size + it->count) * child_desc_size) / 0x2000;
 
 				if ((size * child_desc_size) % 0x2000 == 0 || boundary_pos < boundary_pos_next)
 				{
@@ -108,19 +109,19 @@ namespace vlr
 					size = ((boundary_pos_next * 0x2000) / child_desc_size) + 1;
 				}
 
-				int32_t ptr = size;
+				uintptr_t ptr = size;
 
 				// If this isn't the root
 				if (it != child_desc_builder_blocks.begin())
 				{
 					// TODO: use parent pointer instead of parent block pointer
-					int32_t parent_ptr = child_desc_builder_map[it->parent_block_id].ptr;
-					int32_t relative_ptr = ptr - parent_ptr;
+					uintptr_t parent_ptr = child_desc_builder_map[it->parent_block_id].ptr;
+					uintptr_t relative_ptr = ptr - parent_ptr;
 
-					if (relative_ptr > chunk_size)
+					if (relative_ptr >= chunk_size)
 					{
-						int32_t chunk_id = parent_ptr / chunk_size;
-						int32_t freespace_ptr = chunk_id * chunk_size + remaining_size;
+						uintptr_t chunk_id = parent_ptr / chunk_size;
+						uintptr_t freespace_ptr = chunk_id * chunk_size + remaining_size;
 
 						// Get first free space in parent chunk free space block
 						if (first_freespace.count(chunk_id) == 0)
@@ -166,7 +167,7 @@ namespace vlr
 			// Iterate through blocks a second time and write data
 			for (auto it = child_desc_builder_blocks.begin(); it != child_desc_builder_blocks.end(); ++it)
 			{
-				int32_t cur_ptr = child_desc_builder_map[it->id].ptr;
+				uintptr_t cur_ptr = child_desc_builder_map[it->id].ptr;
 
 				// For each child descriptor in block
 				// Write it in reverse to match raycast
@@ -180,10 +181,10 @@ namespace vlr
 					int32_t desc = 0;
 					
 					// Get child pointer if this is a non-leaf
-					int32_t child_ptr = 0;
+					uintptr_t child_ptr = 0;
 					
 					bool far_needed = false;
-					int32_t far_ptr = 0;
+					uintptr_t far_ptr = 0;
 
 					if ((it->child_desc_builder[i].non_leaf_mask & (1 << (7 - i))) != 0)
 					{
@@ -197,7 +198,7 @@ namespace vlr
 							far_needed = true;
 
 							// Write the far pointer
-							int32_t far_ptr_abs = child_desc_builder_map[child_id].far_ptr *
+							uintptr_t far_ptr_abs = child_desc_builder_map[child_id].far_ptr *
 								child_desc_size_ints;
 							far_ptr = child_desc_builder_map[child_id].far_ptr - cur_ptr;
 							data[far_ptr_abs] = child_ptr;
@@ -234,17 +235,11 @@ namespace vlr
 					desc ^= it->child_desc_builder[i].child_mask << 8;
 					desc ^= it->child_desc_builder[i].non_leaf_mask;
 
-					// Compress normal
-					int32_t normal = (int32_t)compressNormal(it->child_desc_builder[i].normals[i]);
-
-					// Compress colour
-					int32_t colour = (int32_t)compressColour(it->child_desc_builder[i].colours[i]);
-
 					// Write data
 					cur_descriptor[0] = desc;
 
 					// Write shading data for children
-					int raw_attachment_offset = raw_attachments.size();
+					size_t raw_attachment_offset = raw_attachments.size();
 
 					raw_attachment_lookup* raw_attribute_lookup =
 						(raw_attachment_lookup*)((int)data + raw_attachment_lookup_loc) + cur_ptr;
@@ -253,19 +248,13 @@ namespace vlr
 
 					for (int j = 0; j < 8; ++j)
 					{
-						if (it->child_desc_builder[i].child_mask & (1 << j) == 0)
+						if ((it->child_desc_builder[i].child_mask & (1 << j)) == 0)
 							continue;
-
-						// Compress normal
-						int32_t normal = (int32_t)compressNormal(it->child_desc_builder[i].normals[j]);
-
-						// Compress colour
-						int32_t colour = (int32_t)compressColour(it->child_desc_builder[i].colours[j]);
 
 						// Create raw attachment
 						raw_attachment raw_attachment;
-						raw_attachment.normal = normal;
-						raw_attachment.colour = colour;
+
+						pack_raw_attachment(it->child_desc_builder[i].shading_attributes[j], raw_attachment);
 
 						// Push back raw attachments
 						raw_attachments.push_back(raw_attachment);
@@ -279,7 +268,7 @@ namespace vlr
 			// Write info section pointers throughout child descriptors
 			for (auto it = skipped_descs.begin(); it != skipped_descs.end(); ++it)
 			{
-				int offset = *it;
+				uintptr_t offset = *it;
 
 				int32_t* info_ptr_loc = (int32_t*)((uintptr_t)data + offset);
 
@@ -291,8 +280,8 @@ namespace vlr
 			info_sec->raw_lookup = raw_attachment_lookup_loc;
 
 			// Combine raw attachments and data
-			int raw_attachments_size = raw_attachments.size() * sizeof(raw_attachment);
-			int total_size = data_size + raw_attachments_size;
+			uintptr_t raw_attachments_size = raw_attachments.size() * sizeof(raw_attachment);
+			uintptr_t total_size = data_size + raw_attachments_size;
 			data = (int32_t*)realloc(data, total_size);
 
 			memcpy((void*)((uintptr_t)data + raw_attachments_loc), raw_attachments.data(), raw_attachments_size);
@@ -307,7 +296,7 @@ namespace vlr
 		void genNode(std::vector<child_desc_builder_block>& child_desc_builder_blocks,
 			point_test_func& test_point_func,
 			glm::vec3 min, glm::vec3 max, int32_t depth, int32_t max_depth,
-			int32_t block_id, int32_t idx)
+			int32_t block_id, int32_t idx, int& child_count)
 		{
 			child_desc_builder_blocks[block_id].child_desc_builder[idx].child_mask = 0;
 			child_desc_builder_blocks[block_id].child_desc_builder[idx].non_leaf_mask = 0;
@@ -330,14 +319,12 @@ namespace vlr
 				glm::vec3 new_max = new_min + half;
 
 				// Continue loop if this node is empty
-				glm::vec3 norm;
-				glm::vec4 col;
-				if (!test_point_func(min, max, norm, col))
+				raw_attachment_uncompressed shading_attributes;
+				if (!test_point_func(min, max, shading_attributes))
 					continue;
 
 				// Set colour
-				child_desc_builder_blocks[block_id].child_desc_builder[idx].normals[i] = norm;
-				child_desc_builder_blocks[block_id].child_desc_builder[idx].colours[i] = col;
+				child_desc_builder_blocks[block_id].child_desc_builder[idx].shading_attributes[i] = shading_attributes;
 
 				// Set child bit
 				child_desc_builder_blocks[block_id].child_desc_builder[idx].child_mask ^= 1 << (7 - i);
@@ -397,7 +384,7 @@ namespace vlr
 						test_point_func,
 						newMin, newMax,
 						depth + 1, max_depth,
-						child_block.id, i);
+						child_block.id, i, child_count);
 				}
 			}
 		}
