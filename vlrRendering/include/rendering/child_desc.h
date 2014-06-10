@@ -80,7 +80,7 @@ namespace vlr
 		{
 			float range = max - min;
 
-			float max_value = 1 << (bits-1);
+			float max_value = (float)(1 << (bits-1));
 
 			// Convert to a float between 0 and number of bits max
 			value -= min;
@@ -93,7 +93,7 @@ namespace vlr
 		{
 			float range = max - min;
 
-			float max_value = 1 << (bits-1);
+			float max_value = (float)(1 << (bits-1));
 
 			// Convert back
 			float val_float = value * (range / max_value);
