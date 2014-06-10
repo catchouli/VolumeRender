@@ -14,10 +14,6 @@
 
 namespace vlr
 {
-	const int32_t VolumeRender_GRID_WIDTH = 8;
-	const int32_t VolumeRender_GRID_HEIGHT = 8;
-	const int32_t VolumeRender_GRID_DEPTH = 8;
-	
 	class VolumeRender
 		: public rendering::Application
 	{
@@ -68,9 +64,6 @@ namespace vlr
 		rendering::Camera _camera;
 
 		int32_t* _gpuTree;
-		const int32_t* itree;
-
-		rendering::Framebuffer _fb;
 
 		float _rot;
 

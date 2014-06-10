@@ -7,7 +7,7 @@
 namespace vlr
 {
 	VolumeRender::VolumeRender(int32_t argc, char** argv)
-		: Application(1920, 1080, "", true), _rot(0), _mesh("miku.md2", true),
+		: Application(512, 512, "", true), _rot(0), _mesh("miku.md2", true),
 		  _nearDepth(0.01f), _farDepth(10.0f), _scene(-1), _depth(0),
 		  _saveTrees(true)
 	{
@@ -90,9 +90,6 @@ namespace vlr
 
 		// Get cursor pos
 		glfwGetCursorPos(_window, &_mouseX, &_mouseY);
-
-		// Initialise framebuffer
-		_fb.resize(getWidth(), getHeight());
 
 		// Initialise camera
 		int32_t width = getWidth();

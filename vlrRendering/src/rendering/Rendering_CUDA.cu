@@ -26,9 +26,6 @@ namespace vlr
 		{
 			const float min_float = exp2f(-MAX_SCALE);
 
-			int x = blockIdx.x * blockDim.x + threadIdx.x;
-			int y = blockIdx.y * blockDim.y + threadIdx.y;
-
 			raw_attachment_uncompressed shading_attributes;
 
 			// Look up raw attachment
